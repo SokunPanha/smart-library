@@ -10,12 +10,13 @@ import type { useCatalogContext } from "../helper/hooks";
 interface ColumnArgs {
   ctx: ReturnType<typeof useCatalogContext>;
   actions: ReturnType<typeof useBooks>;
+  t: (key: string) => string;
 }
 
-export function buildBookColumns({ ctx, actions }: ColumnArgs): ColumnsType<Book> {
+export function buildBookColumns({ ctx, actions, t }: ColumnArgs): ColumnsType<Book> {
   return [
     {
-      title: "Title",
+      title: t("catalog.colTitle"),
       key: "title",
       render: (_, row) => (
         <div>
@@ -25,13 +26,13 @@ export function buildBookColumns({ ctx, actions }: ColumnArgs): ColumnsType<Book
       ),
     },
     {
-      title: "Author",
+      title: t("catalog.author"),
       dataIndex: "author",
       key: "author",
       render: (v) => v ?? <span className="text-slate-300">—</span>,
     },
     {
-      title: "Category",
+      title: t("catalog.category"),
       dataIndex: "category",
       key: "category",
       render: (v) =>
@@ -42,7 +43,7 @@ export function buildBookColumns({ ctx, actions }: ColumnArgs): ColumnsType<Book
         ),
     },
     {
-      title: "Copies",
+      title: t("catalog.colCopies"),
       key: "copies",
       render: (_, row) => (
         <Badge
@@ -52,7 +53,7 @@ export function buildBookColumns({ ctx, actions }: ColumnArgs): ColumnsType<Book
       ),
     },
     {
-      title: "Actions",
+      title: t("common.actions"),
       key: "actions",
       width: 100,
       render: (_, row) => (

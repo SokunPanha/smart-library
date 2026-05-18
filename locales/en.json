@@ -60,7 +60,10 @@
     "tags": "Tags",
     "coverImage": "Cover Image",
     "available": "Available",
-    "unavailable": "Unavailable"
+    "unavailable": "Unavailable",
+    "colTitle": "Title",
+    "colCopies": "Copies",
+    "searchPlaceholder": "Search by title, author, ISBN…"
   },
   "members": {
     "title": "Members",
@@ -73,11 +76,119 @@
     "phone": "Phone",
     "type": "Member Type",
     "expiresAt": "Expires At",
+    "colName": "Name",
+    "colLoans": "Loans",
+    "colExpires": "Expires",
+    "searchPlaceholder": "Search by name, ID, phone…",
     "types": {
       "STUDENT": "Student",
       "TEACHER": "Teacher",
       "PUBLIC": "Public",
       "RESEARCHER": "Researcher"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "save": "Save Changes",
+    "tabs": {
+      "general": "General",
+      "loanRules": "Loan Rules",
+      "categories": "Categories",
+      "users": "Users"
+    },
+    "general": {
+      "libraryNameEn": "Library Name (English)",
+      "libraryNameKh": "Library Name (Khmer)",
+      "address": "Address",
+      "phone": "Phone",
+      "email": "Email"
+    },
+    "loanRules": {
+      "loanDuration": "Loan Duration (days)",
+      "fines": "Fines",
+      "limits": "Limits",
+      "student": "Student",
+      "teacher": "Teacher",
+      "public": "Public",
+      "researcher": "Researcher",
+      "finePerDay": "Fine per Overdue Day",
+      "maxLoans": "Max Active Loans per Member",
+      "days": "days"
+    },
+    "users": {
+      "addUser": "Add User",
+      "editUser": "Edit User",
+      "nameEn": "Full Name (English)",
+      "nameKh": "Full Name (Khmer)",
+      "email": "Email",
+      "password": "Password",
+      "newPassword": "New Password (leave blank to keep)",
+      "role": "Role",
+      "colName": "Name",
+      "colEmail": "Email",
+      "colRole": "Role",
+      "deleteConfirm": "Delete this user?",
+      "savedSuccess": "User saved.",
+      "deletedSuccess": "User deleted.",
+      "roles": {
+        "ADMIN": "Admin",
+        "LIBRARIAN": "Librarian",
+        "STAFF": "Staff"
+      }
+    },
+    "categories": {
+      "addCategory": "Add Category",
+      "editCategory": "Edit Category",
+      "colName": "Name",
+      "name": "Category Name",
+      "searchPlaceholder": "Search categories…",
+      "deleteConfirm": "Delete this category?",
+      "deleteDescription": "Books using it will keep the name but it won't appear in the list.",
+      "total": "Total {total} categories",
+      "savedSuccess": "Category saved.",
+      "deletedSuccess": "Category deleted."
+    }
+  },
+  "reports": {
+    "title": "Reports",
+    "tabs": {
+      "popular": "Most Borrowed",
+      "overdue": "Overdue",
+      "circulation": "Circulation"
+    },
+    "popular": {
+      "showTop": "Show top",
+      "top10": "Top 10",
+      "top20": "Top 20",
+      "top50": "Top 50",
+      "colRank": "#",
+      "colTitle": "Title",
+      "colAuthor": "Author",
+      "colCategory": "Category",
+      "colTotalLoans": "Total Loans",
+      "empty": "No loan data yet."
+    },
+    "overdue": {
+      "colMember": "Member",
+      "colBook": "Book",
+      "colDueDate": "Due Date",
+      "colDaysOverdue": "Days Overdue",
+      "colEstFine": "Estimated Fine",
+      "colStatus": "Status",
+      "empty": "No overdue loans."
+    },
+    "circulation": {
+      "period": "Period",
+      "last3months": "Last 3 months",
+      "last6months": "Last 6 months",
+      "last12months": "Last 12 months",
+      "colMonth": "Month",
+      "colCheckouts": "Checkouts",
+      "colReturns": "Returns",
+      "colOverdue": "Overdue / Lost",
+      "colReturnRate": "Return Rate",
+      "total": "Total",
+      "empty": "No circulation data yet."
     }
   },
   "circulation": {
@@ -90,6 +201,23 @@
     "status": "Status",
     "fineAmount": "Fine Amount",
     "finePaid": "Fine Paid",
+    "colBook": "Book",
+    "colMember": "Member",
+    "colBorrowed": "Borrowed",
+    "colDue": "Due Date",
+    "colFine": "Fine",
+    "filterPlaceholder": "Filter by status",
+    "returnTooltip": "Return Book",
+    "lostTooltip": "Mark as Lost",
+    "bookLabel": "Book",
+    "memberLabel": "Member",
+    "customDueDate": "Custom Due Date (optional)",
+    "bookSearchPlaceholder": "Search book by title or ISBN",
+    "memberSearchPlaceholder": "Search member by name or ID",
+    "available": "available",
+    "noBooks": "No available books found",
+    "noMembers": "No members found",
+    "checkoutSuccess": "Book checked out successfully.",
     "statuses": {
       "ACTIVE": "Active",
       "RETURNED": "Returned",

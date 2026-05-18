@@ -33,7 +33,7 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 export default function DashboardPage() {
-  const t = useTranslations("dashboard");
+  const t = useTranslations();
 
   const { data } = useQuery<DashboardData>({
     queryKey: ["dashboard"],
@@ -42,37 +42,37 @@ export default function DashboardPage() {
   });
 
   const stats = [
-    { title: t("totalBooks"), value: data?.totalBooks ?? 0, icon: <BookOutlined />, color: "#1a56db" },
-    { title: t("totalMembers"), value: data?.totalMembers ?? 0, icon: <TeamOutlined />, color: "#059669" },
-    { title: t("activeLoans"), value: data?.activeLoans ?? 0, icon: <SwapOutlined />, color: "#d97706" },
-    { title: t("overdueLoans"), value: data?.overdueLoans ?? 0, icon: <WarningOutlined />, color: "#dc2626" },
+    { title: t("dashboard.totalBooks"), value: data?.totalBooks ?? 0, icon: <BookOutlined />, color: "#1a56db" },
+    { title: t("dashboard.totalMembers"), value: data?.totalMembers ?? 0, icon: <TeamOutlined />, color: "#059669" },
+    { title: t("dashboard.activeLoans"), value: data?.activeLoans ?? 0, icon: <SwapOutlined />, color: "#d97706" },
+    { title: t("dashboard.overdueLoans"), value: data?.overdueLoans ?? 0, icon: <WarningOutlined />, color: "#dc2626" },
   ];
 
   const loanColumns = [
     {
-      title: "Book",
+      title: t("circulation.colBook"),
       key: "book",
       render: (_: unknown, row: DashboardData["recentLoans"][0]) => row.book.titleEn,
     },
     {
-      title: "Member",
+      title: t("circulation.colMember"),
       key: "member",
       render: (_: unknown, row: DashboardData["recentLoans"][0]) =>
         row.member.nameEn ?? row.member.memberId,
     },
     {
-      title: "Due Date",
+      title: t("circulation.colDue"),
       dataIndex: "dueAt",
       key: "dueAt",
       render: (v: string) => dayjs(v).format("DD/MM/YYYY"),
     },
     {
-      title: "Status",
+      title: t("common.status"),
       dataIndex: "status",
       key: "status",
       render: (s: string) => (
         <Tag color={STATUS_COLOR[s]} className="border-0">
-          {s}
+          {t(`circulation.statuses.${s}`)}
         </Tag>
       ),
     },
@@ -80,7 +80,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold text-slate-800">{t("title")}</h1>
+      <h1 className="text-xl font-semibold text-slate-800">{t("dashboard.title")}</h1>
 
       <Row gutter={[16, 16]}>
         {stats.map((stat) => (
@@ -110,7 +110,7 @@ export default function DashboardPage() {
       <Card
         title={
           <span className="text-sm font-semibold text-slate-700">
-            {t("recentLoans")}
+            {t("dashboard.recentLoans")}
           </span>
         }
         variant="outlined"
@@ -122,7 +122,7 @@ export default function DashboardPage() {
           rowKey="id"
           pagination={false}
           size="small"
-          locale={{ emptyText: "No loans yet." }}
+          locale={{ emptyText: t("common.noData") }}
         />
       </Card>
     </div>

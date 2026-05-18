@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 export function useDebounce<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState(value);
@@ -7,4 +7,34 @@ export function useDebounce<T>(value: T, delay: number): T {
     return () => clearTimeout(t);
   }, [value, delay]);
   return debounced;
+}
+
+/**
+ * Returns a ref to attach above a Table and a scrollY value to pass to
+ * Table scroll={{ y: scrollY }}. The table body fills exactly to the bottom
+ * of the viewport, keeping pagination always in view.
+ *
+ * @param extraBottom  Additional px to subtract (e.g. for bottom padding inside a card).
+ */
+export function useTableScroll(extraBottom = 24) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [scrollY, setScrollY] = useState(400);
+
+  const measure = useCallback(() => {
+    if (!ref.current) return;
+    const top = ref.current.getBoundingClientRect().top;
+    // thead ~39px + antd pagination row ~56px + extraBottom
+    const overhead = 39 + 56 + extraBottom;
+    setScrollY(Math.max(160, window.innerHeight - top - overhead));
+  }, [extraBottom]);
+
+  useEffect(() => {
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (ref.current) ro.observe(ref.current);
+    window.addEventListener("resize", measure);
+    return () => { ro.disconnect(); window.removeEventListener("resize", measure); };
+  }, [measure]);
+
+  return { ref, scrollY };
 }

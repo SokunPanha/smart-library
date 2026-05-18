@@ -1,53 +1,56 @@
 "use client";
 
 import { Drawer, Form, Input, InputNumber, Select, Button, Space } from "antd";
+import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
+import { apiFetch } from "@/libs/utils/request";
 import { useCatalogContext } from "../helper/hooks";
 import { useBooks } from "../helper/useBooks";
 
-const CATEGORIES = [
-  "Fiction", "Non-Fiction", "Science", "History", "Religion",
-  "Philosophy", "Education", "Health", "Arts", "Technology",
-  "Law", "Economics", "Agriculture", "Literature", "Language",
-];
-
 function BookFields() {
+  const t = useTranslations("catalog");
+  const { data: categories = [] } = useQuery<{ id: string; name: string }[]>({
+    queryKey: ["categories"],
+    queryFn: () => apiFetch<{ id: string; name: string }[]>("/api/categories"),
+  });
+
   return (
     <>
-      <Form.Item label="ISBN" name="isbn">
+      <Form.Item label={t("isbn")} name="isbn">
         <Input placeholder="978-xxx-xxx" />
       </Form.Item>
-      <Form.Item label="Title (English)" name="titleEn" rules={[{ required: true }]}>
-        <Input placeholder="Book title in English" />
+      <Form.Item label={t("titleEn")} name="titleEn" rules={[{ required: true }]}>
+        <Input />
       </Form.Item>
-      <Form.Item label="Title (Khmer)" name="titleKh">
+      <Form.Item label={t("titleKh")} name="titleKh">
         <Input placeholder="ចំណងជើងសៀវភៅ" />
       </Form.Item>
-      <Form.Item label="Author" name="author">
-        <Input placeholder="Author name" />
+      <Form.Item label={t("author")} name="author">
+        <Input />
       </Form.Item>
-      <Form.Item label="Publisher" name="publisher">
-        <Input placeholder="Publisher name" />
+      <Form.Item label={t("publisher")} name="publisher">
+        <Input />
       </Form.Item>
       <div className="flex gap-3">
-        <Form.Item label="Publish Year" name="publishYear" className="flex-1">
+        <Form.Item label={t("publishYear")} name="publishYear" className="flex-1">
           <InputNumber className="w-full" placeholder="2024" min={1000} max={9999} />
         </Form.Item>
-        <Form.Item label="Total Copies" name="totalCopies" className="flex-1" initialValue={1}>
+        <Form.Item label={t("totalCopies")} name="totalCopies" className="flex-1" initialValue={1}>
           <InputNumber className="w-full" min={1} />
         </Form.Item>
       </div>
-      <Form.Item label="Category" name="category">
+      <Form.Item label={t("category")} name="category">
         <Select
-          placeholder="Select category"
-          options={CATEGORIES.map((c) => ({ label: c, value: c }))}
+          showSearch
+          options={categories.map((c) => ({ label: c.name, value: c.name }))}
           allowClear
         />
       </Form.Item>
-      <Form.Item label="Dewey Code" name="deweyCode">
+      <Form.Item label={t("deweyCode")} name="deweyCode">
         <Input placeholder="e.g. 020" />
       </Form.Item>
-      <Form.Item label="Tags" name="tags">
-        <Select mode="tags" placeholder="Add tags" tokenSeparators={[","]} />
+      <Form.Item label={t("tags")} name="tags">
+        <Select mode="tags" tokenSeparators={[","]} />
       </Form.Item>
     </>
   );
@@ -56,18 +59,20 @@ function BookFields() {
 export function CreateBookDrawer() {
   const { createForm } = useCatalogContext();
   const { createBook } = useBooks();
+  const t = useTranslations("catalog");
+  const tc = useTranslations("common");
 
   return (
     <Drawer
-      title="Add Book"
+      title={t("addBook")}
       open={createForm.isOpen}
       onClose={createForm.close}
       styles={{ wrapper: { width: 480 } }}
       forceRender
       extra={
         <Space>
-          <Button onClick={createForm.close}>Cancel</Button>
-          <Button type="primary" onClick={() => createForm.form.submit()}>Save</Button>
+          <Button onClick={createForm.close}>{tc("cancel")}</Button>
+          <Button type="primary" onClick={() => createForm.form.submit()}>{tc("save")}</Button>
         </Space>
       }
     >
@@ -81,18 +86,20 @@ export function CreateBookDrawer() {
 export function EditBookDrawer() {
   const { editForm } = useCatalogContext();
   const { updateBook } = useBooks();
+  const t = useTranslations("catalog");
+  const tc = useTranslations("common");
 
   return (
     <Drawer
-      title="Edit Book"
+      title={t("editBook")}
       open={editForm.isOpen}
       onClose={editForm.close}
       styles={{ wrapper: { width: 480 } }}
       forceRender
       extra={
         <Space>
-          <Button onClick={editForm.close}>Cancel</Button>
-          <Button type="primary" onClick={() => editForm.form.submit()}>Save</Button>
+          <Button onClick={editForm.close}>{tc("cancel")}</Button>
+          <Button type="primary" onClick={() => editForm.form.submit()}>{tc("save")}</Button>
         </Space>
       }
     >

@@ -12,11 +12,11 @@ export default function DashboardShell({
   children: React.ReactNode;
 }) {
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout style={{ height: "100vh" }}>
       <AppSidebar />
-      <Layout>
+      <Layout style={{ overflow: "hidden" }}>
         <AppHeader />
-        <Content className="p-6">{children}</Content>
+        <Content className="p-6" style={{ overflow: "hidden" }}>{children}</Content>
       </Layout>
     </Layout>
   );

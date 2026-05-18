@@ -87,3 +87,15 @@ model Loan {
   book       Book       @relation(fields: [bookId], references: [id])
   member     Member     @relation(fields: [memberId], references: [id])
 }
+
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+}

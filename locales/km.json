@@ -60,7 +60,10 @@
     "tags": "ស្លាក",
     "coverImage": "រូបភាពគម្រប",
     "available": "មាន",
-    "unavailable": "អស់"
+    "unavailable": "អស់",
+    "colTitle": "ចំណងជើង",
+    "colCopies": "ចំនួនច្បាប់",
+    "searchPlaceholder": "ស្វែងរកតាមចំណងជើង, អ្នកនិពន្ធ, ISBN…"
   },
   "members": {
     "title": "សមាជិក",
@@ -73,11 +76,119 @@
     "phone": "លេខទូរស័ព្ទ",
     "type": "ប្រភេទសមាជិក",
     "expiresAt": "ថ្ងៃផុតកំណត់",
+    "colName": "ឈ្មោះ",
+    "colLoans": "ការខ្ចី",
+    "colExpires": "ផុតកំណត់",
+    "searchPlaceholder": "ស្វែងរកតាមឈ្មោះ, លេខ, ទូរស័ព្ទ…",
     "types": {
       "STUDENT": "និស្សិត",
       "TEACHER": "គ្រូ",
       "PUBLIC": "សាធារណជន",
       "RESEARCHER": "អ្នកស្រាវជ្រាវ"
+    }
+  },
+  "settings": {
+    "title": "ការកំណត់",
+    "save": "រក្សាទុកការផ្លាស់ប្ដូរ",
+    "tabs": {
+      "general": "ទូទៅ",
+      "loanRules": "វិធានការខ្ចី",
+      "categories": "ប្រភេទ",
+      "users": "អ្នកប្រើប្រាស់"
+    },
+    "general": {
+      "libraryNameEn": "ឈ្មោះបណ្ណាល័យ (អង់គ្លេស)",
+      "libraryNameKh": "ឈ្មោះបណ្ណាល័យ (ខ្មែរ)",
+      "address": "អាសយដ្ឋាន",
+      "phone": "ទូរស័ព្ទ",
+      "email": "អ៊ីមែល"
+    },
+    "loanRules": {
+      "loanDuration": "រយៈពេលខ្ចី (ថ្ងៃ)",
+      "fines": "ការពិន័យ",
+      "limits": "ដែនកំណត់",
+      "student": "និស្សិត",
+      "teacher": "គ្រូ",
+      "public": "សាធារណជន",
+      "researcher": "អ្នកស្រាវជ្រាវ",
+      "finePerDay": "ពិន័យក្នុងមួយថ្ងៃ",
+      "maxLoans": "ចំនួនខ្ចីអតិបរមាក្នុងម្នាក់",
+      "days": "ថ្ងៃ"
+    },
+    "users": {
+      "addUser": "បន្ថែមអ្នកប្រើ",
+      "editUser": "កែប្រែអ្នកប្រើ",
+      "nameEn": "ឈ្មោះពេញ (អង់គ្លេស)",
+      "nameKh": "ឈ្មោះពេញ (ខ្មែរ)",
+      "email": "អ៊ីមែល",
+      "password": "លេខសម្ងាត់",
+      "newPassword": "លេខសម្ងាត់ថ្មី (ទុកចោលដើម្បីរក្សា)",
+      "role": "តួនាទី",
+      "colName": "ឈ្មោះ",
+      "colEmail": "អ៊ីមែល",
+      "colRole": "តួនាទី",
+      "deleteConfirm": "លុបអ្នកប្រើនេះ?",
+      "savedSuccess": "បានរក្សាទុកអ្នកប្រើ។",
+      "deletedSuccess": "បានលុបអ្នកប្រើ។",
+      "roles": {
+        "ADMIN": "អ្នកគ្រប់គ្រង",
+        "LIBRARIAN": "បណ្ណារក្ស",
+        "STAFF": "បុគ្គលិក"
+      }
+    },
+    "categories": {
+      "addCategory": "បន្ថែមប្រភេទ",
+      "editCategory": "កែប្រែប្រភេទ",
+      "colName": "ឈ្មោះ",
+      "name": "ឈ្មោះប្រភេទ",
+      "searchPlaceholder": "ស្វែងរកប្រភេទ…",
+      "deleteConfirm": "លុបប្រភេទនេះ?",
+      "deleteDescription": "សៀវភៅដែលប្រើប្រភេទនេះនឹងរក្សាឈ្មោះ ប៉ុន្តែវានឹងមិនបង្ហាញក្នុងបញ្ជី។",
+      "total": "សរុប {total} ប្រភេទ",
+      "savedSuccess": "បានរក្សាទុកប្រភេទ។",
+      "deletedSuccess": "បានលុបប្រភេទ។"
+    }
+  },
+  "reports": {
+    "title": "របាយការណ៍",
+    "tabs": {
+      "popular": "ខ្ចីច្រើនបំផុត",
+      "overdue": "ហួសកំណត់",
+      "circulation": "លំហូរខ្ចី"
+    },
+    "popular": {
+      "showTop": "បង្ហាញ",
+      "top10": "១០ លើដំបូង",
+      "top20": "២០ លើដំបូង",
+      "top50": "៥០ លើដំបូង",
+      "colRank": "#",
+      "colTitle": "ចំណងជើង",
+      "colAuthor": "អ្នកនិពន្ធ",
+      "colCategory": "ប្រភេទ",
+      "colTotalLoans": "ចំនួនខ្ចីសរុប",
+      "empty": "មិនទាន់មានទិន្នន័យខ្ចី។"
+    },
+    "overdue": {
+      "colMember": "សមាជិក",
+      "colBook": "សៀវភៅ",
+      "colDueDate": "ថ្ងៃផុតកំណត់",
+      "colDaysOverdue": "ចំនួនថ្ងៃហួស",
+      "colEstFine": "ពិន័យប៉ាន់ស្មាន",
+      "colStatus": "ស្ថានភាព",
+      "empty": "គ្មានការខ្ចីហួសកំណត់។"
+    },
+    "circulation": {
+      "period": "រយៈពេល",
+      "last3months": "៣ ខែចុងក្រោយ",
+      "last6months": "៦ ខែចុងក្រោយ",
+      "last12months": "១២ ខែចុងក្រោយ",
+      "colMonth": "ខែ",
+      "colCheckouts": "ការខ្ចី",
+      "colReturns": "ការប្រគល់",
+      "colOverdue": "ហួស / បាត់",
+      "colReturnRate": "អត្រាប្រគល់",
+      "total": "សរុប",
+      "empty": "គ្មានទិន្នន័យលំហូរខ្ចី។"
     }
   },
   "circulation": {
@@ -90,6 +201,23 @@
     "status": "ស្ថានភាព",
     "fineAmount": "ចំនួនពិន័យ",
     "finePaid": "បានបង់ពិន័យ",
+    "colBook": "សៀវភៅ",
+    "colMember": "សមាជិក",
+    "colBorrowed": "ថ្ងៃខ្ចី",
+    "colDue": "ថ្ងៃផុតកំណត់",
+    "colFine": "ពិន័យ",
+    "filterPlaceholder": "តម្រងតាមស្ថានភាព",
+    "returnTooltip": "ប្រគល់សៀវភៅ",
+    "lostTooltip": "សម្គាល់ថាបាត់",
+    "bookLabel": "សៀវភៅ",
+    "memberLabel": "សមាជិក",
+    "customDueDate": "ថ្ងៃផុតកំណត់ផ្ទាល់ខ្លួន (ស្រេចចិត្ត)",
+    "bookSearchPlaceholder": "ស្វែងរកសៀវភៅតាមចំណងជើង ឬ ISBN",
+    "memberSearchPlaceholder": "ស្វែងរកសមាជិកតាមឈ្មោះ ឬលេខ",
+    "available": "នៅសេសសល់",
+    "noBooks": "រកមិនឃើញសៀវភៅ",
+    "noMembers": "រកមិនឃើញសមាជិក",
+    "checkoutSuccess": "បានខ្ចីសៀវភៅដោយជោគជ័យ។",
     "statuses": {
       "ACTIVE": "កំពុងខ្ចី",
       "RETURNED": "បានប្រគល់",

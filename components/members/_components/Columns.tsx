@@ -15,28 +15,23 @@ const TYPE_COLOR: Record<string, string> = {
   RESEARCHER: "purple",
 };
 
-const TYPE_LABEL: Record<string, string> = {
-  STUDENT: "Student",
-  TEACHER: "Teacher",
-  PUBLIC: "Public",
-  RESEARCHER: "Researcher",
-};
 
 interface ColumnArgs {
   ctx: ReturnType<typeof useMembersContext>;
   actions: ReturnType<typeof useMembers>;
+  t: (key: string) => string;
 }
 
-export function buildMemberColumns({ ctx, actions }: ColumnArgs): ColumnsType<Member> {
+export function buildMemberColumns({ ctx, actions, t }: ColumnArgs): ColumnsType<Member> {
   return [
     {
-      title: "Member ID",
+      title: t("members.memberId"),
       dataIndex: "memberId",
       key: "memberId",
       render: (v) => <span className="font-mono text-sm text-slate-600">{v}</span>,
     },
     {
-      title: "Name",
+      title: t("members.colName"),
       key: "name",
       render: (_, row) => (
         <div>
@@ -48,23 +43,23 @@ export function buildMemberColumns({ ctx, actions }: ColumnArgs): ColumnsType<Me
       ),
     },
     {
-      title: "Type",
+      title: t("members.type"),
       dataIndex: "type",
       key: "type",
       render: (v) => (
         <Tag color={TYPE_COLOR[v]} className="border-0">
-          {TYPE_LABEL[v]}
+          {t(`members.types.${v}`)}
         </Tag>
       ),
     },
     {
-      title: "Phone",
+      title: t("members.phone"),
       dataIndex: "phone",
       key: "phone",
       render: (v) => v ?? <span className="text-slate-300">—</span>,
     },
     {
-      title: "Expires",
+      title: t("members.colExpires"),
       dataIndex: "expiresAt",
       key: "expiresAt",
       render: (v) => {
@@ -78,14 +73,14 @@ export function buildMemberColumns({ ctx, actions }: ColumnArgs): ColumnsType<Me
       },
     },
     {
-      title: "Loans",
+      title: t("members.colLoans"),
       key: "loans",
       render: (_, row) => (
         <span className="text-slate-500 text-sm">{row._count.loans}</span>
       ),
     },
     {
-      title: "Actions",
+      title: t("common.actions"),
       key: "actions",
       width: 100,
       render: (_, row) => (

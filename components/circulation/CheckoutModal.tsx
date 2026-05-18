@@ -73,7 +73,7 @@ export default function CheckoutModal({ open, onClose, onSuccess }: Props) {
         const err = await res.json();
         throw new Error(err.error ?? "Failed");
       }
-      message.success("Book checked out successfully.");
+      message.success(t("checkoutSuccess"));
       form.resetFields();
       onSuccess();
     } catch (e: unknown) {
@@ -101,10 +101,10 @@ export default function CheckoutModal({ open, onClose, onSuccess }: Props) {
         requiredMark={false}
         className="mt-4"
       >
-        <Form.Item label="Book" name="bookId" rules={[{ required: true }]}>
+        <Form.Item label={t("bookLabel")} name="bookId" rules={[{ required: true }]}>
           <Select
             showSearch
-            placeholder="Search book by title or ISBN"
+            placeholder={t("bookSearchPlaceholder")}
             filterOption={false}
             onSearch={setBookSearch}
             options={(booksData ?? [])
@@ -114,20 +114,20 @@ export default function CheckoutModal({ open, onClose, onSuccess }: Props) {
                   <div>
                     <span>{b.titleEn}</span>
                     <span className="text-xs text-slate-400 ml-2">
-                      ({b.availableCopies} available)
+                      ({b.availableCopies} {t("available")})
                     </span>
                   </div>
                 ),
                 value: b.id,
               }))}
-            notFoundContent="No available books found"
+            notFoundContent={t("noBooks")}
           />
         </Form.Item>
 
-        <Form.Item label="Member" name="memberId" rules={[{ required: true }]}>
+        <Form.Item label={t("memberLabel")} name="memberId" rules={[{ required: true }]}>
           <Select
             showSearch
-            placeholder="Search member by name or ID"
+            placeholder={t("memberSearchPlaceholder")}
             filterOption={false}
             onSearch={setMemberSearch}
             options={(membersData ?? []).map((m) => ({
@@ -141,11 +141,11 @@ export default function CheckoutModal({ open, onClose, onSuccess }: Props) {
               ),
               value: m.id,
             }))}
-            notFoundContent="No members found"
+            notFoundContent={t("noMembers")}
           />
         </Form.Item>
 
-        <Form.Item label="Custom Due Date (optional)" name="dueAt">
+        <Form.Item label={t("customDueDate")} name="dueAt">
           <DatePicker
             className="w-full"
             format="DD/MM/YYYY"

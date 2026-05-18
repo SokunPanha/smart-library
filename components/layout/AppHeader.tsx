@@ -8,6 +8,7 @@ import {
 } from "@ant-design/icons";
 import { useRouter, usePathname } from "next/navigation";
 import { useLocale } from "next-intl";
+import { signOut } from "next-auth/react";
 import type { MenuProps } from "antd";
 
 const { Header } = Layout;
@@ -29,7 +30,12 @@ export default function AppHeader() {
   ];
 
   const userItems: MenuProps["items"] = [
-    { key: "logout", icon: <LogoutOutlined />, label: "Sign Out" },
+    {
+      key: "logout",
+      icon: <LogoutOutlined />,
+      label: "Sign Out",
+      onClick: () => signOut({ callbackUrl: `/${locale}/login` }),
+    },
   ];
 
   return (

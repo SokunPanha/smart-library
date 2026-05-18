@@ -2,6 +2,8 @@
 
 import { Table, Button, Select, App } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
+import { useTranslations } from "next-intl";
+import { useTableScroll } from "@/lib/hooks";
 import { CirculationProvider, useCirculationContext } from "./helper/hooks";
 import { useFetchLoans } from "./helper/useFetchLoans";
 import { useLoans } from "./helper/useLoans";
@@ -9,12 +11,6 @@ import { buildLoanColumns } from "./_components/Columns";
 import CheckoutModal from "./components/CheckoutModal";
 import type { Loan } from "./helper/useFetchLoans";
 
-const STATUS_OPTIONS = [
-  { label: "Active", value: "ACTIVE" },
-  { label: "Overdue", value: "OVERDUE" },
-  { label: "Returned", value: "RETURNED" },
-  { label: "Lost", value: "LOST" },
-];
 
 function CirculationPageInner() {
   const ctx = useCirculationContext();
@@ -22,7 +18,15 @@ function CirculationPageInner() {
   const { modal } = App.useApp();
   const [statusFilter, setStatusFilter] = ctx.statusFilter;
 
+  const t = useTranslations();
+  const STATUS_OPTIONS = [
+    { label: t("circulation.statuses.ACTIVE"), value: "ACTIVE" },
+    { label: t("circulation.statuses.OVERDUE"), value: "OVERDUE" },
+    { label: t("circulation.statuses.RETURNED"), value: "RETURNED" },
+    { label: t("circulation.statuses.LOST"), value: "LOST" },
+  ];
   const { data, isLoading } = useFetchLoans(statusFilter, ctx.table.page);
+  const { ref: tableRef, scrollY } = useTableScroll();
 
   const confirmReturn = (loan: Loan, asLost = false) => {
     modal.confirm({
@@ -40,20 +44,21 @@ function CirculationPageInner() {
     actions,
     onReturn: (loan) => confirmReturn(loan),
     onLost: (loan) => confirmReturn(loan, true),
+    t,
   });
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-800">Circulation</h1>
+        <h1 className="text-xl font-semibold text-slate-800">{t("circulation.title")}</h1>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => ctx.checkoutModal.open()}>
-          Check Out
+          {t("circulation.checkout")}
         </Button>
       </div>
 
       <div className="bg-white border border-slate-100 rounded-lg p-4">
         <Select
-          placeholder="Filter by status"
+          placeholder={t("circulation.filterPlaceholder")}
           value={statusFilter || undefined}
           onChange={(v) => {
             setStatusFilter(v ?? "");
@@ -64,17 +69,20 @@ function CirculationPageInner() {
           options={STATUS_OPTIONS}
         />
 
-        <Table
-          columns={columns}
-          dataSource={data?.loans ?? []}
-          rowKey="id"
-          loading={isLoading}
-          size="small"
-          {...ctx.table.props}
-          pagination={{ ...ctx.table.props.pagination, total: data?.total ?? 0 }}
-          rowClassName={(row) => (row.status === "OVERDUE" ? "bg-red-50" : "")}
-          locale={{ emptyText: "No loans found." }}
-        />
+        <div ref={tableRef}>
+          <Table
+            columns={columns}
+            dataSource={data?.loans ?? []}
+            rowKey="id"
+            loading={isLoading}
+            size="small"
+            scroll={{ y: scrollY }}
+            {...ctx.table.props}
+            pagination={{ ...ctx.table.props.pagination, total: data?.total ?? 0 }}
+            rowClassName={(row) => (row.status === "OVERDUE" ? "bg-red-50" : "")}
+            locale={{ emptyText: "No loans found." }}
+          />
+        </div>
       </div>
 
       <CheckoutModal
