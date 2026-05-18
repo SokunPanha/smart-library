@@ -1,0 +1,70 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
+import { z } from "zod";
+
+const memberSchema = z.object({
+  memberId: z.string().min(1),
+  nameEn: z.string().optional().nullable(),
+  nameKh: z.string().optional().nullable(),
+  email: z.string().email().optional().nullable().or(z.literal("")),
+  phone: z.string().optional().nullable(),
+  type: z.enum(["STUDENT", "TEACHER", "PUBLIC", "RESEARCHER"]).default("PUBLIC"),
+  expiresAt: z.string().optional().nullable(),
+});
+
+export async function GET(req: NextRequest) {
+  const session = await auth();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { searchParams } = new URL(req.url);
+  const search = searchParams.get("search") ?? "";
+  const page = Math.max(1, Number(searchParams.get("page") ?? 1));
+  const limit = Math.min(100, Number(searchParams.get("limit") ?? 20));
+
+  const where = search
+    ? {
+        OR: [
+          { nameEn: { contains: search, mode: "insensitive" as const } },
+          { nameKh: { contains: search, mode: "insensitive" as const } },
+          { memberId: { contains: search, mode: "insensitive" as const } },
+          { phone: { contains: search, mode: "insensitive" as const } },
+        ],
+      }
+    : {};
+
+  const [members, total] = await Promise.all([
+    prisma.member.findMany({
+      where,
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: { createdAt: "desc" },
+      include: { _count: { select: { loans: true } } },
+    }),
+    prisma.member.count({ where }),
+  ]);
+
+  return NextResponse.json({ members, total, page, limit });
+}
+
+export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const body = await req.json();
+  const parsed = memberSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
+  }
+
+  const { expiresAt, email, ...rest } = parsed.data;
+  const member = await prisma.member.create({
+    data: {
+      ...rest,
+      email: email || null,
+      expiresAt: expiresAt ? new Date(expiresAt) : null,
+    },
+  });
+
+  return NextResponse.json(member, { status: 201 });
+}

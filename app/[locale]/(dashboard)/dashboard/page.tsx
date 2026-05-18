@@ -8,27 +8,72 @@ import {
   WarningOutlined,
 } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
+import { useQuery } from "@tanstack/react-query";
+import dayjs from "dayjs";
+
+interface DashboardData {
+  totalBooks: number;
+  totalMembers: number;
+  activeLoans: number;
+  overdueLoans: number;
+  recentLoans: {
+    id: string;
+    status: string;
+    dueAt: string;
+    book: { titleEn: string };
+    member: { nameEn: string | null; memberId: string };
+  }[];
+}
+
+const STATUS_COLOR: Record<string, string> = {
+  ACTIVE: "blue",
+  RETURNED: "green",
+  OVERDUE: "red",
+  LOST: "volcano",
+};
 
 export default function DashboardPage() {
   const t = useTranslations("dashboard");
 
+  const { data } = useQuery<DashboardData>({
+    queryKey: ["dashboard"],
+    queryFn: () => fetch("/api/dashboard").then((r) => r.json()),
+    refetchInterval: 30000,
+  });
+
   const stats = [
-    { title: t("totalBooks"), value: 0, icon: <BookOutlined />, color: "#1a56db" },
-    { title: t("totalMembers"), value: 0, icon: <TeamOutlined />, color: "#059669" },
-    { title: t("activeLoans"), value: 0, icon: <SwapOutlined />, color: "#d97706" },
-    { title: t("overdueLoans"), value: 0, icon: <WarningOutlined />, color: "#dc2626" },
+    { title: t("totalBooks"), value: data?.totalBooks ?? 0, icon: <BookOutlined />, color: "#1a56db" },
+    { title: t("totalMembers"), value: data?.totalMembers ?? 0, icon: <TeamOutlined />, color: "#059669" },
+    { title: t("activeLoans"), value: data?.activeLoans ?? 0, icon: <SwapOutlined />, color: "#d97706" },
+    { title: t("overdueLoans"), value: data?.overdueLoans ?? 0, icon: <WarningOutlined />, color: "#dc2626" },
   ];
 
   const loanColumns = [
-    { title: "Member", dataIndex: "member", key: "member" },
-    { title: "Book", dataIndex: "book", key: "book" },
-    { title: "Due Date", dataIndex: "dueAt", key: "dueAt" },
+    {
+      title: "Book",
+      key: "book",
+      render: (_: unknown, row: DashboardData["recentLoans"][0]) => row.book.titleEn,
+    },
+    {
+      title: "Member",
+      key: "member",
+      render: (_: unknown, row: DashboardData["recentLoans"][0]) =>
+        row.member.nameEn ?? row.member.memberId,
+    },
+    {
+      title: "Due Date",
+      dataIndex: "dueAt",
+      key: "dueAt",
+      render: (v: string) => dayjs(v).format("DD/MM/YYYY"),
+    },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (status: string) => (
-        <Tag color={status === "OVERDUE" ? "red" : "blue"}>{status}</Tag>
+      render: (s: string) => (
+        <Tag color={STATUS_COLOR[s]} className="border-0">
+          {s}
+        </Tag>
       ),
     },
   ];
@@ -53,7 +98,9 @@ export default function DashboardPage() {
                     {stat.icon}
                   </span>
                 }
-                styles={{ content: { color: stat.color, fontSize: 28, fontWeight: 600 } }}
+                styles={{
+                  content: { color: stat.color, fontSize: 28, fontWeight: 600 },
+                }}
               />
             </Card>
           </Col>
@@ -71,10 +118,11 @@ export default function DashboardPage() {
       >
         <Table
           columns={loanColumns}
-          dataSource={[]}
+          dataSource={data?.recentLoans ?? []}
+          rowKey="id"
           pagination={false}
-          locale={{ emptyText: "No loans yet" }}
           size="small"
+          locale={{ emptyText: "No loans yet." }}
         />
       </Card>
     </div>
