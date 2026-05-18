@@ -55,7 +55,6 @@ function CategoryDrawer({
       open={open}
       onClose={() => { form.resetFields(); onClose(); }}
       styles={{ wrapper: { width: 360 } }}
-      forceRender
       extra={
         <Space>
           <Button onClick={() => { form.resetFields(); onClose(); }}>{tc("cancel")}</Button>

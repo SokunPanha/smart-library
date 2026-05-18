@@ -68,7 +68,6 @@ export function CreateBookDrawer() {
       open={createForm.isOpen}
       onClose={createForm.close}
       styles={{ wrapper: { width: 480 } }}
-      forceRender
       extra={
         <Space>
           <Button onClick={createForm.close}>{tc("cancel")}</Button>
@@ -95,7 +94,6 @@ export function EditBookDrawer() {
       open={editForm.isOpen}
       onClose={editForm.close}
       styles={{ wrapper: { width: 480 } }}
-      forceRender
       extra={
         <Space>
           <Button onClick={editForm.close}>{tc("cancel")}</Button>

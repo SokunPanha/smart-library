@@ -58,7 +58,6 @@ function UserDrawer({ open, user, onClose }: { open: boolean; user: StaffUser | 
       open={open}
       onClose={() => { form.resetFields(); onClose(); }}
       styles={{ wrapper: { width: 420 } }}
-      forceRender
       extra={
         <Space>
           <Button onClick={() => { form.resetFields(); onClose(); }}>{tc("cancel")}</Button>
