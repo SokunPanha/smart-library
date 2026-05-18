@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  LIBRARIAN
+  STAFF
+}
+
+enum MemberType {
+  STUDENT
+  TEACHER
+  PUBLIC
+  RESEARCHER
+}
+
+enum LoanStatus {
+  ACTIVE
+  RETURNED
+  OVERDUE
+  LOST
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  nameEn    String
+  nameKh    String?
+  role      Role     @default(LIBRARIAN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Book {
+  id              String   @id @default(cuid())
+  isbn            String?  @unique
+  titleEn         String
+  titleKh         String?
+  author          String?
+  publisher       String?
+  publishYear     Int?
+  category        String?
+  deweyCode       String?
+  coverImage      String?
+  totalCopies     Int      @default(1)
+  availableCopies Int      @default(1)
+  tags            String[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  loans           Loan[]
+}
+
+model Member {
+  id        String     @id @default(cuid())
+  memberId  String     @unique
+  nameEn    String?
+  nameKh    String?
+  email     String?
+  phone     String?
+  photo     String?
+  type      MemberType @default(PUBLIC)
+  expiresAt DateTime?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  loans     Loan[]
+}
+
+model Loan {
+  id         String     @id @default(cuid())
+  bookId     String
+  memberId   String
+  borrowedAt DateTime   @default(now())
+  dueAt      DateTime
+  returnedAt DateTime?
+  status     LoanStatus @default(ACTIVE)
+  fineAmount Float      @default(0)
+  finePaid   Boolean    @default(false)
+  notes      String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  book       Book       @relation(fields: [bookId], references: [id])
+  member     Member     @relation(fields: [memberId], references: [id])
+}

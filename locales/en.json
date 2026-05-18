@@ -1,0 +1,100 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "loading": "Loading...",
+    "noData": "No data",
+    "confirm": "Confirm",
+    "back": "Back",
+    "actions": "Actions",
+    "status": "Status",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "catalog": "Catalog",
+    "members": "Members",
+    "circulation": "Circulation",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "auth": {
+    "login": "Sign In",
+    "logout": "Sign Out",
+    "email": "Email",
+    "password": "Password",
+    "emailPlaceholder": "Enter your email",
+    "passwordPlaceholder": "Enter your password",
+    "loginButton": "Sign In",
+    "loginTitle": "Library Management System",
+    "loginSubtitle": "Sign in to your account"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "totalBooks": "Total Books",
+    "totalMembers": "Total Members",
+    "activeLoans": "Active Loans",
+    "overdueLoans": "Overdue Loans",
+    "recentLoans": "Recent Loans",
+    "popularBooks": "Popular Books"
+  },
+  "catalog": {
+    "title": "Catalog",
+    "addBook": "Add Book",
+    "editBook": "Edit Book",
+    "isbn": "ISBN",
+    "titleEn": "Title (English)",
+    "titleKh": "Title (Khmer)",
+    "author": "Author",
+    "publisher": "Publisher",
+    "publishYear": "Publish Year",
+    "category": "Category",
+    "deweyCode": "Dewey Code",
+    "totalCopies": "Total Copies",
+    "availableCopies": "Available",
+    "tags": "Tags",
+    "coverImage": "Cover Image",
+    "available": "Available",
+    "unavailable": "Unavailable"
+  },
+  "members": {
+    "title": "Members",
+    "addMember": "Add Member",
+    "editMember": "Edit Member",
+    "memberId": "Member ID",
+    "nameEn": "Name (English)",
+    "nameKh": "Name (Khmer)",
+    "email": "Email",
+    "phone": "Phone",
+    "type": "Member Type",
+    "expiresAt": "Expires At",
+    "types": {
+      "STUDENT": "Student",
+      "TEACHER": "Teacher",
+      "PUBLIC": "Public",
+      "RESEARCHER": "Researcher"
+    }
+  },
+  "circulation": {
+    "title": "Circulation",
+    "checkout": "Check Out",
+    "checkin": "Return Book",
+    "borrowedAt": "Borrowed At",
+    "dueAt": "Due Date",
+    "returnedAt": "Returned At",
+    "status": "Status",
+    "fineAmount": "Fine Amount",
+    "finePaid": "Fine Paid",
+    "statuses": {
+      "ACTIVE": "Active",
+      "RETURNED": "Returned",
+      "OVERDUE": "Overdue",
+      "LOST": "Lost"
+    }
+  }
+}

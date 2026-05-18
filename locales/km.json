@@ -1,0 +1,100 @@
+{
+  "common": {
+    "save": "រក្សាទុក",
+    "cancel": "បោះបង់",
+    "delete": "លុប",
+    "edit": "កែប្រែ",
+    "add": "បន្ថែម",
+    "search": "ស្វែងរក",
+    "loading": "កំពុងផ្ទុក...",
+    "noData": "គ្មានទិន្នន័យ",
+    "confirm": "បញ្ជាក់",
+    "back": "ត្រឡប់",
+    "actions": "សកម្មភាព",
+    "status": "ស្ថានភាព",
+    "createdAt": "បានបង្កើតនៅ",
+    "updatedAt": "បានធ្វើបច្ចុប្បន្នភាព"
+  },
+  "nav": {
+    "dashboard": "ផ្ទាំងគ្រប់គ្រង",
+    "catalog": "បញ្ជីសៀវភៅ",
+    "members": "សមាជិក",
+    "circulation": "ការខ្ចី-ប្រគល់",
+    "reports": "របាយការណ៍",
+    "settings": "ការកំណត់"
+  },
+  "auth": {
+    "login": "ចូលប្រើ",
+    "logout": "ចាកចេញ",
+    "email": "អ៊ីមែល",
+    "password": "លេខសម្ងាត់",
+    "emailPlaceholder": "បញ្ចូលអ៊ីមែលរបស់អ្នក",
+    "passwordPlaceholder": "បញ្ចូលលេខសម្ងាត់របស់អ្នក",
+    "loginButton": "ចូលប្រើ",
+    "loginTitle": "ប្រព័ន្ធគ្រប់គ្រងបណ្ណាល័យ",
+    "loginSubtitle": "ចូលប្រើគណនីរបស់អ្នក"
+  },
+  "dashboard": {
+    "title": "ផ្ទាំងគ្រប់គ្រង",
+    "totalBooks": "សៀវភៅសរុប",
+    "totalMembers": "សមាជិកសរុប",
+    "activeLoans": "ការខ្ចីសកម្ម",
+    "overdueLoans": "ការខ្ចីហួសកំណត់",
+    "recentLoans": "ការខ្ចីថ្មីៗ",
+    "popularBooks": "សៀវភៅពេញនិយម"
+  },
+  "catalog": {
+    "title": "បញ្ជីសៀវភៅ",
+    "addBook": "បន្ថែមសៀវភៅ",
+    "editBook": "កែប្រែសៀវភៅ",
+    "isbn": "លេខ ISBN",
+    "titleEn": "ចំណងជើង (អង់គ្លេស)",
+    "titleKh": "ចំណងជើង (ខ្មែរ)",
+    "author": "អ្នកនិពន្ធ",
+    "publisher": "អ្នកផ្សព្វផ្សាយ",
+    "publishYear": "ឆ្នាំផ្សព្វផ្សាយ",
+    "category": "ប្រភេទ",
+    "deweyCode": "លេខ Dewey",
+    "totalCopies": "ចំនួនច្បាប់",
+    "availableCopies": "ច្បាប់នៅសេសសល់",
+    "tags": "ស្លាក",
+    "coverImage": "រូបភាពគម្រប",
+    "available": "មាន",
+    "unavailable": "អស់"
+  },
+  "members": {
+    "title": "សមាជិក",
+    "addMember": "បន្ថែមសមាជិក",
+    "editMember": "កែប្រែសមាជិក",
+    "memberId": "លេខសមាជិក",
+    "nameEn": "ឈ្មោះ (អង់គ្លេស)",
+    "nameKh": "ឈ្មោះ (ខ្មែរ)",
+    "email": "អ៊ីមែល",
+    "phone": "លេខទូរស័ព្ទ",
+    "type": "ប្រភេទសមាជិក",
+    "expiresAt": "ថ្ងៃផុតកំណត់",
+    "types": {
+      "STUDENT": "និស្សិត",
+      "TEACHER": "គ្រូ",
+      "PUBLIC": "សាធារណជន",
+      "RESEARCHER": "អ្នកស្រាវជ្រាវ"
+    }
+  },
+  "circulation": {
+    "title": "ការខ្ចី-ប្រគល់",
+    "checkout": "ខ្ចីសៀវភៅ",
+    "checkin": "ប្រគល់សៀវភៅ",
+    "borrowedAt": "ថ្ងៃខ្ចី",
+    "dueAt": "ថ្ងៃផុតកំណត់",
+    "returnedAt": "ថ្ងៃប្រគល់",
+    "status": "ស្ថានភាព",
+    "fineAmount": "ចំនួនពិន័យ",
+    "finePaid": "បានបង់ពិន័យ",
+    "statuses": {
+      "ACTIVE": "កំពុងខ្ចី",
+      "RETURNED": "បានប្រគល់",
+      "OVERDUE": "ហួសកំណត់",
+      "LOST": "បាត់"
+    }
+  }
+}
