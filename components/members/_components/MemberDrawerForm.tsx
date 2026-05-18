@@ -11,10 +11,7 @@ function MemberFields() {
 
   return (
     <>
-      <Form.Item label={t("memberId")} name="memberId" rules={[{ required: true }]}>
-        <Input placeholder="e.g. LIB-2024-001" />
-      </Form.Item>
-      <Form.Item label={t("nameEn")} name="nameEn">
+      <Form.Item label={t("nameEn")} name="nameEn" rules={[{ required: true }]}>
         <Input />
       </Form.Item>
       <Form.Item label={t("nameKh")} name="nameKh">
@@ -71,7 +68,7 @@ export function CreateMemberDrawer() {
         form={createForm.form}
         layout="vertical"
         onFinish={(v) => createMember(normalizeValues(v))}
-        requiredMark={false}
+        requiredMark="optional"
       >
         <MemberFields />
       </Form>
@@ -103,7 +100,7 @@ export function EditMemberDrawer() {
         form={editForm.form}
         layout="vertical"
         onFinish={(v) => updateMember(normalizeValues(v))}
-        requiredMark={false}
+        requiredMark="optional"
       >
         <MemberFields />
       </Form>

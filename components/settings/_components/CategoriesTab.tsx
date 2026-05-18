@@ -67,7 +67,7 @@ function CategoryDrawer({
         form={form}
         layout="vertical"
         onFinish={handleFinish}
-        requiredMark={false}
+        requiredMark="optional"
       >
         <Form.Item label={t("categories.name")} name="name" rules={[{ required: true }]}>
           <Input autoFocus />

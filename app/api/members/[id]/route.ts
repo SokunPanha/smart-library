@@ -4,7 +4,6 @@ import { auth } from "@/auth";
 import { z } from "zod";
 
 const memberSchema = z.object({
-  memberId: z.string().min(1),
   nameEn: z.string().optional().nullable(),
   nameKh: z.string().optional().nullable(),
   email: z.string().email().optional().nullable().or(z.literal("")),

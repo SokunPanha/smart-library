@@ -35,7 +35,7 @@ function BookFields() {
         <Form.Item label={t("publishYear")} name="publishYear" className="flex-1">
           <InputNumber className="w-full" placeholder="2024" min={1000} max={9999} />
         </Form.Item>
-        <Form.Item label={t("totalCopies")} name="totalCopies" className="flex-1" initialValue={1}>
+        <Form.Item label={t("totalCopies")} name="totalCopies" className="flex-1" initialValue={1} rules={[{ required: true }]}>
           <InputNumber className="w-full" min={1} />
         </Form.Item>
       </div>
@@ -76,7 +76,7 @@ export function CreateBookDrawer() {
         </Space>
       }
     >
-      <Form form={createForm.form} layout="vertical" onFinish={createBook} requiredMark={false}>
+      <Form form={createForm.form} layout="vertical" onFinish={createBook} requiredMark="optional">
         <BookFields />
       </Form>
     </Drawer>
@@ -103,7 +103,7 @@ export function EditBookDrawer() {
         </Space>
       }
     >
-      <Form form={editForm.form} layout="vertical" onFinish={updateBook} requiredMark={false}>
+      <Form form={editForm.form} layout="vertical" onFinish={updateBook} requiredMark="optional">
         <BookFields />
       </Form>
     </Drawer>

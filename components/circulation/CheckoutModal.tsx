@@ -98,7 +98,7 @@ export default function CheckoutModal({ open, onClose, onSuccess }: Props) {
         form={form}
         layout="vertical"
         onFinish={handleSubmit}
-        requiredMark={false}
+        requiredMark="optional"
         className="mt-4"
       >
         <Form.Item label={t("bookLabel")} name="bookId" rules={[{ required: true }]}>

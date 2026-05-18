@@ -4,7 +4,6 @@ import { auth } from "@/auth";
 import { z } from "zod";
 
 const memberSchema = z.object({
-  memberId: z.string().min(1),
   nameEn: z.string().optional().nullable(),
   nameKh: z.string().optional().nullable(),
   email: z.string().email().optional().nullable().or(z.literal("")),
@@ -12,6 +11,15 @@ const memberSchema = z.object({
   type: z.enum(["STUDENT", "TEACHER", "PUBLIC", "RESEARCHER"]).default("PUBLIC"),
   expiresAt: z.string().optional().nullable(),
 });
+
+async function generateMemberId(): Promise<string> {
+  const year = new Date().getFullYear();
+  const count = await prisma.member.count();
+  const candidate = `MEM-${year}-${String(count + 1).padStart(4, "0")}`;
+  const exists = await prisma.member.findUnique({ where: { memberId: candidate } });
+  if (!exists) return candidate;
+  return `MEM-${year}-${Date.now().toString(36).toUpperCase().slice(-5)}`;
+}
 
 export async function GET(req: NextRequest) {
   const session = await auth();
@@ -58,9 +66,11 @@ export async function POST(req: NextRequest) {
   }
 
   const { expiresAt, email, ...rest } = parsed.data;
+  const memberId = await generateMemberId();
   const member = await prisma.member.create({
     data: {
       ...rest,
+      memberId,
       email: email || null,
       expiresAt: expiresAt ? new Date(expiresAt) : null,
     },

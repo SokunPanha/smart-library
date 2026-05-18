@@ -66,7 +66,7 @@ function UserDrawer({ open, user, onClose }: { open: boolean; user: StaffUser | 
         </Space>
       }
     >
-      <Form form={form} layout="vertical" onFinish={handleFinish} requiredMark={false}>
+      <Form form={form} layout="vertical" onFinish={handleFinish} requiredMark="optional">
         <Form.Item label={t("users.nameEn")} name="nameEn" rules={[{ required: true }]}>
           <Input />
         </Form.Item>
