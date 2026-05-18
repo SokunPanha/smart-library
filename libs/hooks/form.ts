@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Form, type FormInstance } from "antd";
 
 /**
@@ -14,10 +14,16 @@ export function useModalForm<T = unknown>() {
   const [form] = Form.useForm<any>();
   const ref = useRef<T | undefined>(undefined);
 
+  useEffect(() => {
+    if (open) {
+      form.resetFields();
+      if (ref.current) form.setFieldsValue(ref.current as Parameters<typeof form.setFieldsValue>[0]);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
   const openModal = (data?: T) => {
     ref.current = data;
-    form.resetFields();
-    if (data) form.setFieldsValue(data as Parameters<typeof form.setFieldsValue>[0]);
     setOpen(true);
   };
 
@@ -51,10 +57,16 @@ export function useDrawerForm<T = unknown>() {
   const [form] = Form.useForm<any>();
   const ref = useRef<T | undefined>(undefined);
 
+  useEffect(() => {
+    if (open) {
+      form.resetFields();
+      if (ref.current) form.setFieldsValue(ref.current as Parameters<typeof form.setFieldsValue>[0]);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
   const openDrawer = (data?: T) => {
     ref.current = data;
-    form.resetFields();
-    if (data) form.setFieldsValue(data as Parameters<typeof form.setFieldsValue>[0]);
     setOpen(true);
   };
 

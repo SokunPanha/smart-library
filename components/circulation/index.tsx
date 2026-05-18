@@ -8,7 +8,7 @@ import { CirculationProvider, useCirculationContext } from "./helper/hooks";
 import { useFetchLoans } from "./helper/useFetchLoans";
 import { useLoans } from "./helper/useLoans";
 import { buildLoanColumns } from "./_components/Columns";
-import CheckoutModal from "./components/CheckoutModal";
+import CheckoutModal from "./CheckoutModal";
 import type { Loan } from "./helper/useFetchLoans";
 
 
@@ -30,12 +30,12 @@ function CirculationPageInner() {
 
   const confirmReturn = (loan: Loan, asLost = false) => {
     modal.confirm({
-      title: asLost ? "Mark as Lost?" : "Return Book?",
+      title: asLost ? t("circulation.lostTitle") : t("circulation.returnTitle"),
       content: asLost
-        ? `Mark "${loan.book.titleEn}" as lost?`
-        : `Return "${loan.book.titleEn}" borrowed by ${loan.member.nameEn ?? loan.member.memberId}?`,
-      okText: "Confirm",
-      cancelText: "Cancel",
+        ? t("circulation.lostContent", { title: loan.book.titleEn })
+        : t("circulation.returnContent", { title: loan.book.titleEn, name: loan.member.nameEn ?? loan.member.memberId }),
+      okText: t("common.confirm"),
+      cancelText: t("common.cancel"),
       onOk: () => actions.closeLoan(loan, asLost ? "LOST" : "RETURNED"),
     });
   };
@@ -80,13 +80,14 @@ function CirculationPageInner() {
             {...ctx.table.props}
             pagination={{ ...ctx.table.props.pagination, total: data?.total ?? 0 }}
             rowClassName={(row) => (row.status === "OVERDUE" ? "bg-red-50" : "")}
-            locale={{ emptyText: "No loans found." }}
+            locale={{ emptyText: t("circulation.noLoans") }}
           />
         </div>
       </div>
 
       <CheckoutModal
-        {...ctx.checkoutModal.props}
+        open={ctx.checkoutModal.isOpen}
+        onClose={ctx.checkoutModal.close}
         onSuccess={() => {
           ctx.checkoutModal.close();
           ctx.table.reload();
