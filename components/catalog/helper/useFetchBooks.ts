@@ -17,6 +17,8 @@ export interface Book {
   availableCopies: number;
   tags: string[];
   coverImage: string | null;
+  shelfId: string | null;
+  shelf: { id: string; code: string; label: string | null; section: string | null; cabinet: string | null; level: number | null; block: number | null } | null;
   createdBy: string | null;
   updatedBy: string | null;
   createdAt: string;

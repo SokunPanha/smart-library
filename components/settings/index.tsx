@@ -1,7 +1,7 @@
 "use client";
 
 import { Tabs } from "antd";
-import { SettingOutlined, TeamOutlined, BookOutlined, AppstoreOutlined, HistoryOutlined, SolutionOutlined } from "@ant-design/icons";
+import { SettingOutlined, TeamOutlined, BookOutlined, AppstoreOutlined, HistoryOutlined, SolutionOutlined, ApartmentOutlined, HeatMapOutlined } from "@ant-design/icons";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { SettingsProvider, useSettingsContext } from "./helper/hooks";
@@ -10,6 +10,8 @@ import { LoanRulesTab } from "./_components/LoanRulesTab";
 import { UsersTab } from "./_components/UsersTab";
 import { CategoriesTab } from "./_components/CategoriesTab";
 import { ClassesTab } from "./_components/ClassesTab";
+import { ShelvesTab } from "./_components/ShelvesTab";
+import { LibraryMapTab } from "./_components/LibraryMapTab";
 import { LogsTab } from "./_components/LogsTab";
 
 function SettingsPageInner() {
@@ -56,6 +58,16 @@ function SettingsPageInner() {
               key: "classes",
               label: <span className="flex items-center gap-1"><SolutionOutlined />{t("tabs.classes")}</span>,
               children: <ClassesTab />,
+            },
+            {
+              key: "shelves",
+              label: <span className="flex items-center gap-1"><ApartmentOutlined />{t("tabs.shelves")}</span>,
+              children: <ShelvesTab />,
+            },
+            {
+              key: "libraryMap",
+              label: <span className="flex items-center gap-1"><HeatMapOutlined />{t("tabs.libraryMap")}</span>,
+              children: <LibraryMapTab />,
             },
             {
               key: "logs",

@@ -181,7 +181,50 @@ function BookFields({ autoFocusIsbn }: { autoFocusIsbn?: boolean }) {
       <Form.Item label={t("tags")} name="tags">
         <Select mode="tags" tokenSeparators={[","]} />
       </Form.Item>
+      <Form.Item label={t("shelf")} name="shelfId">
+        <ShelfSelect />
+      </Form.Item>
     </>
+  );
+}
+
+function ShelfSelect({ value, onChange }: { value?: string | null; onChange?: (v: string | null) => void }) {
+  const ts = useTranslations("settings.shelves");
+  const { data: shelves = [] } = useQuery<{
+    id: string;
+    code: string;
+    label: string | null;
+    section: string | null;
+    cabinet: string | null;
+    level: number | null;
+    block: number | null;
+  }[]>({
+    queryKey: ["shelves"],
+    queryFn: () => apiFetch("/api/shelves"),
+  });
+  return (
+    <Select
+      allowClear
+      showSearch
+      placeholder="Select shelf…"
+      optionFilterProp="label"
+      value={value ?? undefined}
+      onChange={(v) => onChange?.(v ?? null)}
+      options={shelves.map((s) => {
+        const levelLetter = s.level ? String.fromCharCode(64 + s.level) : null;
+        let locationPrefix = "";
+        if (s.cabinet) {
+          locationPrefix = `${ts("colCabinet")} ${s.cabinet}`;
+          if (levelLetter) locationPrefix += `, ${ts("colLevel")} ${levelLetter}`;
+          if (s.block) locationPrefix += `, ${ts("colBlock")} ${s.block}`;
+          locationPrefix += " — ";
+        }
+        return {
+          value: s.id,
+          label: `${locationPrefix}${s.code}${s.label ? ` (${s.label})` : ""}`,
+        };
+      })}
+    />
   );
 }
 

@@ -6,8 +6,8 @@ import { logActivity } from "@/lib/activityLog";
 
 const bookSchema = z.object({
   isbn: z.string().optional().nullable(),
-  titleEn: z.string().min(1),
-  titleKh: z.string().optional().nullable(),
+  titleEn: z.string().optional().default(""),
+  titleKh: z.string().min(1),
   author: z.string().optional().nullable(),
   publisher: z.string().optional().nullable(),
   publishYear: z.coerce.number().optional().nullable(),
@@ -16,6 +16,7 @@ const bookSchema = z.object({
   coverImage: z.string().optional().nullable(),
   totalCopies: z.coerce.number().min(1).default(1),
   tags: z.array(z.string()).default([]),
+  shelfId: z.string().optional().nullable(),
 });
 
 export async function GET(

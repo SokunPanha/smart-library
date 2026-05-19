@@ -7,8 +7,8 @@ import type { Book } from "./useFetchBooks";
 
 export interface BookPayload {
   isbn?: string | null;
-  titleEn: string;
-  titleKh?: string | null;
+  titleEn?: string;
+  titleKh: string;
   author?: string | null;
   publisher?: string | null;
   publishYear?: number | null;
@@ -17,6 +17,7 @@ export interface BookPayload {
   totalCopies: number;
   tags?: string[];
   coverImage?: string | null;
+  shelfId?: string | null;
 }
 
 export function useBooks() {
@@ -46,9 +47,13 @@ export function useBooks() {
   const updateBook = async (values: BookPayload) => {
     const book = ctx.editForm.getData() as Book | undefined;
     if (!book) return;
+    const payload = {
+      ...filterRequestParam(values),
+      shelfId: values.shelfId ?? null,
+    };
     await apiFetch(`/api/books/${book.id}`, {
       method: "PUT",
-      body: JSON.stringify(filterRequestParam(values)),
+      body: JSON.stringify(payload),
     });
     message.success("Book updated.");
     ctx.editForm.close();

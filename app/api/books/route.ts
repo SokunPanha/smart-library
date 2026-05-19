@@ -6,8 +6,8 @@ import { logActivity } from "@/lib/activityLog";
 
 const bookSchema = z.object({
   isbn: z.string().optional().nullable(),
-  titleEn: z.string().min(1),
-  titleKh: z.string().optional().nullable(),
+  titleEn: z.string().optional().default(""),
+  titleKh: z.string().min(1),
   author: z.string().optional().nullable(),
   publisher: z.string().optional().nullable(),
   publishYear: z.coerce.number().optional().nullable(),
@@ -16,6 +16,7 @@ const bookSchema = z.object({
   coverImage: z.string().optional().nullable(),
   totalCopies: z.coerce.number().min(1).default(1),
   tags: z.array(z.string()).default([]),
+  shelfId: z.string().optional().nullable(),
 });
 
 export async function GET(req: NextRequest) {
@@ -24,19 +25,20 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const search = searchParams.get("search") ?? "";
+  const shelfId = searchParams.get("shelfId");
   const page = Math.max(1, Number(searchParams.get("page") ?? 1));
   const limit = Math.min(100, Number(searchParams.get("limit") ?? 20));
 
-  const where = search
-    ? {
-        OR: [
-          { titleEn: { contains: search, mode: "insensitive" as const } },
-          { titleKh: { contains: search, mode: "insensitive" as const } },
-          { author: { contains: search, mode: "insensitive" as const } },
-          { isbn: { contains: search, mode: "insensitive" as const } },
-        ],
-      }
-    : {};
+  const where: Record<string, unknown> = {};
+  if (shelfId) where.shelfId = shelfId;
+  if (search) {
+    where.OR = [
+      { titleEn: { contains: search, mode: "insensitive" } },
+      { titleKh: { contains: search, mode: "insensitive" } },
+      { author: { contains: search, mode: "insensitive" } },
+      { isbn: { contains: search, mode: "insensitive" } },
+    ];
+  }
 
   const [books, total] = await Promise.all([
     prisma.book.findMany({
@@ -44,6 +46,7 @@ export async function GET(req: NextRequest) {
       skip: (page - 1) * limit,
       take: limit,
       orderBy: { createdAt: "desc" },
+      include: { shelf: { select: { id: true, code: true, label: true, section: true, cabinet: true, level: true, block: true } } },
     }),
     prisma.book.count({ where }),
   ]);

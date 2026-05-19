@@ -75,6 +75,25 @@ export function buildBookColumns({ ctx, actions, t, onQR }: ColumnArgs): Columns
       ),
     },
     {
+      title: t("catalog.colShelf"),
+      key: "shelf",
+      render: (_, row) => {
+        const s = row.shelf;
+        if (!s) return <span className="text-slate-300">—</span>;
+        const levelLetter = s.level ? String.fromCharCode(64 + s.level) : null;
+        return (
+          <div className="text-xs leading-snug">
+            <span className="font-mono font-semibold text-blue-600">{s.code}</span>
+            {s.cabinet && (
+              <p className="text-slate-400">
+                Cab.&nbsp;{s.cabinet}{levelLetter ? `, Lvl ${levelLetter}` : ""}{s.block ? `, Blk ${s.block}` : ""}
+              </p>
+            )}
+          </div>
+        );
+      },
+    },
+    {
       title: t("common.createdBy"),
       key: "createdBy",
       render: (_, row) => (

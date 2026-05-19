@@ -30,7 +30,7 @@ function CirculationPageInner() {
       method: "POST",
       body: JSON.stringify({ bookId, memberId, dueAt }),
     });
-    message.success(t("checkoutSuccess"));
+    message.success(t("circulation.checkoutSuccess"));
     ctx.table.reload();
   }
 
@@ -42,7 +42,7 @@ function CirculationPageInner() {
     if (updated.fineAmount > 0) {
       message.warning(`Returned. Fine: ${updated.fineAmount.toLocaleString()} ៛`);
     } else {
-      message.success("Book returned successfully.");
+      message.success(t("circulation.returnSuccess"));
     }
     ctx.table.reload();
   }
