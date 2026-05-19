@@ -5,6 +5,7 @@ import { Modal, Form, Select, DatePicker, Button, App } from "antd";
 import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
+import { apiFetch } from "@/libs/utils/request";
 
 interface Props {
   open: boolean;
@@ -39,18 +40,16 @@ export default function CheckoutModal({ open, onClose, onSuccess }: Props) {
   const { data: booksData } = useQuery({
     queryKey: ["books-select", bookSearch],
     queryFn: () =>
-      fetch(`/api/books?search=${encodeURIComponent(bookSearch)}&limit=20`)
-        .then((r) => r.json())
-        .then((d) => d.books as BookOption[]),
+      apiFetch<{ books: BookOption[] }>(`/api/books?search=${encodeURIComponent(bookSearch)}&limit=20`)
+        .then((d) => d.books),
     enabled: open,
   });
 
   const { data: membersData } = useQuery({
     queryKey: ["members-select", memberSearch],
     queryFn: () =>
-      fetch(`/api/members?search=${encodeURIComponent(memberSearch)}&limit=20`)
-        .then((r) => r.json())
-        .then((d) => d.members as MemberOption[]),
+      apiFetch<{ members: MemberOption[] }>(`/api/members?search=${encodeURIComponent(memberSearch)}&limit=20`)
+        .then((d) => d.members),
     enabled: open,
   });
 
@@ -61,7 +60,7 @@ export default function CheckoutModal({ open, onClose, onSuccess }: Props) {
   }) => {
     setLoading(true);
     try {
-      const res = await fetch("/api/loans", {
+      await apiFetch("/api/loans", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -70,10 +69,6 @@ export default function CheckoutModal({ open, onClose, onSuccess }: Props) {
           dueAt: values.dueAt?.toISOString(),
         }),
       });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error ?? "Failed");
-      }
       message.success(t("checkoutSuccess"));
       form.resetFields();
       onSuccess();

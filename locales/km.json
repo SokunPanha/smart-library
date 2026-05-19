@@ -79,7 +79,14 @@
     "searchPlaceholder": "ស្វែងរកតាមចំណងជើង, អ្នកនិពន្ធ, ISBN…",
     "shelf": "ទីតាំងធ្នើ",
     "colShelf": "ធ្នើ",
-    "empty": "រកមិនឃើញសៀវភៅ។"
+    "empty": "រកមិនឃើញសៀវភៅ។",
+    "bookAdded": "បន្ថែមសៀវភៅដោយជោគជ័យ។",
+    "bookAddedContinue": "បន្ថែមសៀវភៅ។ រួចរាល់សម្រាប់ការបន្ថែមបន្ទាប់។",
+    "bookUpdated": "ធ្វើបច្ចុប្បន្នភាពសៀវភៅ។",
+    "bookDeleted": "លុបសៀវភៅ។",
+    "deleteTitle": "លុបសៀវភៅ?",
+    "deleteContent": "\"{title}\" នឹងត្រូវបានលុបចោលជាអចិន្ត្រៃយ៍។",
+    "uploadError": "បរាជ័យក្នុងការផ្ទុករូបភាព។"
   },
   "members": {
     "title": "សមាជិក",
@@ -110,7 +117,12 @@
       "PUBLIC": "សាធារណជន",
       "RESEARCHER": "អ្នកស្រាវជ្រាវ"
     },
-    "empty": "រកមិនឃើញសមាជិក។"
+    "empty": "រកមិនឃើញសមាជិក។",
+    "memberAdded": "បន្ថែមសមាជិកដោយជោគជ័យ។",
+    "memberUpdated": "ធ្វើបច្ចុប្បន្នភាពសមាជិក។",
+    "memberDeleted": "លុបសមាជិក។",
+    "deleteTitle": "លុបសមាជិក?",
+    "deleteContent": "\"{name}\" នឹងត្រូវបានលុបចោលជាអចិន្ត្រៃយ៍។"
   },
   "settings": {
     "title": "ការកំណត់",
@@ -251,7 +263,8 @@
       "updatedSuccess": "បានធ្វើបច្ចុប្បន្នភាពធ្នើ។",
       "addedSingleSuccess": "បានបន្ថែមធ្នើ។",
       "deletedSuccess": "បានលុបធ្នើ។",
-      "levelDisplay": "{level} ({letter})"
+      "levelDisplay": "{level} ({letter})",
+      "shelfPlaceholder": "ជ្រើសរើសធ្នើ…"
     },
     "libraryMap": {
       "tool": "ឧបករណ៍:",
@@ -508,6 +521,7 @@
       "RETURNED": "បានប្រគល់",
       "OVERDUE": "ហួសកំណត់",
       "LOST": "បាត់"
-    }
+    },
+    "lostMarked": "សៀវភៅត្រូវបានសម្គាល់ថាបាត់។"
   }
 }

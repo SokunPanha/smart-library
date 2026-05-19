@@ -1,6 +1,7 @@
 "use client";
 
 import { App } from "antd";
+import { useTranslations } from "next-intl";
 import { useCatalogContext } from "./hooks";
 import { apiFetch, filterRequestParam } from "@/libs/utils/request";
 import type { Book } from "./useFetchBooks";
@@ -23,13 +24,15 @@ export interface BookPayload {
 export function useBooks() {
   const { message, modal } = App.useApp();
   const ctx = useCatalogContext();
+  const t = useTranslations("catalog");
+  const tc = useTranslations("common");
 
   const createBook = async (values: BookPayload) => {
     await apiFetch("/api/books", {
       method: "POST",
       body: JSON.stringify(filterRequestParam(values)),
     });
-    message.success("Book added successfully.");
+    message.success(t("bookAdded"));
     ctx.createForm.close();
     ctx.table.reload();
   };
@@ -39,7 +42,7 @@ export function useBooks() {
       method: "POST",
       body: JSON.stringify(filterRequestParam(values)),
     });
-    message.success("Book added. Ready for next entry.");
+    message.success(t("bookAddedContinue"));
     ctx.table.reload();
     onSuccess();
   };
@@ -55,21 +58,21 @@ export function useBooks() {
       method: "PUT",
       body: JSON.stringify(payload),
     });
-    message.success("Book updated.");
+    message.success(t("bookUpdated"));
     ctx.editForm.close();
     ctx.table.reload();
   };
 
   const deleteBook = (book: Book) => {
     modal.confirm({
-      title: "Delete Book?",
-      content: `"${book.titleEn}" will be permanently removed.`,
-      okText: "Delete",
+      title: t("deleteTitle"),
+      content: t("deleteContent", { title: book.titleKh ?? book.titleEn }),
+      okText: tc("delete"),
       okButtonProps: { danger: true },
-      cancelText: "Cancel",
+      cancelText: tc("cancel"),
       onOk: async () => {
         await apiFetch(`/api/books/${book.id}`, { method: "DELETE" });
-        message.success("Book deleted.");
+        message.success(t("bookDeleted"));
         ctx.table.reload();
       },
     });

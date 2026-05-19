@@ -1,6 +1,7 @@
 "use client";
 
 import { App } from "antd";
+import { useTranslations } from "next-intl";
 import { useMembersContext } from "./hooks";
 import { apiFetch, filterRequestParam } from "@/libs/utils/request";
 import type { Member } from "./useFetchMembers";
@@ -18,13 +19,15 @@ export interface MemberPayload {
 export function useMembers() {
   const { message, modal } = App.useApp();
   const ctx = useMembersContext();
+  const t = useTranslations("members");
+  const tc = useTranslations("common");
 
   const createMember = async (values: MemberPayload) => {
     await apiFetch("/api/members", {
       method: "POST",
       body: JSON.stringify(filterRequestParam(values)),
     });
-    message.success("Member added successfully.");
+    message.success(t("memberAdded"));
     ctx.createForm.close();
     ctx.table.reload();
   };
@@ -36,21 +39,21 @@ export function useMembers() {
       method: "PUT",
       body: JSON.stringify(filterRequestParam(values)),
     });
-    message.success("Member updated.");
+    message.success(t("memberUpdated"));
     ctx.editForm.close();
     ctx.table.reload();
   };
 
   const deleteMember = (member: Member) => {
     modal.confirm({
-      title: "Delete Member?",
-      content: `"${member.nameEn ?? member.memberId}" will be permanently removed.`,
-      okText: "Delete",
+      title: t("deleteTitle"),
+      content: t("deleteContent", { name: member.nameKh ?? member.nameEn ?? member.memberId }),
+      okText: tc("delete"),
       okButtonProps: { danger: true },
-      cancelText: "Cancel",
+      cancelText: tc("cancel"),
       onOk: async () => {
         await apiFetch(`/api/members/${member.id}`, { method: "DELETE" });
-        message.success("Member deleted.");
+        message.success(t("memberDeleted"));
         ctx.table.reload();
       },
     });

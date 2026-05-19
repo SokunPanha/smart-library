@@ -12,10 +12,11 @@ interface ColumnArgs {
   ctx: ReturnType<typeof useCatalogContext>;
   actions: ReturnType<typeof useBooks>;
   t: (key: string) => string;
+  ts: (key: string) => string;
   onQR: (book: Book) => void;
 }
 
-export function buildBookColumns({ ctx, actions, t, onQR }: ColumnArgs): ColumnsType<Book> {
+export function buildBookColumns({ ctx, actions, t, ts, onQR }: ColumnArgs): ColumnsType<Book> {
   return [
     {
       title: t("catalog.coverImage"),
@@ -86,7 +87,7 @@ export function buildBookColumns({ ctx, actions, t, onQR }: ColumnArgs): Columns
             <span className="font-mono font-semibold text-blue-600">{s.code}</span>
             {s.cabinet && (
               <p className="text-slate-400">
-                Cab.&nbsp;{s.cabinet}{levelLetter ? `, Lvl ${levelLetter}` : ""}{s.block ? `, Blk ${s.block}` : ""}
+                {ts("colCabinet")}&nbsp;{s.cabinet}{levelLetter ? `, ${ts("colLevel")} ${levelLetter}` : ""}{s.block ? `, ${ts("colBlock")} ${s.block}` : ""}
               </p>
             )}
           </div>

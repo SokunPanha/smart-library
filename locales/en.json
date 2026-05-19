@@ -79,7 +79,14 @@
     "searchPlaceholder": "Search by title, author, ISBN…",
     "shelf": "Shelf Location",
     "colShelf": "Shelf",
-    "empty": "No books found."
+    "empty": "No books found.",
+    "bookAdded": "Book added successfully.",
+    "bookAddedContinue": "Book added. Ready for next entry.",
+    "bookUpdated": "Book updated.",
+    "bookDeleted": "Book deleted.",
+    "deleteTitle": "Delete Book?",
+    "deleteContent": "\"{title}\" will be permanently removed.",
+    "uploadError": "Failed to upload image."
   },
   "members": {
     "title": "Members",
@@ -110,7 +117,12 @@
       "PUBLIC": "Public",
       "RESEARCHER": "Researcher"
     },
-    "empty": "No members found."
+    "empty": "No members found.",
+    "memberAdded": "Member added successfully.",
+    "memberUpdated": "Member updated.",
+    "memberDeleted": "Member deleted.",
+    "deleteTitle": "Delete Member?",
+    "deleteContent": "\"{name}\" will be permanently removed."
   },
   "settings": {
     "title": "Settings",
@@ -251,7 +263,8 @@
       "updatedSuccess": "Shelf updated.",
       "addedSingleSuccess": "Shelf added.",
       "deletedSuccess": "Shelf deleted.",
-      "levelDisplay": "{level} ({letter})"
+      "levelDisplay": "{level} ({letter})",
+      "shelfPlaceholder": "Select shelf…"
     },
     "libraryMap": {
       "tool": "Tool:",
@@ -508,6 +521,7 @@
       "RETURNED": "Returned",
       "OVERDUE": "Overdue",
       "LOST": "Lost"
-    }
+    },
+    "lostMarked": "Book marked as lost."
   }
 }

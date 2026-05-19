@@ -46,7 +46,7 @@ function CoverUpload() {
       setSessionPublicId(publicId);
       form.setFieldValue("coverImage", url);
     } catch {
-      message.error("Failed to upload image.");
+      message.error(t("uploadError"));
       setPreviewUrl(formValue ?? null);
     } finally {
       setUploading(false);
@@ -206,7 +206,7 @@ function ShelfSelect({ value, onChange }: { value?: string | null; onChange?: (v
     <Select
       allowClear
       showSearch
-      placeholder="Select shelf…"
+      placeholder={ts("shelfPlaceholder")}
       optionFilterProp="label"
       value={value ?? undefined}
       onChange={(v) => onChange?.(v ?? null)}

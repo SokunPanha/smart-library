@@ -20,8 +20,8 @@ interface DashboardData {
     id: string;
     status: string;
     dueAt: string;
-    book: { titleEn: string };
-    member: { nameEn: string | null; memberId: string };
+    book: { titleEn: string; titleKh: string | null };
+    member: { nameEn: string | null; nameKh: string | null; memberId: string };
   }[];
 }
 
@@ -52,13 +52,13 @@ export default function DashboardPage() {
     {
       title: t("circulation.colBook"),
       key: "book",
-      render: (_: unknown, row: DashboardData["recentLoans"][0]) => row.book.titleEn,
+      render: (_: unknown, row: DashboardData["recentLoans"][0]) => row.book.titleKh ?? row.book.titleEn,
     },
     {
       title: t("circulation.colMember"),
       key: "member",
       render: (_: unknown, row: DashboardData["recentLoans"][0]) =>
-        row.member.nameEn ?? row.member.memberId,
+        row.member.nameKh ?? row.member.nameEn ?? row.member.memberId,
     },
     {
       title: t("circulation.colDue"),

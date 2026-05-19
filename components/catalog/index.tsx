@@ -25,10 +25,11 @@ function CatalogPageInner() {
   const bulkQRRef = useRef<HTMLDivElement>(null);
 
   const t = useTranslations();
+  const ts = useTranslations("settings.shelves");
   const { data, isLoading } = useFetchBooks(search, ctx.table.page, ctx.table.pageSize);
   const books = data?.books ?? [];
   const selectedBooks = books.filter((b) => selectedRowKeys.includes(b.id));
-  const columns = buildBookColumns({ ctx, actions, t, onQR: setQrBook });
+  const columns = buildBookColumns({ ctx, actions, t, ts, onQR: setQrBook });
   const { ref: tableRef, scrollY } = useTableScroll();
 
   function handleBulkPrint() {
