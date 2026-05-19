@@ -388,6 +388,7 @@
   },
   "reports": {
     "title": "របាយការណ៍",
+    "exportExcel": "នាំចេញ Excel",
     "tabs": {
       "popular": "ខ្ចីច្រើនបំផុត",
       "overdue": "ហួសកំណត់",

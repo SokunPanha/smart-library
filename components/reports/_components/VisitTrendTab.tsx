@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Segmented, Empty, Spin } from "antd";
+import { Segmented, Empty, Spin, Button } from "antd";
+import { DownloadOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import {
@@ -9,6 +10,7 @@ import {
   CartesianGrid, Tooltip, Area, AreaChart,
 } from "recharts";
 import { apiFetch } from "@/lib/request";
+import { exportExcel } from "@/lib/excel";
 import { DateRangeFilter, type DateRange } from "./DateRangeFilter";
 
 interface TrendPoint { date: string; visits: number; }
@@ -27,6 +29,14 @@ export function VisitTrendTab() {
     queryFn: () => apiFetch<TrendPoint[]>(`/api/reports/visit-trend?${params}`),
   });
 
+  function handleExport() {
+    exportExcel(
+      data.map((r) => ({ "Date": r.date, "Visits": r.visits })),
+      "Visit Trend",
+      "visit-trend"
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
@@ -40,6 +50,11 @@ export function VisitTrendTab() {
             { label: t("trend.groupMonth"), value: "month" },
           ]}
         />
+        <div className="ml-auto">
+          <Button size="small" icon={<DownloadOutlined />} onClick={handleExport} disabled={!data.length}>
+            {t("exportExcel")}
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (

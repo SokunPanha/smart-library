@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Empty, Spin } from "antd";
+import { Empty, Spin, Button } from "antd";
+import { DownloadOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import {
@@ -9,6 +10,7 @@ import {
   CartesianGrid, Tooltip, Cell,
 } from "recharts";
 import { apiFetch } from "@/lib/request";
+import { exportExcel } from "@/lib/excel";
 import { DateRangeFilter, type DateRange } from "./DateRangeFilter";
 
 interface HourPoint { hour: number; visits: number; }
@@ -35,9 +37,24 @@ export function PeakHoursTab() {
 
   const maxVisits = Math.max(...data.map((d) => d.visits), 1);
 
+  function handleExport() {
+    exportExcel(
+      data.map((r) => ({ "Hour": fmtHour(r.hour), [t("peakHours.visits")]: r.visits })),
+      "Peak Hours",
+      "peak-hours"
+    );
+  }
+
   return (
     <div className="space-y-4">
-      <DateRangeFilter onChange={setRange} />
+      <div className="flex flex-wrap items-center gap-2">
+        <DateRangeFilter onChange={setRange} />
+        <div className="ml-auto">
+          <Button size="small" icon={<DownloadOutlined />} onClick={handleExport} disabled={!data.length || data.every((d) => d.visits === 0)}>
+            {t("exportExcel")}
+          </Button>
+        </div>
+      </div>
 
       {isLoading ? (
         <div className="flex justify-center py-12"><Spin /></div>

@@ -388,6 +388,7 @@
   },
   "reports": {
     "title": "Reports",
+    "exportExcel": "Export Excel",
     "tabs": {
       "popular": "Most Borrowed",
       "overdue": "Overdue",

@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Table, Select } from "antd";
+import { Table, Select, Button } from "antd";
+import { DownloadOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/request";
 import { useTableScroll } from "@/lib/hooks";
+import { exportExcel } from "@/lib/excel";
 import type { ColumnsType } from "antd/es/table";
 import { DateRangeFilter, type DateRange } from "./DateRangeFilter";
 
@@ -74,6 +76,21 @@ export function MostReadInLibraryTab() {
     },
   ];
 
+  function handleExport() {
+    exportExcel(
+      data.map((r, i) => ({
+        "#": i + 1,
+        [t("inLibrary.colTitle")]: r.book?.titleKh ?? r.book?.titleEn ?? "",
+        "Title (EN)": r.book?.titleEn ?? "",
+        [t("inLibrary.colAuthor")]: r.book?.author ?? "",
+        [t("inLibrary.colCategory")]: r.book?.category ?? "",
+        [t("inLibrary.colReadCount")]: r.readCount,
+      })),
+      "Most Read In Library",
+      "most-read-in-library"
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
@@ -90,6 +107,11 @@ export function MostReadInLibraryTab() {
               { label: t("popular.top50"), value: 50 },
             ]}
           />
+        </div>
+        <div className="ml-auto">
+          <Button size="small" icon={<DownloadOutlined />} onClick={handleExport} disabled={!data.length}>
+            {t("exportExcel")}
+          </Button>
         </div>
       </div>
 

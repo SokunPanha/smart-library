@@ -1,10 +1,13 @@
 "use client";
 
-import { Table, Tag } from "antd";
+import { Table, Tag, Button } from "antd";
+import { DownloadOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
+import dayjs from "dayjs";
 import { apiFetch } from "@/lib/request";
 import { useTableScroll } from "@/lib/hooks";
+import { exportExcel } from "@/lib/excel";
 import type { ColumnsType } from "antd/es/table";
 
 type OverdueLoan = {
@@ -78,8 +81,31 @@ export function OverdueTab() {
     },
   ];
 
+  function handleExport() {
+    exportExcel(
+      data.map((r) => ({
+        [t("overdue.colMember")]: r.member.nameKh ?? r.member.nameEn ?? r.member.memberId,
+        "Member ID": r.member.memberId,
+        [t("overdue.colBook")]: r.book.titleKh ?? r.book.titleEn,
+        "Book Title (EN)": r.book.titleEn,
+        [t("overdue.colDueDate")]: dayjs(r.dueAt).format("DD/MM/YYYY"),
+        [t("overdue.colDaysOverdue")]: r.daysOverdue,
+        [t("overdue.colEstFine")]: r.estimatedFine,
+        [t("overdue.colStatus")]: r.status,
+      })),
+      "Overdue",
+      "overdue-loans"
+    );
+  }
+
   return (
-    <div ref={tableRef}>
+    <div className="space-y-3">
+      <div className="flex justify-end">
+        <Button size="small" icon={<DownloadOutlined />} onClick={handleExport} disabled={!data.length}>
+          {t("exportExcel")}
+        </Button>
+      </div>
+      <div ref={tableRef}>
       <Table
         columns={columns}
         dataSource={data}
@@ -90,6 +116,7 @@ export function OverdueTab() {
         pagination={{ pageSize: 20 }}
         locale={{ emptyText: t("overdue.empty") }}
       />
+      </div>
     </div>
   );
 }

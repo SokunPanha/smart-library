@@ -1,11 +1,13 @@
 "use client";
 
-import { Table, Select } from "antd";
+import { Table, Select, Button } from "antd";
+import { DownloadOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/request";
 import { useTableScroll } from "@/lib/hooks";
+import { exportExcel } from "@/lib/excel";
 import type { ColumnsType } from "antd/es/table";
 
 type CirculationRow = {
@@ -48,9 +50,28 @@ export function CirculationTab() {
     },
   ];
 
+  function handleExport() {
+    exportExcel(
+      data.map((r) => {
+        const [year, month] = r.month.split("-");
+        const label = new Date(Number(year), Number(month) - 1).toLocaleString("default", { month: "long", year: "numeric" });
+        const rate = r.checkouts > 0 ? `${Math.round((r.returns / r.checkouts) * 100)}%` : "—";
+        return {
+          [t("circulation.colMonth")]: label,
+          [t("circulation.colCheckouts")]: r.checkouts,
+          [t("circulation.colReturns")]: r.returns,
+          [t("circulation.colOverdue")]: r.overdue,
+          [t("circulation.colReturnRate")]: rate,
+        };
+      }),
+      "Circulation",
+      "circulation"
+    );
+  }
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <span className="text-slate-600 text-sm">{t("circulation.period")}</span>
         <Select
           value={months}
@@ -62,6 +83,11 @@ export function CirculationTab() {
             { label: t("circulation.last12months"), value: 12 },
           ]}
         />
+        <div className="ml-auto">
+          <Button size="small" icon={<DownloadOutlined />} onClick={handleExport} disabled={!data.length}>
+            {t("exportExcel")}
+          </Button>
+        </div>
       </div>
       <div ref={tableRef}>
         <Table
