@@ -50,7 +50,7 @@ function UserDrawer({ open, user, onClose }: { open: boolean; user: StaffUser | 
       form.resetFields();
       onClose();
     } catch (e: unknown) {
-      message.error(e instanceof Error ? e.message : "Failed to save user.");
+      message.error(e instanceof Error ? e.message : t("users.failedToSave"));
     }
   }
 
@@ -120,7 +120,7 @@ export function UsersTab() {
       message.success(t("users.deletedSuccess"));
       qc.invalidateQueries({ queryKey: ["staff-users"] });
     } catch (e: unknown) {
-      message.error(e instanceof Error ? e.message : "Failed to delete user.");
+      message.error(e instanceof Error ? e.message : t("users.failedToDelete"));
     }
   }
 

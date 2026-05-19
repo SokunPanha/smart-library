@@ -119,7 +119,7 @@ function MembersPageInner() {
             scroll={{ x: "max-content", y: scrollY }}
             {...ctx.table.props}
             pagination={{ ...ctx.table.props.pagination, total: data?.total ?? 0 }}
-            locale={{ emptyText: "No members found." }}
+            locale={{ emptyText: t("members.empty") }}
           />
         </div>
       </div>

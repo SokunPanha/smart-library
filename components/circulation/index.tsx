@@ -40,7 +40,7 @@ function CirculationPageInner() {
       body: JSON.stringify({ status: "RETURNED", finePaid: false }),
     });
     if (updated.fineAmount > 0) {
-      message.warning(`Returned. Fine: ${updated.fineAmount.toLocaleString()} ៛`);
+      message.warning(t("circulation.returnedWithFine", { amount: updated.fineAmount.toLocaleString() }));
     } else {
       message.success(t("circulation.returnSuccess"));
     }
@@ -81,7 +81,7 @@ function CirculationPageInner() {
         <h1 className="text-xl font-semibold text-slate-800">{t("circulation.title")}</h1>
         <Space wrap>
           <Button icon={<QrcodeOutlined />} onClick={() => setScanOpen(true)}>
-            <span className="hidden sm:inline">Scan QR</span>
+            <span className="hidden sm:inline">{t("circulation.scanQr")}</span>
           </Button>
           <Button type="primary" icon={<PlusOutlined />} onClick={() => ctx.checkoutModal.open()}>
             <span className="hidden sm:inline">{t("circulation.checkout")}</span>

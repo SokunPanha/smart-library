@@ -47,7 +47,7 @@ function CategoryDrawer({
       form.resetFields();
       onClose();
     } catch (e: unknown) {
-      message.error(e instanceof Error ? e.message : "Failed to save.");
+      message.error(e instanceof Error ? e.message : t("categories.failedToSave"));
     }
   }
 
@@ -103,7 +103,7 @@ export function CategoriesTab() {
       message.success(t("categories.deletedSuccess"));
       qc.invalidateQueries({ queryKey: ["categories"] });
     } catch (e: unknown) {
-      message.error(e instanceof Error ? e.message : "Failed to delete.");
+      message.error(e instanceof Error ? e.message : t("categories.failedToDelete"));
     }
   }
 

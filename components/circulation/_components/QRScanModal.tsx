@@ -233,7 +233,7 @@ export function QRScanModal({ open, onClose, onCheckout, onReturn }: Props) {
 
       {/* Member card */}
       <div className={`border rounded-lg p-3 mb-3 transition-colors ${member ? "border-green-200 bg-green-50" : "border-dashed border-slate-200"}`}>
-        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Member</p>
+        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">{t("scan.memberSection")}</p>
         {member ? (
           <div className="flex items-center justify-between">
             <div>

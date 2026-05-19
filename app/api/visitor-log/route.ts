@@ -7,9 +7,16 @@ import { z } from "zod";
 const createSchema = z.object({
   memberId: z.string().min(1),
   purpose: z.enum(["READING", "BORROWING", "SCHOOLWORK", "RESEARCH", "OTHER"]),
-  bookId: z.string().optional().nullable(),
+  bookIds: z.array(z.string()).optional().default([]),
   note: z.string().optional().nullable(),
 });
+
+const bookInclude = {
+  books: {
+    include: { book: { select: { id: true, titleKh: true, titleEn: true } } },
+    orderBy: { addedAt: "asc" as const },
+  },
+};
 
 export async function GET(req: NextRequest) {
   const session = await auth();
@@ -62,7 +69,7 @@ export async function GET(req: NextRequest) {
       orderBy: { arrivedAt: "desc" },
       include: {
         member: { select: { id: true, memberId: true, nameKh: true, nameEn: true, type: true, class: { select: { name: true } } } },
-        book: { select: { id: true, titleKh: true, titleEn: true } },
+        ...bookInclude,
       },
     }),
     prisma.visitorLog.count({ where }),
@@ -80,17 +87,24 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
 
   const actor = (session.user as { name?: string; email?: string }).name ?? session.user?.email ?? "unknown";
-  const { memberId, purpose, bookId, note } = parsed.data;
+  const { memberId, purpose, bookIds, note } = parsed.data;
 
-  // Check member exists
   const member = await prisma.member.findUnique({ where: { id: memberId }, select: { id: true, nameKh: true, nameEn: true, memberId: true } });
   if (!member) return NextResponse.json({ error: "Member not found." }, { status: 404 });
 
   const log = await prisma.visitorLog.create({
-    data: { memberId, purpose, bookId: bookId || null, note: note || null, recordedBy: actor },
+    data: {
+      memberId,
+      purpose,
+      note: note || null,
+      recordedBy: actor,
+      books: bookIds.length > 0
+        ? { create: bookIds.map((bookId) => ({ bookId })) }
+        : undefined,
+    },
     include: {
       member: { select: { id: true, memberId: true, nameKh: true, nameEn: true, type: true, class: { select: { name: true } } } },
-      book: { select: { id: true, titleKh: true, titleEn: true } },
+      ...bookInclude,
     },
   });
 

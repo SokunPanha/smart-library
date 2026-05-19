@@ -12,7 +12,7 @@ interface VisitorLog {
   purpose: string;
   arrivedAt: string;
   member: { id: string; memberId: string; nameKh: string | null; nameEn: string | null; type: string; class?: { name: string } | null };
-  book?: { titleKh: string | null; titleEn: string | null } | null;
+  books: { book: { id: string; titleKh: string | null; titleEn: string | null } }[];
 }
 
 const PURPOSE_COLOR: Record<string, string> = {
@@ -68,8 +68,12 @@ export function InsideNow() {
                   <Tag className="border-0 text-xs bg-indigo-50 text-indigo-600">{log.member.class.name}</Tag>
                 )}
               </div>
-              {log.book && (
-                <p className="text-xs text-slate-400 mt-0.5">📖 {log.book.titleKh ?? log.book.titleEn}</p>
+              {log.books.length > 0 && (
+                <div className="mt-0.5 flex flex-wrap gap-1">
+                  {log.books.map(({ book }) => (
+                    <span key={book.id} className="text-xs text-slate-400">📖 {book.titleKh ?? book.titleEn}</span>
+                  ))}
+                </div>
               )}
             </div>
             <Tag color={PURPOSE_COLOR[log.purpose] ?? "default"} className="border-0 text-xs">

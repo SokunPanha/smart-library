@@ -78,7 +78,7 @@ export default function CheckoutModal({ open, onClose, onSuccess }: Props) {
       form.resetFields();
       onSuccess();
     } catch (e: unknown) {
-      message.error(e instanceof Error ? e.message : "Failed to check out.");
+      message.error(e instanceof Error ? e.message : t("checkoutError"));
     } finally {
       setLoading(false);
     }

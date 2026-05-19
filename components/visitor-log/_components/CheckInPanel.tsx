@@ -45,7 +45,7 @@ export function CheckInPanel({ onCheckedIn }: { onCheckedIn: () => void }) {
   const [scannerTarget, setScannerTarget] = useState<"member" | "book" | null>(null);
   const [member, setMember] = useState<MemberInfo | null>(null);
   const [openVisit, setOpenVisit] = useState<OpenVisit | null>(null);
-  const [book, setBook] = useState<BookInfo | null>(null);
+  const [books, setBooks] = useState<BookInfo[]>([]);
   const [purpose, setPurpose] = useState<Purpose | null>(null);
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
@@ -56,7 +56,6 @@ export function CheckInPanel({ onCheckedIn }: { onCheckedIn: () => void }) {
     setResolving(true);
     setScannerTarget(null);
     try {
-      // QR contains member id (the short memberId string like MEM-2025-0001)
       const res = await apiFetch<{ members: MemberInfo[]; total: number }>(
         `/api/members?search=${encodeURIComponent(qrValue)}&limit=1`
       );
@@ -64,7 +63,6 @@ export function CheckInPanel({ onCheckedIn }: { onCheckedIn: () => void }) {
       if (!found) { message.error(t("memberNotFound")); return; }
       setMember(found);
 
-      // Check if already inside
       const logRes = await apiFetch<{ logs: OpenVisit[]; total: number }>(
         `/api/visitor-log?openOnly=true&search=${encodeURIComponent(qrValue)}&limit=1`
       );
@@ -89,11 +87,12 @@ export function CheckInPanel({ onCheckedIn }: { onCheckedIn: () => void }) {
         );
         found = res.books?.[0] ?? null;
       }
-      if (!found) { message.warning("Book not found"); return; }
-      setBook(found);
+      if (!found) { message.warning(t("bookNotFound")); return; }
+      if (books.some((b) => b.id === found!.id)) { message.info(t("bookAlreadyAdded")); return; }
+      setBooks((prev) => [...prev, found!]);
       message.success(t("bookLinked", { title: found.titleKh ?? found.titleEn ?? "" }));
     } catch {
-      message.warning("Book not found");
+      message.warning(t("bookNotFound"));
     }
   }
 
@@ -102,7 +101,6 @@ export function CheckInPanel({ onCheckedIn }: { onCheckedIn: () => void }) {
     setLoading(true);
     try {
       if (openVisit) {
-        // Check out
         await apiFetch(`/api/visitor-log/${openVisit.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -114,7 +112,7 @@ export function CheckInPanel({ onCheckedIn }: { onCheckedIn: () => void }) {
         await apiFetch("/api/visitor-log", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ memberId: member.id, purpose, bookId: book?.id ?? null, note: note || null }),
+          body: JSON.stringify({ memberId: member.id, purpose, bookIds: books.map((b) => b.id), note: note || null }),
         });
         message.success(t("checkinSuccess"));
       }
@@ -130,7 +128,7 @@ export function CheckInPanel({ onCheckedIn }: { onCheckedIn: () => void }) {
   function reset() {
     setMember(null);
     setOpenVisit(null);
-    setBook(null);
+    setBooks([]);
     setPurpose(null);
     setNote("");
   }
@@ -157,20 +155,14 @@ export function CheckInPanel({ onCheckedIn }: { onCheckedIn: () => void }) {
         {member && (
           <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 flex-1 min-w-[200px]">
             <div className="flex-1">
-              <p className="font-medium text-slate-800 leading-snug">
-                {member.nameKh ?? member.nameEn}
-              </p>
-              {member.nameKh && member.nameEn && (
-                <p className="text-xs text-slate-400">{member.nameEn}</p>
-              )}
+              <p className="font-medium text-slate-800 leading-snug">{member.nameKh ?? member.nameEn}</p>
+              {member.nameKh && member.nameEn && <p className="text-xs text-slate-400">{member.nameEn}</p>}
               <div className="flex gap-1 mt-1 flex-wrap">
                 <Tag className="border-0 text-xs bg-slate-100 text-slate-500">{member.memberId}</Tag>
                 {member.class && (
                   <Tag className="border-0 text-xs bg-indigo-50 text-indigo-600">{member.class.name}</Tag>
                 )}
-                {isCheckout && (
-                  <Tag color="orange" className="border-0 text-xs">{t("open")}</Tag>
-                )}
+                {isCheckout && <Tag color="orange" className="border-0 text-xs">{t("open")}</Tag>}
               </div>
             </div>
             <Button type="text" size="small" icon={<CloseOutlined />} onClick={reset} />
@@ -178,7 +170,7 @@ export function CheckInPanel({ onCheckedIn }: { onCheckedIn: () => void }) {
         )}
       </div>
 
-      {/* Only show purpose + book if checking in (not out) */}
+      {/* Only show purpose + books if checking in */}
       {member && !isCheckout && (
         <>
           {/* Purpose chips */}
@@ -202,19 +194,33 @@ export function CheckInPanel({ onCheckedIn }: { onCheckedIn: () => void }) {
             </div>
           </div>
 
-          {/* Book scan (optional) */}
-          <div className="flex flex-wrap gap-2 items-center">
-            <Button
-              icon={<BookOutlined />}
-              size="small"
-              onClick={() => setScannerTarget("book")}
-            >
-              {t("scanBook")}
-            </Button>
-            {book && (
-              <div className="flex items-center gap-1 bg-blue-50 border border-blue-100 rounded px-2 py-1">
-                <span className="text-xs text-blue-700">{book.titleKh ?? book.titleEn}</span>
-                <Button type="text" size="small" icon={<CloseOutlined />} onClick={() => setBook(null)} className="!w-4 !h-4 !min-w-0" />
+          {/* Book scan — multiple */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Button icon={<BookOutlined />} size="small" onClick={() => setScannerTarget("book")}>
+                {t("scanBookOptional")}
+              </Button>
+              {books.length > 0 && (
+                <span className="text-xs text-slate-400">{t("booksRead")}: {books.length}</span>
+              )}
+            </div>
+            {books.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {books.map((b) => (
+                  <span
+                    key={b.id}
+                    className="flex items-center gap-1 bg-blue-50 border border-blue-100 rounded px-2 py-0.5 text-xs text-blue-700"
+                  >
+                    {b.titleKh ?? b.titleEn}
+                    <button
+                      type="button"
+                      onClick={() => setBooks((prev) => prev.filter((x) => x.id !== b.id))}
+                      className="text-blue-400 hover:text-blue-700 ml-0.5"
+                    >
+                      <CloseOutlined style={{ fontSize: 10 }} />
+                    </button>
+                  </span>
+                ))}
               </div>
             )}
           </div>
@@ -244,7 +250,6 @@ export function CheckInPanel({ onCheckedIn }: { onCheckedIn: () => void }) {
         </Button>
       )}
 
-      {/* QR Scanner modal */}
       {scannerTarget && (
         <QrScanner
           onScan={(val) => {

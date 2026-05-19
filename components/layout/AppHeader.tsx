@@ -8,7 +8,7 @@ import {
   MenuOutlined,
 } from "@ant-design/icons";
 import { useRouter, usePathname } from "next/navigation";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { signOut } from "next-auth/react";
 import type { MenuProps } from "antd";
 
@@ -23,6 +23,7 @@ export default function AppHeader({ onMenuToggle, showMenuButton }: Props) {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
+  const tc = useTranslations("common");
 
   const switchLocale = (newLocale: string) => {
     const segments = pathname.split("/");
@@ -39,7 +40,7 @@ export default function AppHeader({ onMenuToggle, showMenuButton }: Props) {
     {
       key: "logout",
       icon: <LogoutOutlined />,
-      label: "Sign Out",
+      label: tc("signOut"),
       onClick: () => signOut({ callbackUrl: `/${locale}/login` }),
     },
   ];

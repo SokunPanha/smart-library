@@ -14,7 +14,9 @@
     "status": "Status",
     "createdAt": "Created At",
     "updatedAt": "Updated At",
-    "createdBy": "Added by / Updated by"
+    "createdBy": "Added by / Updated by",
+    "signOut": "Sign Out",
+    "close": "Close"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -76,7 +78,8 @@
     "colCopies": "Copies",
     "searchPlaceholder": "Search by title, author, ISBN…",
     "shelf": "Shelf Location",
-    "colShelf": "Shelf"
+    "colShelf": "Shelf",
+    "empty": "No books found."
   },
   "members": {
     "title": "Members",
@@ -106,7 +109,8 @@
       "TEACHER": "Teacher",
       "PUBLIC": "Public",
       "RESEARCHER": "Researcher"
-    }
+    },
+    "empty": "No members found."
   },
   "settings": {
     "title": "Settings",
@@ -159,7 +163,9 @@
         "ADMIN": "Admin",
         "LIBRARIAN": "Librarian",
         "STAFF": "Staff"
-      }
+      },
+      "failedToSave": "Failed to save user.",
+      "failedToDelete": "Failed to delete user."
     },
     "classes": {
       "generator": "Bulk Generator",
@@ -204,7 +210,9 @@
       "deleteDescription": "Books using it will keep the name but it won't appear in the list.",
       "total": "Total {total} categories",
       "savedSuccess": "Category saved.",
-      "deletedSuccess": "Category deleted."
+      "deletedSuccess": "Category deleted.",
+      "failedToSave": "Failed to save.",
+      "failedToDelete": "Failed to delete."
     },
     "shelves": {
       "cabinetBuilder": "Cabinet Builder",
@@ -312,7 +320,13 @@
     "checkinSuccess": "Checked in successfully.",
     "checkoutSuccess": "Checked out.",
     "alreadyInside": "{name} is already inside — checking out instead.",
-    "bookLinked": "Book linked: {title}",
+    "bookLinked": "Book added: {title}",
+    "bookRemoved": "Book removed.",
+    "manageBooks": "Books Read",
+    "addBook": "Add Book",
+    "booksRead": "Books Read",
+    "noBooks": "No books scanned.",
+    "scanBookOptional": "Scan Book (optional)",
     "memberNotFound": "Member not found",
     "purposes": {
       "READING": "Reading",
@@ -320,7 +334,12 @@
       "SCHOOLWORK": "School Work",
       "RESEARCH": "Research",
       "OTHER": "Other"
-    }
+    },
+    "bookNotFound": "Book not found",
+    "bookAlreadyAdded": "Already added",
+    "searchBooksPlaceholder": "Search by title, ISBN…",
+    "colDuration": "Duration",
+    "colMember": "Member"
   },
   "reports": {
     "title": "Reports",
@@ -443,6 +462,9 @@
     "closedBy": "Returned/Lost by",
     "checkoutSuccess": "Book checked out successfully.",
     "returnSuccess": "Book returned successfully.",
+    "returnedWithFine": "Returned. Fine: {amount} ៛",
+    "scanQr": "Scan QR",
+    "checkoutError": "Failed to check out.",
     "scan": {
       "title": "Scan QR — Checkout / Return",
       "hint": "Scan member QR first, then scan book QR(s) — up to {max} total (including previous loans)",
@@ -450,6 +472,7 @@
       "memberNotFound": "Member not found",
       "cameraUnavailable": "Camera not available. Please allow camera access.",
       "qrNotRecognized": "QR not recognized",
+      "memberSection": "Member",
       "scanMemberQR": "Scan member QR",
       "scanBookToAdd": "Scan a book QR to add",
       "loanLimitWarning": "Loan limit will be reached",

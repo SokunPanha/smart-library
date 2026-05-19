@@ -18,7 +18,7 @@ interface ColumnArgs {
   actions: ReturnType<typeof useLoans>;
   onReturn: (loan: Loan) => void;
   onLost: (loan: Loan) => void;
-  t: (key: string, values?: Record<string, unknown>) => string;
+  t: (key: string, values?: Record<string, string | number | Date>) => string;
 }
 
 export function buildLoanColumns({ onReturn, onLost, t }: ColumnArgs): ColumnsType<Loan> {

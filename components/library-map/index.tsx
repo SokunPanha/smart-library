@@ -189,80 +189,94 @@ export default function LibraryMapPage() {
         size={400}
         placement="right"
       >
-        <div className="space-y-4">
+        <div className="space-y-5">
           {cabinetLoading ? (
             <div className="flex justify-center py-8"><Spin /></div>
           ) : cabinetShelves.length === 0 ? (
             <Empty description={t("noShelves")} />
-          ) : (
-            cabinetShelves.map((shelf) => (
-              <div
-                key={shelf.id}
-                className={`border rounded-lg cursor-pointer transition-colors ${
-                  activeCabinetShelf === shelf.id
-                    ? "border-blue-300 bg-blue-50"
-                    : "border-slate-200 bg-white hover:bg-slate-50"
-                }`}
-                onClick={() => {
-                  setActiveCabinetShelf(activeCabinetShelf === shelf.id ? null : shelf.id);
-                  setCabinetSearch("");
-                }}
-              >
-                <div className="flex items-center justify-between px-3 py-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-semibold text-blue-600 text-sm">{shelf.code}</span>
-                    {shelf.level && (
-                      <Tag className="border-0 bg-violet-50 text-violet-600 text-xs">
-                        {t("levelTag", { level: shelf.level, letter: levelLetter(shelf.level) })}
-                      </Tag>
-                    )}
-                    {shelf.block && (
-                      <Tag className="border-0 bg-blue-50 text-blue-600 text-xs">
-                        {t("blockTag", { block: shelf.block })}
-                      </Tag>
-                    )}
-                    {shelf.label && <span className="text-xs text-slate-500">{shelf.label}</span>}
-                  </div>
-                  <span className="text-xs text-slate-400">
-                    <BookOutlined className="mr-1" />
-                    {t("booksCount", { count: shelf._count.books })}
+          ) : (() => {
+            // Group shelves by level
+            const levelMap = new Map<number | null, ShelfRecord[]>();
+            for (const shelf of cabinetShelves) {
+              const key = shelf.level ?? null;
+              if (!levelMap.has(key)) levelMap.set(key, []);
+              levelMap.get(key)!.push(shelf);
+            }
+            return Array.from(levelMap.entries()).map(([lvl, shelves]) => (
+              <div key={lvl ?? "none"} className="space-y-2">
+                {/* Level header */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-violet-600 bg-violet-50 border border-violet-200 rounded px-2 py-0.5">
+                    {lvl ? t("levelTag", { level: lvl, letter: levelLetter(lvl) }) : "—"}
                   </span>
+                  <div className="flex-1 border-t border-slate-100" />
                 </div>
+                {/* Blocks in this level */}
+                {shelves.map((shelf) => (
+                  <div
+                    key={shelf.id}
+                    className={`border rounded-lg cursor-pointer transition-colors ${
+                      activeCabinetShelf === shelf.id
+                        ? "border-blue-300 bg-blue-50"
+                        : "border-slate-200 bg-white hover:bg-slate-50"
+                    }`}
+                    onClick={() => {
+                      setActiveCabinetShelf(activeCabinetShelf === shelf.id ? null : shelf.id);
+                      setCabinetSearch("");
+                    }}
+                  >
+                    <div className="flex items-center justify-between px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-semibold text-blue-600 text-sm">{shelf.code}</span>
+                        {shelf.block && (
+                          <Tag className="border-0 bg-blue-50 text-blue-600 text-xs">
+                            {t("blockTag", { block: shelf.block })}
+                          </Tag>
+                        )}
+                        {shelf.label && <span className="text-xs text-slate-500">{shelf.label}</span>}
+                      </div>
+                      <span className="text-xs text-slate-400">
+                        <BookOutlined className="mr-1" />
+                        {t("booksCount", { count: shelf._count.books })}
+                      </span>
+                    </div>
 
-                {activeCabinetShelf === shelf.id && (
-                  <div className="px-3 pb-3 space-y-2 border-t border-slate-100 pt-2">
-                    <Input
-                      prefix={<SearchOutlined className="text-slate-300" />}
-                      placeholder={t("searchBooks")}
-                      size="small"
-                      value={cabinetSearch}
-                      onChange={(e) => setCabinetSearch(e.target.value)}
-                      allowClear
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                    {cabinetShelfBooksLoading ? (
-                      <div className="flex justify-center py-4"><Spin size="small" /></div>
-                    ) : cabinetShelfBooks.length === 0 ? (
-                      <p className="text-xs text-slate-400 text-center py-2">{t("noBooksOnShelf")}</p>
-                    ) : (
-                      <div className="divide-y divide-slate-100 max-h-64 overflow-y-auto">
-                        {cabinetShelfBooks.map((book) => (
-                          <div key={book.id} className="py-2">
-                            <p className="font-medium text-slate-800 text-xs leading-snug">{book.titleKh ?? book.titleEn}</p>
-                            {book.titleKh && book.titleEn && <p className="text-[11px] text-slate-400">{book.titleEn}</p>}
-                            {book.author && <p className="text-[11px] text-slate-400">{book.author}</p>}
-                            <span className={`text-[11px] font-medium ${book.availableCopies > 0 ? "text-green-600" : "text-red-400"}`}>
-                              {book.availableCopies}/{book.totalCopies}
-                            </span>
+                    {activeCabinetShelf === shelf.id && (
+                      <div className="px-3 pb-3 space-y-2 border-t border-slate-100 pt-2">
+                        <Input
+                          prefix={<SearchOutlined className="text-slate-300" />}
+                          placeholder={t("searchBooks")}
+                          size="small"
+                          value={cabinetSearch}
+                          onChange={(e) => setCabinetSearch(e.target.value)}
+                          allowClear
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        {cabinetShelfBooksLoading ? (
+                          <div className="flex justify-center py-4"><Spin size="small" /></div>
+                        ) : cabinetShelfBooks.length === 0 ? (
+                          <p className="text-xs text-slate-400 text-center py-2">{t("noBooksOnShelf")}</p>
+                        ) : (
+                          <div className="divide-y divide-slate-100 max-h-64 overflow-y-auto">
+                            {cabinetShelfBooks.map((book) => (
+                              <div key={book.id} className="py-2">
+                                <p className="font-medium text-slate-800 text-xs leading-snug">{book.titleKh ?? book.titleEn}</p>
+                                {book.titleKh && book.titleEn && <p className="text-[11px] text-slate-400">{book.titleEn}</p>}
+                                {book.author && <p className="text-[11px] text-slate-400">{book.author}</p>}
+                                <span className={`text-[11px] font-medium ${book.availableCopies > 0 ? "text-green-600" : "text-red-400"}`}>
+                                  {book.availableCopies}/{book.totalCopies}
+                                </span>
+                              </div>
+                            ))}
                           </div>
-                        ))}
+                        )}
                       </div>
                     )}
                   </div>
-                )}
+                ))}
               </div>
-            ))
-          )}
+            ));
+          })()}
         </div>
       </Drawer>
 

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Modal, Input, Button, Spin, App } from "antd";
-import { QrcodeOutlined, SearchOutlined } from "@ant-design/icons";
+import { QrcodeOutlined, SearchOutlined, CloseOutlined } from "@ant-design/icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/libs/utils/request";
@@ -18,12 +18,13 @@ interface BookResult {
 interface Props {
   logId: string;
   memberName: string;
-  currentBook?: { titleKh: string | null; titleEn: string | null } | null;
+  currentBooks: { id: string; titleKh: string | null; titleEn: string | null }[];
   onClose: () => void;
 }
 
-export function LinkBookModal({ logId, memberName, currentBook, onClose }: Props) {
+export function LinkBookModal({ logId, memberName, currentBooks, onClose }: Props) {
   const t = useTranslations("visitorLog");
+  const tc = useTranslations("common");
   const { message } = App.useApp();
   const qc = useQueryClient();
 
@@ -31,19 +32,34 @@ export function LinkBookModal({ logId, memberName, currentBook, onClose }: Props
   const [searchVal, setSearchVal] = useState("");
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<BookResult[]>([]);
-  const [selected, setSelected] = useState<BookResult | null>(null);
 
-  const linkMutation = useMutation({
-    mutationFn: (bookId: string | null) =>
+  const addMutation = useMutation({
+    mutationFn: (bookId: string) =>
       apiFetch(`/api/visitor-log/${logId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "linkBook", bookId }),
+        body: JSON.stringify({ action: "addBook", bookId }),
+      }),
+    onSuccess: (_, bookId) => {
+      const book = results.find((r) => r.id === bookId);
+      message.success(t("bookLinked", { title: book?.titleKh ?? book?.titleEn ?? "" }));
+      qc.invalidateQueries({ queryKey: ["visitor-log"] });
+      setResults([]);
+      setSearchVal("");
+    },
+    onError: (e: Error) => message.error(e.message),
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: (bookId: string) =>
+      apiFetch(`/api/visitor-log/${logId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "removeBook", bookId }),
       }),
     onSuccess: () => {
-      message.success(t("bookLinked", { title: selected?.titleKh ?? selected?.titleEn ?? "" }));
+      message.success(t("bookRemoved"));
       qc.invalidateQueries({ queryKey: ["visitor-log"] });
-      onClose();
     },
     onError: (e: Error) => message.error(e.message),
   });
@@ -64,89 +80,111 @@ export function LinkBookModal({ logId, memberName, currentBook, onClose }: Props
     setShowScanner(false);
     setSearching(true);
     try {
-      // Book QR codes encode the book id (CUID — no hyphens, ~25 chars)
       const looksLikeCuid = !qrValue.includes("-") && qrValue.length > 10;
+      let book: BookResult | null = null;
       if (looksLikeCuid) {
-        const book = await apiFetch<BookResult>(`/api/books/${qrValue}`);
-        setSelected(book);
-        setResults([book]);
+        book = await apiFetch<BookResult>(`/api/books/${qrValue}`);
       } else {
         const res = await apiFetch<{ books: BookResult[] }>(`/api/books?search=${encodeURIComponent(qrValue)}&limit=1`);
-        const book = res.books?.[0];
-        if (!book) { message.warning("Book not found"); return; }
-        setSelected(book);
-        setResults([book]);
+        book = res.books?.[0] ?? null;
       }
+      if (!book) { message.warning(t("bookNotFound")); return; }
+      addMutation.mutate(book.id);
     } catch {
-      message.warning("Book not found");
+      message.warning(t("bookNotFound"));
     } finally {
       setSearching(false);
     }
   }
 
+  const currentBookIds = new Set(currentBooks.map((b) => b.id));
+
   return (
     <>
       <Modal
         open
-        title={`${t("scanBook")} — ${memberName}`}
+        title={`${t("manageBooks")} — ${memberName}`}
         onCancel={onClose}
         footer={null}
-        width={420}
+        width={440}
         destroyOnHidden
       >
-        <div className="space-y-3 mt-2">
-          {currentBook && (
-            <p className="text-xs text-slate-400">
-              {t("bookLinked", { title: currentBook.titleKh ?? currentBook.titleEn ?? "" })}
-            </p>
-          )}
-
-          {/* Search row */}
-          <div className="flex gap-2">
-            <Input
-              placeholder="Search by title, ISBN…"
-              value={searchVal}
-              onChange={(e) => setSearchVal(e.target.value)}
-              onPressEnter={() => searchBooks(searchVal)}
-              allowClear
-              className="flex-1"
-            />
-            <Button icon={<SearchOutlined />} onClick={() => searchBooks(searchVal)} />
-            <Button icon={<QrcodeOutlined />} onClick={() => setShowScanner(true)} />
-          </div>
-
-          {searching && <Spin size="small" />}
-
-          {/* Results */}
-          {results.length > 0 && (
-            <div className="border border-slate-200 rounded divide-y divide-slate-100 max-h-60 overflow-y-auto">
-              {results.map((b) => (
-                <button
-                  key={b.id}
-                  type="button"
-                  onClick={() => setSelected(b)}
-                  className={`w-full text-left px-3 py-2 text-sm transition-colors ${
-                    selected?.id === b.id ? "bg-blue-50" : "hover:bg-slate-50"
-                  }`}
-                >
-                  <p className="font-medium text-slate-800 leading-snug">{b.titleKh ?? b.titleEn}</p>
-                  {b.titleKh && b.titleEn && <p className="text-xs text-slate-400">{b.titleEn}</p>}
-                  {b.author && <p className="text-xs text-slate-400">{b.author}</p>}
-                </button>
-              ))}
+        <div className="space-y-4 mt-2">
+          {/* Current books */}
+          {currentBooks.length > 0 && (
+            <div className="space-y-1.5">
+              <p className="text-xs text-slate-500 font-medium">{t("booksRead")}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {currentBooks.map((b) => (
+                  <span
+                    key={b.id}
+                    className="flex items-center gap-1 bg-blue-50 border border-blue-100 rounded px-2 py-0.5 text-xs text-blue-700"
+                  >
+                    {b.titleKh ?? b.titleEn}
+                    <button
+                      type="button"
+                      disabled={removeMutation.isPending}
+                      onClick={() => removeMutation.mutate(b.id)}
+                      className="text-blue-400 hover:text-red-500 ml-0.5 transition-colors"
+                    >
+                      <CloseOutlined style={{ fontSize: 10 }} />
+                    </button>
+                  </span>
+                ))}
+              </div>
             </div>
           )}
 
-          <div className="flex justify-end gap-2 pt-1">
-            <Button onClick={onClose}>Cancel</Button>
-            <Button
-              type="primary"
-              disabled={!selected}
-              loading={linkMutation.isPending}
-              onClick={() => selected && linkMutation.mutate(selected.id)}
-            >
-              Link Book
-            </Button>
+          {currentBooks.length === 0 && (
+            <p className="text-xs text-slate-400">{t("noBooks")}</p>
+          )}
+
+          {/* Add book section */}
+          <div className="space-y-2 border-t border-slate-100 pt-3">
+            <p className="text-xs text-slate-500 font-medium">{t("addBook")}</p>
+            <div className="flex gap-2">
+              <Input
+                placeholder={t("searchBooksPlaceholder")}
+                value={searchVal}
+                onChange={(e) => setSearchVal(e.target.value)}
+                onPressEnter={() => searchBooks(searchVal)}
+                allowClear
+                className="flex-1"
+              />
+              <Button icon={<SearchOutlined />} onClick={() => searchBooks(searchVal)} />
+              <Button icon={<QrcodeOutlined />} onClick={() => setShowScanner(true)} />
+            </div>
+
+            {searching && <Spin size="small" />}
+
+            {results.length > 0 && (
+              <div className="border border-slate-200 rounded divide-y divide-slate-100 max-h-52 overflow-y-auto">
+                {results.map((b) => {
+                  const alreadyAdded = currentBookIds.has(b.id);
+                  return (
+                    <button
+                      key={b.id}
+                      type="button"
+                      disabled={alreadyAdded || addMutation.isPending}
+                      onClick={() => !alreadyAdded && addMutation.mutate(b.id)}
+                      className={`w-full text-left px-3 py-2 text-sm transition-colors ${
+                        alreadyAdded
+                          ? "opacity-40 cursor-not-allowed bg-slate-50"
+                          : "hover:bg-blue-50 cursor-pointer"
+                      }`}
+                    >
+                      <p className="font-medium text-slate-800 leading-snug">{b.titleKh ?? b.titleEn}</p>
+                      {b.titleKh && b.titleEn && <p className="text-xs text-slate-400">{b.titleEn}</p>}
+                      {b.author && <p className="text-xs text-slate-400">{b.author}</p>}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-end pt-1">
+            <Button onClick={onClose}>{tc("close")}</Button>
           </div>
         </div>
       </Modal>

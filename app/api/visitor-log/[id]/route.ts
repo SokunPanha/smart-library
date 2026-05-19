@@ -3,6 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { logActivity } from "@/lib/activityLog";
 
+const bookInclude = {
+  books: {
+    include: { book: { select: { id: true, titleKh: true, titleEn: true } } },
+    orderBy: { addedAt: "asc" as const },
+  },
+};
+
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -24,26 +31,51 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       data: { leftAt: new Date() },
       include: {
         member: { select: { id: true, memberId: true, nameKh: true, nameEn: true, type: true, class: { select: { name: true } } } },
-        book: { select: { id: true, titleKh: true, titleEn: true } },
+        ...bookInclude,
       },
     });
     await logActivity(session, "VISITOR_CHECKOUT", `${log.member.nameKh ?? log.member.nameEn} (${log.member.memberId}) checked out`);
     return NextResponse.json(updated);
   }
 
-  // Link book
-  if (body.action === "linkBook") {
+  // Add a book to this visit
+  if (body.action === "addBook") {
     const bookId = typeof body.bookId === "string" ? body.bookId : null;
-    const updated = await prisma.visitorLog.update({
+    if (!bookId) return NextResponse.json({ error: "bookId required." }, { status: 422 });
+
+    await prisma.visitorLogBook.upsert({
+      where: { visitorLogId_bookId: { visitorLogId: id, bookId } },
+      create: { visitorLogId: id, bookId },
+      update: {},
+    });
+
+    const book = await prisma.book.findUnique({ where: { id: bookId }, select: { titleKh: true, titleEn: true } });
+    const updated = await prisma.visitorLog.findUnique({
       where: { id },
-      data: { bookId },
       include: {
         member: { select: { id: true, memberId: true, nameKh: true, nameEn: true, type: true, class: { select: { name: true } } } },
-        book: { select: { id: true, titleKh: true, titleEn: true } },
+        ...bookInclude,
       },
     });
-    const bookTitle = updated.book ? (updated.book.titleKh ?? updated.book.titleEn ?? "") : "none";
-    await logActivity(session, "VISITOR_BOOK_LINKED", `${log.member.nameKh ?? log.member.nameEn} — book linked: ${bookTitle}`);
+    const bookTitle = book ? (book.titleKh ?? book.titleEn ?? "") : "";
+    await logActivity(session, "VISITOR_BOOK_LINKED", `${log.member.nameKh ?? log.member.nameEn} — book added: ${bookTitle}`);
+    return NextResponse.json(updated);
+  }
+
+  // Remove a book from this visit
+  if (body.action === "removeBook") {
+    const bookId = typeof body.bookId === "string" ? body.bookId : null;
+    if (!bookId) return NextResponse.json({ error: "bookId required." }, { status: 422 });
+
+    await prisma.visitorLogBook.deleteMany({ where: { visitorLogId: id, bookId } });
+
+    const updated = await prisma.visitorLog.findUnique({
+      where: { id },
+      include: {
+        member: { select: { id: true, memberId: true, nameKh: true, nameEn: true, type: true, class: { select: { name: true } } } },
+        ...bookInclude,
+      },
+    });
     return NextResponse.json(updated);
   }
 

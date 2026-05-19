@@ -20,7 +20,7 @@ interface VisitorLog {
   note: string | null;
   recordedBy: string;
   member: { id: string; memberId: string; nameKh: string | null; nameEn: string | null; type: string; class?: { name: string } | null };
-  book?: { titleKh: string | null; titleEn: string | null } | null;
+  books: { book: { id: string; titleKh: string | null; titleEn: string | null } }[];
 }
 
 const PURPOSE_COLOR: Record<string, string> = {
@@ -73,7 +73,7 @@ export function VisitorTable({ todayOnly }: Props) {
       ),
     },
     {
-      title: "Duration",
+      title: t("colDuration"),
       key: "duration",
       render: (_, row) => (
         <span className={`text-xs font-mono ${row.leftAt ? "text-slate-500" : "text-green-600"}`}>
@@ -82,7 +82,7 @@ export function VisitorTable({ todayOnly }: Props) {
       ),
     },
     {
-      title: "Member",
+      title: t("colMember"),
       key: "member",
       render: (_, row) => (
         <div>
@@ -107,11 +107,14 @@ export function VisitorTable({ todayOnly }: Props) {
       ),
     },
     {
-      title: "Book / Note",
+      title: t("booksRead"),
       key: "detail",
       render: (_, row) => (
-        <div>
-          {row.book && <p className="text-xs text-slate-600">📖 {row.book.titleKh ?? row.book.titleEn}</p>}
+        <div className="space-y-0.5">
+          {row.books.map(({ book }) => (
+            <p key={book.id} className="text-xs text-slate-600">📖 {book.titleKh ?? book.titleEn}</p>
+          ))}
+          {row.books.length === 0 && <span className="text-slate-300 text-xs">—</span>}
           {row.note && <p className="text-xs text-slate-400 italic">{row.note}</p>}
         </div>
       ),
@@ -120,18 +123,17 @@ export function VisitorTable({ todayOnly }: Props) {
       title: "",
       key: "actions",
       width: 48,
-      render: (_, row) =>
-        row.purpose === "READING" ? (
-          <Tooltip title={row.book ? "Change book" : t("scanBook")}>
-            <Button
-              type="text"
-              size="small"
-              icon={<BookOutlined />}
-              className={row.book ? "text-blue-400" : "text-slate-400"}
-              onClick={() => setLinkingLog(row)}
-            />
-          </Tooltip>
-        ) : null,
+      render: (_, row) => (
+        <Tooltip title={t("manageBooks")}>
+          <Button
+            type="text"
+            size="small"
+            icon={<BookOutlined />}
+            className={row.books.length > 0 ? "text-blue-400" : "text-slate-400"}
+            onClick={() => setLinkingLog(row)}
+          />
+        </Tooltip>
+      ),
     },
   ];
 
@@ -194,7 +196,7 @@ export function VisitorTable({ todayOnly }: Props) {
         <LinkBookModal
           logId={linkingLog.id}
           memberName={linkingLog.member.nameKh ?? linkingLog.member.nameEn ?? ""}
-          currentBook={linkingLog.book}
+          currentBooks={linkingLog.books.map(({ book }) => book)}
           onClose={() => setLinkingLog(null)}
         />
       )}

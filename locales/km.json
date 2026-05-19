@@ -14,7 +14,9 @@
     "status": "ស្ថានភាព",
     "createdAt": "បានបង្កើតនៅ",
     "updatedAt": "បានធ្វើបច្ចុប្បន្នភាព",
-    "createdBy": "បានបន្ថែម / ធ្វើបច្ចុប្បន្នភាពដោយ"
+    "createdBy": "បានបន្ថែម / ធ្វើបច្ចុប្បន្នភាពដោយ",
+    "signOut": "ចាកចេញ",
+    "close": "បិទ"
   },
   "nav": {
     "dashboard": "ផ្ទាំងគ្រប់គ្រង",
@@ -76,7 +78,8 @@
     "colCopies": "ចំនួនច្បាប់",
     "searchPlaceholder": "ស្វែងរកតាមចំណងជើង, អ្នកនិពន្ធ, ISBN…",
     "shelf": "ទីតាំងធ្នើ",
-    "colShelf": "ធ្នើ"
+    "colShelf": "ធ្នើ",
+    "empty": "រកមិនឃើញសៀវភៅ។"
   },
   "members": {
     "title": "សមាជិក",
@@ -106,7 +109,8 @@
       "TEACHER": "គ្រូ",
       "PUBLIC": "សាធារណជន",
       "RESEARCHER": "អ្នកស្រាវជ្រាវ"
-    }
+    },
+    "empty": "រកមិនឃើញសមាជិក។"
   },
   "settings": {
     "title": "ការកំណត់",
@@ -159,7 +163,9 @@
         "ADMIN": "អ្នកគ្រប់គ្រង",
         "LIBRARIAN": "បណ្ណារក្ស",
         "STAFF": "បុគ្គលិក"
-      }
+      },
+      "failedToSave": "បរាជ័យក្នុងការរក្សាទុក។",
+      "failedToDelete": "បរាជ័យក្នុងការលុប។"
     },
     "classes": {
       "generator": "បង្កើតច្រើនដំណាលគ្នា",
@@ -204,7 +210,9 @@
       "deleteDescription": "សៀវភៅដែលប្រើប្រភេទនេះនឹងរក្សាឈ្មោះ ប៉ុន្តែវានឹងមិនបង្ហាញក្នុងបញ្ជី។",
       "total": "សរុប {total} ប្រភេទ",
       "savedSuccess": "បានរក្សាទុកប្រភេទ។",
-      "deletedSuccess": "បានលុបប្រភេទ។"
+      "deletedSuccess": "បានលុបប្រភេទ។",
+      "failedToSave": "បរាជ័យក្នុងការរក្សាទុក។",
+      "failedToDelete": "បរាជ័យក្នុងការលុប។"
     },
     "shelves": {
       "cabinetBuilder": "ឧបករណ៍បង្កើតទូ",
@@ -312,7 +320,13 @@
     "checkinSuccess": "បានកត់ត្រាការចូលដោយជោគជ័យ។",
     "checkoutSuccess": "បានកត់ត្រាការចេញ។",
     "alreadyInside": "{name} នៅក្នុងបណ្ណាល័យរួចហើយ — កំពុងកត់ត្រាការចេញ។",
-    "bookLinked": "សៀវភៅ: {title}",
+    "bookLinked": "បានបន្ថែមសៀវភៅ: {title}",
+    "bookRemoved": "បានដកសៀវភៅចេញ។",
+    "manageBooks": "សៀវភៅដែលបានអាន",
+    "addBook": "បន្ថែមសៀវភៅ",
+    "booksRead": "សៀវភៅដែលបានអាន",
+    "noBooks": "មិនទាន់ស្កេនសៀវភៅ។",
+    "scanBookOptional": "ស្កេនសៀវភៅ (ជាជម្រើស)",
     "memberNotFound": "រកមិនឃើញសមាជិក",
     "purposes": {
       "READING": "អានសៀវភៅ",
@@ -320,7 +334,12 @@
       "SCHOOLWORK": "ធ្វើការងារសាលា",
       "RESEARCH": "ស្រាវជ្រាវ",
       "OTHER": "ផ្សេងៗ"
-    }
+    },
+    "bookNotFound": "រកមិនឃើញសៀវភៅ",
+    "bookAlreadyAdded": "បានបន្ថែមហើយ",
+    "searchBooksPlaceholder": "ស្វែងរកតាមចំណងជើង ឬ ISBN…",
+    "colDuration": "រយៈពេល",
+    "colMember": "សមាជិក"
   },
   "reports": {
     "title": "របាយការណ៍",
@@ -443,6 +462,9 @@
     "closedBy": "ប្រគល់/បាត់ដោយ",
     "checkoutSuccess": "បានខ្ចីសៀវភៅដោយជោគជ័យ។",
     "returnSuccess": "បានប្រគល់សៀវភៅដោយជោគជ័យ។",
+    "returnedWithFine": "បានប្រគល់។ ពិន័យ: {amount} ៛",
+    "scanQr": "ស្កេន QR",
+    "checkoutError": "ការខ្ចីបានបរាជ័យ។",
     "scan": {
       "title": "ស្កេន QR — ខ្ចី / ប្រគល់",
       "hint": "ស្កេន QR សមាជិកជាមុន បន្ទាប់មកស្កេន QR សៀវភៅ — អតិបរមា {max} ក្បាល (រួមទាំងការខ្ចីមុន)",
@@ -450,6 +472,7 @@
       "memberNotFound": "រកមិនឃើញសមាជិក",
       "cameraUnavailable": "មិនអាចប្រើកាមេរ៉ាបាន។ សូមអនុញ្ញាតការប្រើប្រាស់កាមេរ៉ា។",
       "qrNotRecognized": "រកមិនឃើញ QR",
+      "memberSection": "សមាជិក",
       "scanMemberQR": "ស្កេន QR សមាជិក",
       "scanBookToAdd": "ស្កេន QR សៀវភៅដើម្បីបន្ថែម",
       "loanLimitWarning": "នឹងដល់ដែនកំណត់ការខ្ចី",

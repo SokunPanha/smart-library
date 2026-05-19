@@ -58,7 +58,7 @@ model Book {
   shelfId         String?
   shelf           Shelf?       @relation(fields: [shelfId], references: [id])
   loans           Loan[]
-  visitorLogs     VisitorLog[]
+  visitorLogBooks VisitorLogBook[]
 }
 
 model Member {
@@ -141,19 +141,29 @@ model LibraryMap {
 }
 
 model VisitorLog {
-  id         String    @id @default(cuid())
+  id         String           @id @default(cuid())
   memberId   String
-  member     Member    @relation(fields: [memberId], references: [id])
+  member     Member           @relation(fields: [memberId], references: [id])
   purpose    String
-  bookId     String?
-  book       Book?     @relation(fields: [bookId], references: [id])
   note       String?
-  arrivedAt  DateTime  @default(now())
+  arrivedAt  DateTime         @default(now())
   leftAt     DateTime?
   recordedBy String
+  books      VisitorLogBook[]
 
   @@index([arrivedAt(sort: Desc)])
   @@index([memberId])
+}
+
+model VisitorLogBook {
+  id           String     @id @default(cuid())
+  visitorLogId String
+  visitorLog   VisitorLog @relation(fields: [visitorLogId], references: [id], onDelete: Cascade)
+  bookId       String
+  book         Book       @relation(fields: [bookId], references: [id])
+  addedAt      DateTime   @default(now())
+
+  @@unique([visitorLogId, bookId])
 }
 
 model ActivityLog {

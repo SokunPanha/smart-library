@@ -138,7 +138,7 @@ function CatalogPageInner() {
             scroll={{ x: "max-content", y: scrollY }}
             {...ctx.table.props}
             pagination={{ ...ctx.table.props.pagination, total: data?.total ?? 0 }}
-            locale={{ emptyText: "No books found." }}
+            locale={{ emptyText: t("catalog.empty") }}
           />
         </div>
       </div>
