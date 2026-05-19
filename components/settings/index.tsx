@@ -1,7 +1,7 @@
 "use client";
 
 import { Tabs } from "antd";
-import { SettingOutlined, TeamOutlined, BookOutlined, AppstoreOutlined, HistoryOutlined } from "@ant-design/icons";
+import { SettingOutlined, TeamOutlined, BookOutlined, AppstoreOutlined, HistoryOutlined, SolutionOutlined } from "@ant-design/icons";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { SettingsProvider, useSettingsContext } from "./helper/hooks";
@@ -9,6 +9,7 @@ import { GeneralTab } from "./_components/GeneralTab";
 import { LoanRulesTab } from "./_components/LoanRulesTab";
 import { UsersTab } from "./_components/UsersTab";
 import { CategoriesTab } from "./_components/CategoriesTab";
+import { ClassesTab } from "./_components/ClassesTab";
 import { LogsTab } from "./_components/LogsTab";
 
 function SettingsPageInner() {
@@ -50,6 +51,11 @@ function SettingsPageInner() {
                   },
                 ]
               : []),
+            {
+              key: "classes",
+              label: <span className="flex items-center gap-1"><SolutionOutlined />{t("tabs.classes")}</span>,
+              children: <ClassesTab />,
+            },
             {
               key: "logs",
               label: <span className="flex items-center gap-1"><HistoryOutlined />{t("tabs.logs")}</span>,

@@ -68,11 +68,21 @@ model Member {
   photo     String?
   type      MemberType @default(PUBLIC)
   expiresAt DateTime?
+  classId   String?
   createdBy String?
   updatedBy String?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   loans     Loan[]
+  class     Class?     @relation(fields: [classId], references: [id])
+}
+
+model Class {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  grade     String?
+  createdAt DateTime @default(now())
+  members   Member[]
 }
 
 model Loan {

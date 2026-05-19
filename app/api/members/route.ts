@@ -11,6 +11,7 @@ const memberSchema = z.object({
   phone: z.string().optional().nullable(),
   type: z.enum(["STUDENT", "TEACHER", "PUBLIC", "RESEARCHER"]).default("PUBLIC"),
   expiresAt: z.string().optional().nullable(),
+  classId: z.string().optional().nullable(),
 });
 
 async function generateMemberId(): Promise<string> {
@@ -48,7 +49,7 @@ export async function GET(req: NextRequest) {
       skip: (page - 1) * limit,
       take: limit,
       orderBy: { createdAt: "desc" },
-      include: { _count: { select: { loans: true } } },
+      include: { _count: { select: { loans: true } }, class: { select: { id: true, name: true } } },
     }),
     prisma.member.count({ where }),
   ]);
@@ -67,7 +68,7 @@ export async function POST(req: NextRequest) {
   }
 
   const actor = (session.user as { name?: string; email?: string }).name ?? session.user?.email ?? "unknown";
-  const { expiresAt, email, ...rest } = parsed.data;
+  const { expiresAt, email, classId, ...rest } = parsed.data;
   const memberId = await generateMemberId();
   const member = await prisma.member.create({
     data: {
@@ -75,6 +76,7 @@ export async function POST(req: NextRequest) {
       memberId,
       email: email || null,
       expiresAt: expiresAt ? new Date(expiresAt) : null,
+      classId: classId || null,
       createdBy: actor,
       updatedBy: actor,
     },

@@ -12,6 +12,8 @@ export interface Member {
   email: string | null;
   type: "STUDENT" | "TEACHER" | "PUBLIC" | "RESEARCHER";
   expiresAt: string | null;
+  classId: string | null;
+  class: { id: string; name: string } | null;
   createdBy: string | null;
   updatedBy: string | null;
   createdAt: string;

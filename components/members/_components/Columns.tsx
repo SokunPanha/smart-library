@@ -54,6 +54,16 @@ export function buildMemberColumns({ ctx, actions, t, onQR }: ColumnArgs): Colum
       ),
     },
     {
+      title: t("members.class"),
+      key: "class",
+      render: (_, row) =>
+        row.class ? (
+          <Tag className="border-0 bg-indigo-50 text-indigo-600 font-medium">{row.class.name}</Tag>
+        ) : (
+          <span className="text-slate-300">—</span>
+        ),
+    },
+    {
       title: t("members.phone"),
       dataIndex: "phone",
       key: "phone",
@@ -122,6 +132,7 @@ export function buildMemberColumns({ ctx, actions, t, onQR }: ColumnArgs): Colum
                 nameEn: row.nameEn ?? undefined,
                 nameKh: row.nameKh ?? undefined,
                 expiresAt: row.expiresAt ? dayjs(row.expiresAt) : undefined,
+                classId: row.classId ?? undefined,
               })
             }
           />

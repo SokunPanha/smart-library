@@ -3,11 +3,33 @@
 import { Drawer, Form, Input, Select, Button, Space, DatePicker } from "antd";
 import dayjs from "dayjs";
 import { useTranslations } from "next-intl";
+import { useQuery } from "@tanstack/react-query";
+import { apiFetch } from "@/libs/utils/request";
 import { useMembersContext } from "../helper/hooks";
 import { useMembers, type MemberPayload } from "../helper/useMembers";
 
+interface ClassItem { id: string; name: string; grade: string | null }
+
 function MemberFields() {
   const t = useTranslations("members");
+  const memberType = Form.useWatch("type");
+
+  const { data: classes = [] } = useQuery<ClassItem[]>({
+    queryKey: ["classes"],
+    queryFn: () => apiFetch<ClassItem[]>("/api/classes"),
+  });
+
+  // Group classes by grade for the select
+  const classOptions = Object.entries(
+    classes.reduce<Record<string, ClassItem[]>>((acc, c) => {
+      const key = c.grade ?? t("classOther");
+      (acc[key] ??= []).push(c);
+      return acc;
+    }, {})
+  ).map(([grade, items]) => ({
+    label: `${t("grade")} ${grade}`,
+    options: items.map((c) => ({ label: c.name, value: c.id })),
+  }));
 
   return (
     <>
@@ -27,6 +49,17 @@ function MemberFields() {
           ]}
         />
       </Form.Item>
+      {memberType === "STUDENT" && (
+        <Form.Item label={t("class")} name="classId">
+          <Select
+            showSearch
+            allowClear
+            placeholder={t("classPlaceholder")}
+            options={classOptions}
+            optionFilterProp="label"
+          />
+        </Form.Item>
+      )}
       <Form.Item label={t("phone")} name="phone">
         <Input placeholder="+855 xx xxx xxxx" />
       </Form.Item>

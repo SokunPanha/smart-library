@@ -11,6 +11,7 @@ const memberSchema = z.object({
   phone: z.string().optional().nullable(),
   type: z.enum(["STUDENT", "TEACHER", "PUBLIC", "RESEARCHER"]).default("PUBLIC"),
   expiresAt: z.string().optional().nullable(),
+  classId: z.string().optional().nullable(),
 });
 
 export async function GET(
@@ -50,13 +51,14 @@ export async function PUT(
   }
 
   const actor = (session.user as { name?: string; email?: string }).name ?? session.user?.email ?? "unknown";
-  const { expiresAt, email, ...rest } = parsed.data;
+  const { expiresAt, email, classId, ...rest } = parsed.data;
   const member = await prisma.member.update({
     where: { id },
     data: {
       ...rest,
       email: email || null,
       expiresAt: expiresAt ? new Date(expiresAt) : null,
+      classId: classId || null,
       updatedBy: actor,
     },
   });
