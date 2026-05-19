@@ -563,6 +563,35 @@
     "renewSuccess": "Loan renewed successfully.",
     "renewMaxReached": "Maximum renewals reached.",
     "renewError": "Failed to renew loan.",
-    "renewals": "Renewed {count}×"
+    "renewals": "Renewed {count}×",
+    "filterUnpaidFines": "Unpaid Fines",
+    "tabLoans": "Loans",
+    "tabReservations": "Reservations",
+    "reservation": {
+      "add": "Add Reservation",
+      "addTitle": "New Reservation",
+      "createSuccess": "Reservation created.",
+      "createError": "Failed to create reservation.",
+      "alreadyReserved": "Member already has a pending reservation for this book.",
+      "alreadyOnLoan": "Member already has this book on loan.",
+      "cancelTitle": "Cancel Reservation?",
+      "cancelContent": "Cancel the reservation for \"{title}\"?",
+      "cancelTooltip": "Cancel reservation",
+      "cancelSuccess": "Reservation cancelled.",
+      "colReservedAt": "Reserved At",
+      "empty": "No reservations found.",
+      "fulfilledBanner": "Some reservations are ready — a copy is available for the member to pick up.",
+      "statuses": {
+        "PENDING": "Pending",
+        "FULFILLED": "Ready for pickup",
+        "CANCELLED": "Cancelled"
+      }
+    },
+    "payFineTitle": "Record Fine Payment",
+    "payFineContent": "Mark {amount} ៛ fine for {name} as paid?",
+    "payFineConfirm": "Mark as Paid",
+    "payFineTooltip": "Pay fine: {amount} ៛",
+    "finePaySuccess": "Fine of {amount} ៛ recorded as paid.",
+    "finePaid": "Paid"
   }
 }

@@ -45,5 +45,14 @@ export function useLoans() {
     }
   };
 
-  return { closeLoan, renewLoan };
+  const payFine = async (loan: Loan) => {
+    await apiFetch(`/api/loans/${loan.id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ action: "payFine" }),
+    });
+    message.success(t("finePaySuccess", { amount: loan.fineAmount.toLocaleString() }));
+    ctx.table.reload();
+  };
+
+  return { closeLoan, renewLoan, payFine };
 }

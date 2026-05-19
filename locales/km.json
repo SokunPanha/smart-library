@@ -563,6 +563,35 @@
     "renewSuccess": "បន្តការខ្ចីដោយជោគជ័យ។",
     "renewMaxReached": "ដល់ចំនួនអតិបរមានៃការបន្ត។",
     "renewError": "មិនអាចបន្តការខ្ចីបានទេ។",
-    "renewals": "បន្ត {count}ដង"
+    "renewals": "បន្ត {count}ដង",
+    "filterUnpaidFines": "ពិន័យមិនទាន់បង់",
+    "tabLoans": "ការខ្ចី",
+    "tabReservations": "ការកក់",
+    "reservation": {
+      "add": "បន្ថែមការកក់",
+      "addTitle": "ការកក់ថ្មី",
+      "createSuccess": "ការកក់ត្រូវបានបង្កើត។",
+      "createError": "មិនអាចបង្កើតការកក់បានទេ។",
+      "alreadyReserved": "សមាជិកមានការកក់រង់ចាំស្រាប់ហើយ។",
+      "alreadyOnLoan": "សមាជិកកំពុងខ្ចីសៀវភៅនេះស្រាប់ហើយ។",
+      "cancelTitle": "លុបការកក់?",
+      "cancelContent": "លុបការកក់ \"{title}\"?",
+      "cancelTooltip": "លុបការកក់",
+      "cancelSuccess": "ការកក់ត្រូវបានលុប។",
+      "colReservedAt": "កក់នៅ",
+      "empty": "មិនមានការកក់ទេ។",
+      "fulfilledBanner": "ការកក់មួយចំនួនត្រូវបានបំពេញ — សៀវភៅនេះត្រៀមរង់ចាំសម្រាប់សមាជិក។",
+      "statuses": {
+        "PENDING": "កំពុងរង់ចាំ",
+        "FULFILLED": "ត្រៀមរួចហើយ",
+        "CANCELLED": "បានលុប"
+      }
+    },
+    "payFineTitle": "កត់ត្រាការបង់ពិន័យ",
+    "payFineContent": "សម្គាល់ពិន័យ {amount} ៛ សម្រាប់ {name} ថាបានបង់?",
+    "payFineConfirm": "សម្គាល់ថាបានបង់",
+    "payFineTooltip": "បង់ពិន័យ: {amount} ៛",
+    "finePaySuccess": "ពិន័យ {amount} ៛ ត្រូវបានកត់ត្រាថាបានបង់។",
+    "finePaid": "បានបង់"
   }
 }

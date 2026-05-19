@@ -26,6 +26,12 @@ enum LoanStatus {
   LOST
 }
 
+enum ReservationStatus {
+  PENDING
+  FULFILLED
+  CANCELLED
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -58,6 +64,7 @@ model Book {
   shelfId         String?
   shelf           Shelf?       @relation(fields: [shelfId], references: [id])
   loans           Loan[]
+  reservations    Reservation[]
   visitorLogBooks VisitorLogBook[]
 }
 
@@ -76,9 +83,10 @@ model Member {
   updatedBy String?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  loans       Loan[]
-  visitorLogs VisitorLog[]
-  class       Class?     @relation(fields: [classId], references: [id])
+  loans        Loan[]
+  reservations Reservation[]
+  visitorLogs  VisitorLog[]
+  class        Class?     @relation(fields: [classId], references: [id])
 }
 
 model Class {
@@ -107,6 +115,22 @@ model Loan {
   updatedAt   DateTime   @updatedAt
   book        Book       @relation(fields: [bookId], references: [id])
   member      Member     @relation(fields: [memberId], references: [id])
+}
+
+model Reservation {
+  id          String            @id @default(cuid())
+  bookId      String
+  memberId    String
+  status      ReservationStatus @default(PENDING)
+  reservedAt  DateTime          @default(now())
+  fulfilledAt DateTime?
+  cancelledAt DateTime?
+  createdBy   String?
+  book        Book              @relation(fields: [bookId], references: [id])
+  member      Member            @relation(fields: [memberId], references: [id])
+
+  @@index([bookId, status])
+  @@index([memberId, status])
 }
 
 model Setting {

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Space, Tag, Tooltip } from "antd";
-import { CheckOutlined, StopOutlined, SyncOutlined } from "@ant-design/icons";
+import { CheckOutlined, StopOutlined, SyncOutlined, DollarOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import type { ColumnsType } from "antd/es/table";
 import type { Loan } from "../helper/useFetchLoans";
@@ -19,11 +19,12 @@ interface ColumnArgs {
   onReturn: (loan: Loan) => void;
   onLost: (loan: Loan) => void;
   onRenew: (loan: Loan) => void;
+  onPayFine: (loan: Loan) => void;
   maxRenewals: number;
   t: (key: string, values?: Record<string, string | number | Date>) => string;
 }
 
-export function buildLoanColumns({ onReturn, onLost, onRenew, maxRenewals, t }: ColumnArgs): ColumnsType<Loan> {
+export function buildLoanColumns({ onReturn, onLost, onRenew, onPayFine, maxRenewals, t }: ColumnArgs): ColumnsType<Loan> {
   return [
     {
       title: t("circulation.colBook"),
@@ -109,9 +110,16 @@ export function buildLoanColumns({ onReturn, onLost, onRenew, maxRenewals, t }: 
       render: (_, row) => (
         <div>
           {row.fineAmount > 0 ? (
-            <span className={row.finePaid ? "text-slate-400 line-through" : "text-red-500 font-medium"}>
-              {row.fineAmount.toLocaleString()} ៛
-            </span>
+            <div className="flex items-center gap-1 flex-wrap">
+              <span className={row.finePaid ? "text-slate-400 line-through text-xs" : "text-red-500 font-medium"}>
+                {row.fineAmount.toLocaleString()} ៛
+              </span>
+              {row.finePaid && (
+                <Tag color="success" className="border-0 text-[10px] px-1 leading-tight m-0">
+                  {t("circulation.finePaid")}
+                </Tag>
+              )}
+            </div>
           ) : (
             <span className="text-slate-300">—</span>
           )}
@@ -150,33 +158,50 @@ export function buildLoanColumns({ onReturn, onLost, onRenew, maxRenewals, t }: 
       title: t("common.actions"),
       key: "actions",
       width: 120,
-      render: (_, row) =>
-        row.status === "ACTIVE" || row.status === "OVERDUE" ? (
-          <Space size="small">
-            <Tooltip title={t("circulation.returnTooltip")}>
-              <Button type="text" size="small" icon={<CheckOutlined />} onClick={() => onReturn(row)} />
-            </Tooltip>
-            <Tooltip
-              title={
-                row.renewalCount >= maxRenewals
-                  ? t("circulation.renewMaxReached")
-                  : t("circulation.renewTooltip", { current: row.renewalCount, max: maxRenewals })
-              }
-            >
+      render: (_, row) => {
+        if (row.status === "ACTIVE" || row.status === "OVERDUE") {
+          return (
+            <Space size="small">
+              <Tooltip title={t("circulation.returnTooltip")}>
+                <Button type="text" size="small" icon={<CheckOutlined />} onClick={() => onReturn(row)} />
+              </Tooltip>
+              <Tooltip
+                title={
+                  row.renewalCount >= maxRenewals
+                    ? t("circulation.renewMaxReached")
+                    : t("circulation.renewTooltip", { current: row.renewalCount, max: maxRenewals })
+                }
+              >
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<SyncOutlined />}
+                  onClick={() => onRenew(row)}
+                  disabled={row.renewalCount >= maxRenewals}
+                  className={row.renewalCount >= maxRenewals ? "" : "text-blue-500"}
+                />
+              </Tooltip>
+              <Tooltip title={t("circulation.lostTooltip")}>
+                <Button type="text" size="small" danger icon={<StopOutlined />} onClick={() => onLost(row)} />
+              </Tooltip>
+            </Space>
+          );
+        }
+        if (row.fineAmount > 0 && !row.finePaid) {
+          return (
+            <Tooltip title={t("circulation.payFineTooltip", { amount: row.fineAmount.toLocaleString() })}>
               <Button
                 type="text"
                 size="small"
-                icon={<SyncOutlined />}
-                onClick={() => onRenew(row)}
-                disabled={row.renewalCount >= maxRenewals}
-                className={row.renewalCount >= maxRenewals ? "" : "text-blue-500"}
+                icon={<DollarOutlined />}
+                onClick={() => onPayFine(row)}
+                className="text-amber-500"
               />
             </Tooltip>
-            <Tooltip title={t("circulation.lostTooltip")}>
-              <Button type="text" size="small" danger icon={<StopOutlined />} onClick={() => onLost(row)} />
-            </Tooltip>
-          </Space>
-        ) : null,
+          );
+        }
+        return null;
+      },
     },
   ];
 }

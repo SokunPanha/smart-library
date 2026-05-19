@@ -1,14 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Table, Button, Select, Input, Space, App } from "antd";
+import { Table, Button, Select, Input, Space, App, Tabs, Badge } from "antd";
 import { PlusOutlined, QrcodeOutlined, SearchOutlined } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
+import { useQuery } from "@tanstack/react-query";
 import { useDebounce, useTableScroll } from "@/lib/hooks";
 import { CirculationProvider, useCirculationContext } from "./helper/hooks";
 import { useFetchLoans } from "./helper/useFetchLoans";
 import { useLoans } from "./helper/useLoans";
 import { buildLoanColumns } from "./_components/Columns";
+import { ReservationsTab } from "./_components/ReservationsTab";
 import CheckoutModal from "./CheckoutModal";
 import { QRScanModal } from "./_components/QRScanModal";
 import { apiFetch } from "@/lib/request";
@@ -53,11 +55,17 @@ function CirculationPageInner() {
     { label: t("circulation.statuses.OVERDUE"), value: "OVERDUE" },
     { label: t("circulation.statuses.RETURNED"), value: "RETURNED" },
     { label: t("circulation.statuses.LOST"), value: "LOST" },
+    { label: t("circulation.filterUnpaidFines"), value: "UNPAID_FINE" },
   ];
   const { data, isLoading } = useFetchLoans(statusFilter, search, ctx.table.page);
   const { data: settings } = useFetchSettings();
   const maxRenewals = Number(settings?.maxRenewalsPerLoan ?? 2);
   const { ref: tableRef, scrollY } = useTableScroll();
+  const { data: reservationMeta } = useQuery({
+    queryKey: ["reservations", "FULFILLED", "", 1],
+    queryFn: () => apiFetch<{ total: number }>("/api/reservations?status=FULFILLED&limit=1"),
+  });
+  const fulfilledCount = reservationMeta?.total ?? 0;
 
   const confirmReturn = (loan: Loan, asLost = false) => {
     modal.confirm({
@@ -81,14 +89,75 @@ function CirculationPageInner() {
     });
   };
 
+  const confirmPayFine = (loan: Loan) => {
+    modal.confirm({
+      title: t("circulation.payFineTitle"),
+      content: t("circulation.payFineContent", {
+        amount: loan.fineAmount.toLocaleString(),
+        name: loan.member.nameKh ?? loan.member.nameEn ?? loan.member.memberId,
+      }),
+      okText: t("circulation.payFineConfirm"),
+      cancelText: t("common.cancel"),
+      onOk: () => actions.payFine(loan),
+    });
+  };
+
   const columns = buildLoanColumns({
     actions,
     onReturn: (loan) => confirmReturn(loan),
     onLost: (loan) => confirmReturn(loan, true),
     onRenew: confirmRenew,
+    onPayFine: confirmPayFine,
     maxRenewals,
     t,
   });
+
+  const loansTab = (
+    <div className="space-y-4">
+      <div className="flex gap-2 flex-wrap">
+        <Input
+          prefix={<SearchOutlined className="text-slate-400" />}
+          placeholder={t("circulation.searchPlaceholder")}
+          value={inputVal}
+          onChange={(e) => { setInputVal(e.target.value); ctx.table.setPage(1); }}
+          className="max-w-sm"
+          allowClear
+        />
+        <Select
+          placeholder={t("circulation.filterPlaceholder")}
+          value={statusFilter || undefined}
+          onChange={(v) => {
+            setStatusFilter(v ?? "");
+            ctx.table.setPage(1);
+          }}
+          allowClear
+          className="w-44"
+          options={STATUS_OPTIONS}
+        />
+      </div>
+
+      <div ref={tableRef}>
+        <Table
+          columns={columns}
+          dataSource={data?.loans ?? []}
+          rowKey="id"
+          loading={isLoading}
+          size="small"
+          scroll={{ x: "max-content", y: scrollY }}
+          {...ctx.table.props}
+          pagination={{ ...ctx.table.props.pagination, total: data?.total ?? 0 }}
+          rowClassName={(row) =>
+            row.status === "OVERDUE"
+              ? "bg-red-50"
+              : row.fineAmount > 0 && !row.finePaid && (row.status === "RETURNED" || row.status === "LOST")
+              ? "bg-amber-50"
+              : ""
+          }
+          locale={{ emptyText: t("circulation.noLoans") }}
+        />
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-4">
@@ -105,42 +174,25 @@ function CirculationPageInner() {
       </div>
 
       <div className="bg-white border border-slate-100 rounded-lg p-4">
-        <div className="flex gap-2 flex-wrap mb-4">
-          <Input
-            prefix={<SearchOutlined className="text-slate-400" />}
-            placeholder={t("circulation.searchPlaceholder")}
-            value={inputVal}
-            onChange={(e) => { setInputVal(e.target.value); ctx.table.setPage(1); }}
-            className="max-w-sm"
-            allowClear
-          />
-          <Select
-            placeholder={t("circulation.filterPlaceholder")}
-            value={statusFilter || undefined}
-            onChange={(v) => {
-              setStatusFilter(v ?? "");
-              ctx.table.setPage(1);
-            }}
-            allowClear
-            className="w-44"
-            options={STATUS_OPTIONS}
-          />
-        </div>
-
-        <div ref={tableRef}>
-          <Table
-            columns={columns}
-            dataSource={data?.loans ?? []}
-            rowKey="id"
-            loading={isLoading}
-            size="small"
-            scroll={{ x: "max-content", y: scrollY }}
-            {...ctx.table.props}
-            pagination={{ ...ctx.table.props.pagination, total: data?.total ?? 0 }}
-            rowClassName={(row) => (row.status === "OVERDUE" ? "bg-red-50" : "")}
-            locale={{ emptyText: t("circulation.noLoans") }}
-          />
-        </div>
+        <Tabs
+          defaultActiveKey="loans"
+          items={[
+            {
+              key: "loans",
+              label: t("circulation.tabLoans"),
+              children: loansTab,
+            },
+            {
+              key: "reservations",
+              label: (
+                <Badge count={fulfilledCount} size="small" offset={[6, -2]}>
+                  {t("circulation.tabReservations")}
+                </Badge>
+              ),
+              children: <ReservationsTab />,
+            },
+          ]}
+        />
       </div>
 
       <CheckoutModal
