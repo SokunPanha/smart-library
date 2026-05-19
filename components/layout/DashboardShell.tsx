@@ -26,12 +26,12 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         <SidebarContent onClose={() => setMobileOpen(false)} />
       </Drawer>
 
-      <Layout style={{ overflow: "hidden" }}>
+      <Layout style={{ overflow: "hidden", display: "flex", flexDirection: "column" }}>
         <AppHeader
           onMenuToggle={() => setMobileOpen(true)}
           showMenuButton={isMobile}
         />
-        <Content className="p-4 lg:p-6" style={{ overflow: "hidden" }}>
+        <Content className="p-4 lg:p-6" style={{ overflowY: "auto", flex: 1 }}>
           {children}
         </Content>
       </Layout>

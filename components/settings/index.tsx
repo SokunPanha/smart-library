@@ -22,10 +22,11 @@ function SettingsPageInner() {
     <div className="space-y-4">
       <h1 className="text-xl font-semibold text-slate-800">{t("title")}</h1>
 
-      <div className="bg-white border border-slate-100 rounded-lg p-4">
+      <div className="bg-white border border-slate-100 rounded-lg p-3 sm:p-4">
         <Tabs
           activeKey={activeTab}
           onChange={setActiveTab}
+          tabBarStyle={{ overflowX: "auto" }}
           items={[
             {
               key: "general",

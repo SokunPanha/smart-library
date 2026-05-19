@@ -57,8 +57,20 @@ export function ClassesTab() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => apiFetch(`/api/classes/${id}`, { method: "DELETE" }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["classes"] }); },
+    mutationFn: (item: ClassItem) => apiFetch(`/api/classes/${item.id}`, { method: "DELETE" }),
+    onSuccess: (_, item) => {
+      qc.invalidateQueries({ queryKey: ["classes"] });
+      if (item.grade) {
+        const section = item.name.slice(item.grade.length);
+        if (section) {
+          setRows((prev) =>
+            prev.map((r) =>
+              r.grade !== item.grade ? r : { ...r, sections: r.sections.filter((s) => s !== section) }
+            )
+          );
+        }
+      }
+    },
     onError: (e: Error) => message.error(e.message),
   });
 
@@ -179,21 +191,33 @@ export function ClassesTab() {
   }, {});
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6 w-full max-w-2xl">
 
       {/* Generator */}
-      <div className="border border-slate-200 rounded-lg p-4 space-y-3">
+      <div className="border border-slate-200 rounded-lg p-3 sm:p-4 space-y-3">
         <div className="flex items-center gap-2">
           <ThunderboltOutlined className="text-blue-500" />
           <span className="font-medium text-slate-700">{t("generator")}</span>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           {rows.map((row, i) => (
-            <div key={row.grade} className="flex items-center gap-3 flex-wrap">
-              <span className="w-16 text-sm font-mono font-medium text-slate-600 flex-shrink-0">
-                {t("grade")} {row.grade}
-              </span>
+            <div key={row.grade} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+              {/* Grade label + delete (always on same line) */}
+              <div className="flex items-center justify-between sm:justify-start gap-2 flex-shrink-0">
+                <span className="w-20 text-sm font-mono font-medium text-slate-600">
+                  {t("grade")} {row.grade}
+                </span>
+                <Button
+                  type="text"
+                  size="small"
+                  danger
+                  icon={<DeleteOutlined />}
+                  onClick={() => removeRow(i)}
+                  className="sm:hidden"
+                />
+              </div>
+              {/* Chips row */}
               <div className="flex items-center gap-1 flex-wrap flex-1">
                 {COMMON_SECTIONS.map((s) => (
                   <SectionChip
@@ -203,7 +227,6 @@ export function ClassesTab() {
                     onClick={() => toggleSection(i, s)}
                   />
                 ))}
-                {/* Custom sections not in COMMON_SECTIONS */}
                 {row.sections.filter((s) => !COMMON_SECTIONS.includes(s)).map((s) => (
                   <SectionChip key={s} label={s} active onClick={() => toggleSection(i, s)} />
                 ))}
@@ -215,26 +238,28 @@ export function ClassesTab() {
                   onBlur={(e) => { addCustomSection(i, e.target.value); e.target.value = ""; }}
                 />
               </div>
+              {/* Delete button — desktop only, at end of row */}
               <Button
                 type="text"
                 size="small"
                 danger
                 icon={<DeleteOutlined />}
                 onClick={() => removeRow(i)}
+                className="hidden sm:inline-flex"
               />
             </div>
           ))}
         </div>
 
         {/* Add grade row */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Input
             size="small"
             placeholder={t("addGradePlaceholder")}
             value={newGrade}
             onChange={(e) => setNewGrade(e.target.value)}
             onPressEnter={addGradeRow}
-            className="w-36"
+            className="w-36 flex-shrink-0"
           />
           <Button size="small" icon={<PlusOutlined />} onClick={addGradeRow}>{t("addGrade")}</Button>
         </div>
@@ -278,13 +303,13 @@ export function ClassesTab() {
       {/* Manual add */}
       <div>
         <p className="text-sm font-medium text-slate-600 mb-2">{t("manualAdd")}</p>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Input
             placeholder={t("manualPlaceholder")}
             value={manualName}
             onChange={(e) => setManualName(e.target.value)}
             onPressEnter={handleManualAdd}
-            className="max-w-xs"
+            className="flex-1 min-w-[160px] max-w-xs"
           />
           <Button icon={<PlusOutlined />} onClick={handleManualAdd}>{t("add")}</Button>
         </div>
@@ -310,7 +335,7 @@ export function ClassesTab() {
                       closeIcon={
                         <Popconfirm
                           title={t("deleteConfirm", { name: c.name })}
-                          onConfirm={() => deleteMutation.mutate(c.id)}
+                          onConfirm={() => deleteMutation.mutate(c)}
                           okText={t("deleteOk")}
                           cancelText={t("deleteCancel")}
                           disabled={c._count.members > 0}
