@@ -13,15 +13,15 @@ import { DateRangeFilter, type DateRange } from "./DateRangeFilter";
 
 interface HourPoint { hour: number; visits: number; }
 
-function fmtHour(h: number) {
-  if (h === 0) return "12am";
-  if (h < 12) return `${h}am`;
-  if (h === 12) return "12pm";
-  return `${h - 12}pm`;
-}
-
 export function PeakHoursTab() {
   const t = useTranslations("reports");
+
+  function fmtHour(h: number) {
+    if (h === 0) return t("peakHours.midnight");
+    if (h < 12) return `${h}${t("peakHours.am")}`;
+    if (h === 12) return t("peakHours.noon");
+    return `${h - 12}${t("peakHours.pm")}`;
+  }
   const [range, setRange] = useState<DateRange>({ from: null, to: null });
 
   const params = new URLSearchParams();

@@ -3,6 +3,7 @@
 import { DatePicker, Segmented } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 const { RangePicker } = DatePicker;
 
@@ -27,6 +28,7 @@ function computeRange(mode: FilterMode, date: Dayjs, custom: [Dayjs, Dayjs] | nu
 }
 
 export function DateRangeFilter({ onChange }: Props) {
+  const t = useTranslations("reports");
   const [mode, setMode] = useState<FilterMode>("all");
   const [pickerDate, setPickerDate] = useState<Dayjs>(dayjs());
   const [customRange, setCustomRange] = useState<[Dayjs, Dayjs] | null>(null);
@@ -46,11 +48,11 @@ export function DateRangeFilter({ onChange }: Props) {
           update(m, pickerDate, customRange);
         }}
         options={[
-          { label: "All", value: "all" },
-          { label: "Year", value: "year" },
-          { label: "Month", value: "month" },
-          { label: "Week", value: "week" },
-          { label: "Custom", value: "custom" },
+          { label: t("filter.periodAll"), value: "all" },
+          { label: t("filter.periodYear"), value: "year" },
+          { label: t("filter.periodMonth"), value: "month" },
+          { label: t("filter.periodWeek"), value: "week" },
+          { label: t("filter.periodCustom"), value: "custom" },
         ]}
       />
       {mode === "year" && (

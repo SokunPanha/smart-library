@@ -383,7 +383,11 @@
     "peakHours": {
       "visits": "Visits",
       "peak": "Busiest hour",
-      "empty": "No visit data yet."
+      "empty": "No visit data yet.",
+      "am": "am",
+      "pm": "pm",
+      "noon": "12pm",
+      "midnight": "12am"
     },
     "visitByClass": {
       "visits": "Visits",
@@ -420,6 +424,13 @@
       "colReturnRate": "Return Rate",
       "total": "Total",
       "empty": "No circulation data yet."
+    },
+    "filter": {
+      "periodAll": "All time",
+      "periodYear": "Year",
+      "periodMonth": "Month",
+      "periodWeek": "Week",
+      "periodCustom": "Custom"
     }
   },
   "circulation": {

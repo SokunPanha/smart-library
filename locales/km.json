@@ -383,7 +383,11 @@
     "peakHours": {
       "visits": "ការទស្សនា",
       "peak": "ម៉ោងមមាញឹកបំផុត",
-      "empty": "មិនទាន់មានទិន្នន័យ។"
+      "empty": "មិនទាន់មានទិន្នន័យ។",
+      "am": "am",
+      "pm": "pm",
+      "noon": "12pm",
+      "midnight": "12am"
     },
     "visitByClass": {
       "visits": "ការទស្សនា",
@@ -420,6 +424,13 @@
       "colReturnRate": "អត្រាប្រគល់",
       "total": "សរុប",
       "empty": "គ្មានទិន្នន័យលំហូរខ្ចី។"
+    },
+    "filter": {
+      "periodAll": "ទាំងអស់",
+      "periodYear": "ឆ្នាំ",
+      "periodMonth": "ខែ",
+      "periodWeek": "សប្ដាហ៍",
+      "periodCustom": "កំណត់ផ្ទាល់"
     }
   },
   "circulation": {
