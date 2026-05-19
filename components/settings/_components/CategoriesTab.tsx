@@ -30,11 +30,10 @@ function CreateCategoryModal({ open, onClose }: { open: boolean; onClose: () => 
 
   useEffect(() => {
     if (!open) {
-      form.resetFields();
       setBulkText("");
       setTab("single");
     }
-  }, [open, form]);
+  }, [open]);
 
   async function handleSingleFinish({ name }: { name: string }) {
     setSaving(true);
