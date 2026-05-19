@@ -1,7 +1,7 @@
 "use client";
 
-import { Button, Space, Tag, Tooltip } from "antd";
-import { EditOutlined, DeleteOutlined, QrcodeOutlined } from "@ant-design/icons";
+import { Avatar, Button, Image, Space, Tag, Tooltip } from "antd";
+import { EditOutlined, DeleteOutlined, QrcodeOutlined, UserOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import type { ColumnsType } from "antd/es/table";
 import type { Member } from "../helper/useFetchMembers";
@@ -35,11 +35,30 @@ export function buildMemberColumns({ ctx, actions, t, onQR }: ColumnArgs): Colum
       title: t("members.colName"),
       key: "name",
       render: (_, row) => (
-        <div>
-          <p className="font-medium text-slate-800 leading-snug">
-            {row.nameKh ?? row.nameEn ?? <span className="text-slate-300">—</span>}
-          </p>
-          {row.nameKh && row.nameEn && <p className="text-xs text-slate-400">{row.nameEn}</p>}
+        <div className="flex items-center gap-2.5">
+          {row.photo ? (
+            <Image
+              src={row.photo}
+              alt="profile"
+              width={36}
+              height={36}
+              className="rounded-full object-cover flex-shrink-0"
+              style={{ borderRadius: "50%" }}
+              preview={{ mask: false }}
+            />
+          ) : (
+            <Avatar
+              size={36}
+              icon={<UserOutlined />}
+              className="flex-shrink-0 bg-slate-100 text-slate-400"
+            />
+          )}
+          <div>
+            <p className="font-medium text-slate-800 leading-snug">
+              {row.nameKh ?? row.nameEn ?? <span className="text-slate-300">—</span>}
+            </p>
+            {row.nameKh && row.nameEn && <p className="text-xs text-slate-400">{row.nameEn}</p>}
+          </div>
         </div>
       ),
     },
@@ -129,6 +148,7 @@ export function buildMemberColumns({ ctx, actions, t, onQR }: ColumnArgs): Colum
                 ...row,
                 email: row.email ?? undefined,
                 phone: row.phone ?? undefined,
+                photo: row.photo ?? undefined,
                 nameEn: row.nameEn ?? undefined,
                 nameKh: row.nameKh ?? undefined,
                 expiresAt: row.expiresAt ? dayjs(row.expiresAt) : undefined,

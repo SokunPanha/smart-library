@@ -13,6 +13,7 @@ export interface MemberPayload {
   nameKh?: string | null;
   email?: string | null;
   phone?: string | null;
+  photo?: string | null;
   type: MemberType;
   expiresAt?: string | null;
 }

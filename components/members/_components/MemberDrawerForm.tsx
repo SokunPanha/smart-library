@@ -1,14 +1,142 @@
 "use client";
 
-import { Drawer, Form, Input, Select, Button, Space, DatePicker } from "antd";
+import { useState, useEffect, useRef } from "react";
+import { Drawer, Form, Input, Select, Button, Space, DatePicker, Upload, App } from "antd";
+import { UploadOutlined, DeleteOutlined, CameraOutlined, UserOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
+import type { UploadRequestOption } from "@rc-component/upload/lib/interface";
 import { apiFetch } from "@/lib/request";
 import { useMembersContext } from "../helper/hooks";
 import { useMembers, type MemberPayload } from "../helper/useMembers";
 
 interface ClassItem { id: string; name: string; grade: string | null }
+
+function PhotoUpload() {
+  const t = useTranslations("members");
+  const { message } = App.useApp();
+  const form = Form.useFormInstance();
+  const [uploading, setUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [sessionPublicId, setSessionPublicId] = useState<string | null>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  const formValue = Form.useWatch("photo", form);
+  useEffect(() => {
+    setPreviewUrl(formValue ?? null);
+    if (!formValue) setSessionPublicId(null);
+  }, [formValue]);
+
+  async function deleteFromCloudinary(publicId: string) {
+    await fetch(`/api/upload?publicId=${encodeURIComponent(publicId)}`, { method: "DELETE" });
+  }
+
+  async function processFile(file: File) {
+    if (sessionPublicId) {
+      deleteFromCloudinary(sessionPublicId);
+      setSessionPublicId(null);
+    }
+    setPreviewUrl(URL.createObjectURL(file));
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload?folder=library/members", { method: "POST", body: fd });
+      if (!res.ok) throw new Error("Upload failed");
+      const { url, publicId } = (await res.json()) as { url: string; publicId: string };
+      setPreviewUrl(url);
+      setSessionPublicId(publicId);
+      form.setFieldValue("photo", url);
+    } catch {
+      message.error(t("uploadError"));
+      setPreviewUrl(formValue ?? null);
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function handleUpload({ file }: UploadRequestOption) {
+    await processFile(file as File);
+  }
+
+  function handleCameraChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) processFile(file);
+    e.target.value = "";
+  }
+
+  async function handleRemove() {
+    if (sessionPublicId) {
+      await deleteFromCloudinary(sessionPublicId);
+      setSessionPublicId(null);
+    }
+    setPreviewUrl(null);
+    form.setFieldValue("photo", null);
+  }
+
+  const displayUrl = previewUrl ?? formValue ?? null;
+
+  return (
+    <>
+      <Form.Item name="photo" noStyle><Input type="hidden" /></Form.Item>
+      <Form.Item label={t("photo")}>
+        <div className="flex items-center gap-4">
+          {/* Avatar preview */}
+          <div className="relative flex-shrink-0">
+            {displayUrl ? (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={displayUrl}
+                  alt="profile"
+                  className="w-16 h-16 rounded-full object-cover border-2 border-slate-200"
+                />
+                <button
+                  type="button"
+                  onClick={handleRemove}
+                  className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors"
+                >
+                  <DeleteOutlined style={{ fontSize: 10 }} />
+                </button>
+              </>
+            ) : (
+              <div className="w-16 h-16 rounded-full border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center text-slate-300">
+                <UserOutlined style={{ fontSize: 24 }} />
+              </div>
+            )}
+          </div>
+
+          {/* Upload buttons */}
+          <div className="flex flex-col gap-2 flex-1">
+            <Upload accept="image/*" showUploadList={false} customRequest={handleUpload}>
+              <Button icon={<UploadOutlined />} loading={uploading} size="small" block>
+                {displayUrl ? t("changePhoto") : t("uploadPhoto")}
+              </Button>
+            </Upload>
+            <input
+              ref={cameraInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={handleCameraChange}
+            />
+            <Button
+              icon={<CameraOutlined />}
+              loading={uploading}
+              size="small"
+              block
+              onClick={() => cameraInputRef.current?.click()}
+            >
+              {t("takePhoto")}
+            </Button>
+          </div>
+        </div>
+      </Form.Item>
+    </>
+  );
+}
 
 function MemberFields() {
   const t = useTranslations("members");
@@ -33,6 +161,7 @@ function MemberFields() {
 
   return (
     <>
+      <PhotoUpload />
       <Form.Item label={t("nameKh")} name="nameKh" rules={[{ required: true }]}>
         <Input placeholder="ឈ្មោះពេញ" />
       </Form.Item>
@@ -74,7 +203,7 @@ function MemberFields() {
 }
 
 function normalizeValues(values: MemberPayload & { expiresAt?: dayjs.Dayjs }): MemberPayload {
-  return { ...values, expiresAt: values.expiresAt?.toISOString() ?? null };
+  return { ...values, photo: values.photo ?? null, expiresAt: values.expiresAt?.toISOString() ?? null };
 }
 
 export function CreateMemberDrawer() {

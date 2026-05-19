@@ -10,6 +10,7 @@ export interface Member {
   nameKh: string | null;
   phone: string | null;
   email: string | null;
+  photo: string | null;
   type: "STUDENT" | "TEACHER" | "PUBLIC" | "RESEARCHER";
   expiresAt: string | null;
   classId: string | null;
