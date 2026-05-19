@@ -29,11 +29,13 @@ function UserDrawer({ open, user, onClose }: { open: boolean; user: StaffUser | 
   const isEdit = !!user;
 
   useEffect(() => {
-    if (open) {
+    if (!open) return;
+    const id = setTimeout(() => {
       form.resetFields();
       if (user) form.setFieldsValue(user);
       else form.setFieldsValue({ role: "LIBRARIAN" });
-    }
+    }, 0);
+    return () => clearTimeout(id);
   }, [open, user, form]);
 
   async function handleFinish(values: Record<string, string>) {

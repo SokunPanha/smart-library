@@ -27,10 +27,12 @@ function CategoryDrawer({
   const tc = useTranslations("common");
 
   useEffect(() => {
-    if (open) {
+    if (!open) return;
+    const id = setTimeout(() => {
       form.resetFields();
       if (category) form.setFieldsValue({ name: category.name });
-    }
+    }, 0);
+    return () => clearTimeout(id);
   }, [open, category, form]);
 
   async function handleFinish({ name }: { name: string }) {

@@ -15,10 +15,12 @@ export function useModalForm<T = unknown>() {
   const ref = useRef<T | undefined>(undefined);
 
   useEffect(() => {
-    if (open) {
+    if (!open) return;
+    const id = setTimeout(() => {
       form.resetFields();
       if (ref.current) form.setFieldsValue(ref.current as Parameters<typeof form.setFieldsValue>[0]);
-    }
+    }, 0);
+    return () => clearTimeout(id);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
@@ -58,10 +60,12 @@ export function useDrawerForm<T = unknown>() {
   const ref = useRef<T | undefined>(undefined);
 
   useEffect(() => {
-    if (open) {
+    if (!open) return;
+    const id = setTimeout(() => {
       form.resetFields();
       if (ref.current) form.setFieldsValue(ref.current as Parameters<typeof form.setFieldsValue>[0]);
-    }
+    }, 0);
+    return () => clearTimeout(id);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
