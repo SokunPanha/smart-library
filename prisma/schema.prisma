@@ -56,6 +56,7 @@ model Book {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   loans           Loan[]
+  visitorLogs     VisitorLog[]
 }
 
 model Member {
@@ -73,8 +74,9 @@ model Member {
   updatedBy String?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  loans     Loan[]
-  class     Class?     @relation(fields: [classId], references: [id])
+  loans       Loan[]
+  visitorLogs VisitorLog[]
+  class       Class?     @relation(fields: [classId], references: [id])
 }
 
 model Class {
@@ -114,6 +116,22 @@ model Category {
   id        String   @id @default(cuid())
   name      String   @unique
   createdAt DateTime @default(now())
+}
+
+model VisitorLog {
+  id         String    @id @default(cuid())
+  memberId   String
+  member     Member    @relation(fields: [memberId], references: [id])
+  purpose    String
+  bookId     String?
+  book       Book?     @relation(fields: [bookId], references: [id])
+  note       String?
+  arrivedAt  DateTime  @default(now())
+  leftAt     DateTime?
+  recordedBy String
+
+  @@index([arrivedAt(sort: Desc)])
+  @@index([memberId])
 }
 
 model ActivityLog {

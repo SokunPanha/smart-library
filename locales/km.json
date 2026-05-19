@@ -21,6 +21,7 @@
     "catalog": "បញ្ជីសៀវភៅ",
     "members": "សមាជិក",
     "circulation": "ការខ្ចី-ប្រគល់",
+    "visitorLog": "កំណត់ហេតុអ្នកទស្សនា",
     "reports": "របាយការណ៍",
     "settings": "ការកំណត់"
   },
@@ -201,12 +202,55 @@
       "deletedSuccess": "បានលុបប្រភេទ។"
     }
   },
+  "visitorLog": {
+    "title": "កំណត់ហេតុអ្នកទស្សនា",
+    "scanMember": "ស្កែន QR សមាជិក",
+    "scanBook": "ស្កែន QR សៀវភៅ (ស្រេចចិត្ត)",
+    "purpose": "គោលបំណង",
+    "note": "កំណត់ចំណាំ (ស្រេចចិត្ត)",
+    "notePlaceholder": "ឧ. បញ្ជូនដោយគ្រូ, សិក្សាជាក្រុម...",
+    "checkIn": "ចូល",
+    "checkOut": "ចេញ",
+    "checkedIn": "បានចូល",
+    "checkedOut": "បានចេញ",
+    "insideNow": "នៅក្នុងបណ្ណាល័យ ({count})",
+    "todayLog": "កំណត់ហេតុថ្ងៃនេះ",
+    "history": "ប្រវត្តិ",
+    "duration": "{min} នាទី",
+    "durationHour": "{h} ម៉ោង {min} នាទី",
+    "open": "នៅក្នុង",
+    "arrivedAt": "មកដល់",
+    "leftAt": "ចេញ",
+    "searchPlaceholder": "ស្វែងរកតាមឈ្មោះ ឬ លេខសមាជិក...",
+    "filterPurpose": "គោលបំណងទាំងអស់",
+    "total": "សរុប {total} ដង",
+    "empty": "មិនទាន់មានអ្នកទស្សនា។",
+    "todayEmpty": "មិនទាន់មានអ្នកទស្សនាថ្ងៃនេះ។",
+    "insideEmpty": "គ្មាននរណាម្នាក់នៅក្នុងបណ្ណាល័យ។",
+    "checkinSuccess": "បានកត់ត្រាការចូលដោយជោគជ័យ។",
+    "checkoutSuccess": "បានកត់ត្រាការចេញ។",
+    "alreadyInside": "{name} នៅក្នុងបណ្ណាល័យរួចហើយ — កំពុងកត់ត្រាការចេញ។",
+    "bookLinked": "សៀវភៅ: {title}",
+    "memberNotFound": "រកមិនឃើញសមាជិក",
+    "purposes": {
+      "READING": "អានសៀវភៅ",
+      "BORROWING": "ខ្ចីសៀវភៅ",
+      "SCHOOLWORK": "ធ្វើការងារសាលា",
+      "RESEARCH": "ស្រាវជ្រាវ",
+      "OTHER": "ផ្សេងៗ"
+    }
+  },
   "reports": {
     "title": "របាយការណ៍",
     "tabs": {
       "popular": "ខ្ចីច្រើនបំផុត",
       "overdue": "ហួសកំណត់",
-      "circulation": "លំហូរខ្ចី"
+      "circulation": "លំហូរខ្ចី",
+      "visitors": "អ្នកទស្សនាច្រើនបំផុត",
+      "trend": "និន្នាការទស្សនា",
+      "peakHours": "ម៉ោងមមាញឹក",
+      "visitByClass": "តាមថ្នាក់",
+      "inLibrary": "អានក្នុងបណ្ណាល័យ"
     },
     "popular": {
       "showTop": "បង្ហាញ",
@@ -228,6 +272,40 @@
       "colEstFine": "ពិន័យប៉ាន់ស្មាន",
       "colStatus": "ស្ថានភាព",
       "empty": "គ្មានការខ្ចីហួសកំណត់។"
+    },
+    "trend": {
+      "groupDay": "ប្រចាំថ្ងៃ",
+      "groupMonth": "ប្រចាំខែ",
+      "visits": "ការទស្សនា",
+      "empty": "មិនទាន់មានទិន្នន័យ។"
+    },
+    "peakHours": {
+      "visits": "ការទស្សនា",
+      "peak": "ម៉ោងមមាញឹកបំផុត",
+      "empty": "មិនទាន់មានទិន្នន័យ។"
+    },
+    "visitByClass": {
+      "visits": "ការទស្សនា",
+      "empty": "មិនទាន់មានទិន្នន័យ។"
+    },
+    "inLibrary": {
+      "colTitle": "ចំណងជើង",
+      "colAuthor": "អ្នកនិពន្ធ",
+      "colCategory": "ប្រភេទ",
+      "colReadCount": "ចំនួនអាន",
+      "empty": "មិនទាន់មានទិន្នន័យការអានក្នុងបណ្ណាល័យ។"
+    },
+    "visitors": {
+      "colMember": "សមាជិក",
+      "colType": "ប្រភេទ",
+      "colVisits": "ចំនួនទស្សនា",
+      "colAvgDuration": "រយៈពេលមធ្យម",
+      "periodAll": "ទាំងអស់",
+      "periodYear": "ឆ្នាំ",
+      "periodMonth": "ខែ",
+      "periodWeek": "សប្ដាហ៍",
+      "periodCustom": "កំណត់ផ្ទាល់",
+      "empty": "មិនទាន់មានទិន្នន័យអ្នកទស្សនា។"
     },
     "circulation": {
       "period": "រយៈពេល",

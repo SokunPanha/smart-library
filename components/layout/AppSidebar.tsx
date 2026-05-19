@@ -9,6 +9,7 @@ import {
   BarChartOutlined,
   SettingOutlined,
   CloseOutlined,
+  FieldTimeOutlined,
 } from "@ant-design/icons";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -30,6 +31,7 @@ export function SidebarContent({ onClose }: SidebarContentProps) {
     { key: "catalog", icon: <BookOutlined />, label: t("catalog") },
     { key: "members", icon: <TeamOutlined />, label: t("members") },
     { key: "circulation", icon: <SwapOutlined />, label: t("circulation") },
+    { key: "visitor-log", icon: <FieldTimeOutlined />, label: t("visitorLog") },
     { key: "reports", icon: <BarChartOutlined />, label: t("reports") },
     { key: "settings", icon: <SettingOutlined />, label: t("settings") },
   ];

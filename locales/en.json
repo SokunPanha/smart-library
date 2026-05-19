@@ -21,6 +21,7 @@
     "catalog": "Catalog",
     "members": "Members",
     "circulation": "Circulation",
+    "visitorLog": "Visitor Log",
     "reports": "Reports",
     "settings": "Settings"
   },
@@ -201,12 +202,55 @@
       "deletedSuccess": "Category deleted."
     }
   },
+  "visitorLog": {
+    "title": "Visitor Log",
+    "scanMember": "Scan Member QR",
+    "scanBook": "Scan Book QR (optional)",
+    "purpose": "Purpose",
+    "note": "Note (optional)",
+    "notePlaceholder": "e.g. sent by teacher, group study…",
+    "checkIn": "Check In",
+    "checkOut": "Check Out",
+    "checkedIn": "Checked In",
+    "checkedOut": "Checked Out",
+    "insideNow": "Currently Inside ({count})",
+    "todayLog": "Today's Log",
+    "history": "History",
+    "duration": "{min} min",
+    "durationHour": "{h}h {min}m",
+    "open": "Still inside",
+    "arrivedAt": "Arrived",
+    "leftAt": "Left",
+    "searchPlaceholder": "Search by name or member ID…",
+    "filterPurpose": "All purposes",
+    "total": "Total {total} visits",
+    "empty": "No visits yet.",
+    "todayEmpty": "No visits today yet.",
+    "insideEmpty": "No one inside right now.",
+    "checkinSuccess": "Checked in successfully.",
+    "checkoutSuccess": "Checked out.",
+    "alreadyInside": "{name} is already inside — checking out instead.",
+    "bookLinked": "Book linked: {title}",
+    "memberNotFound": "Member not found",
+    "purposes": {
+      "READING": "Reading",
+      "BORROWING": "Borrowing",
+      "SCHOOLWORK": "School Work",
+      "RESEARCH": "Research",
+      "OTHER": "Other"
+    }
+  },
   "reports": {
     "title": "Reports",
     "tabs": {
       "popular": "Most Borrowed",
       "overdue": "Overdue",
-      "circulation": "Circulation"
+      "circulation": "Circulation",
+      "visitors": "Top Visitors",
+      "trend": "Visit Trend",
+      "peakHours": "Peak Hours",
+      "visitByClass": "By Class",
+      "inLibrary": "Read In-Library"
     },
     "popular": {
       "showTop": "Show top",
@@ -228,6 +272,40 @@
       "colEstFine": "Estimated Fine",
       "colStatus": "Status",
       "empty": "No overdue loans."
+    },
+    "trend": {
+      "groupDay": "Daily",
+      "groupMonth": "Monthly",
+      "visits": "Visits",
+      "empty": "No visit data yet."
+    },
+    "peakHours": {
+      "visits": "Visits",
+      "peak": "Busiest hour",
+      "empty": "No visit data yet."
+    },
+    "visitByClass": {
+      "visits": "Visits",
+      "empty": "No visit data yet."
+    },
+    "inLibrary": {
+      "colTitle": "Title",
+      "colAuthor": "Author",
+      "colCategory": "Category",
+      "colReadCount": "Times Read",
+      "empty": "No in-library reading records yet."
+    },
+    "visitors": {
+      "colMember": "Member",
+      "colType": "Type",
+      "colVisits": "Total Visits",
+      "colAvgDuration": "Avg. Stay",
+      "periodAll": "All time",
+      "periodYear": "Year",
+      "periodMonth": "Month",
+      "periodWeek": "Week",
+      "periodCustom": "Custom",
+      "empty": "No visit data yet."
     },
     "circulation": {
       "period": "Period",
