@@ -12,6 +12,7 @@ import { buildLoanColumns } from "./_components/Columns";
 import CheckoutModal from "./CheckoutModal";
 import { QRScanModal } from "./_components/QRScanModal";
 import { apiFetch } from "@/lib/request";
+import { useFetchSettings } from "@/components/settings/helper/useFetchSettings";
 import type { Loan } from "./helper/useFetchLoans";
 
 
@@ -54,6 +55,8 @@ function CirculationPageInner() {
     { label: t("circulation.statuses.LOST"), value: "LOST" },
   ];
   const { data, isLoading } = useFetchLoans(statusFilter, search, ctx.table.page);
+  const { data: settings } = useFetchSettings();
+  const maxRenewals = Number(settings?.maxRenewalsPerLoan ?? 2);
   const { ref: tableRef, scrollY } = useTableScroll();
 
   const confirmReturn = (loan: Loan, asLost = false) => {
@@ -68,10 +71,22 @@ function CirculationPageInner() {
     });
   };
 
+  const confirmRenew = (loan: Loan) => {
+    modal.confirm({
+      title: t("circulation.renewTitle"),
+      content: t("circulation.renewContent", { title: loan.book.titleKh ?? loan.book.titleEn }),
+      okText: t("common.confirm"),
+      cancelText: t("common.cancel"),
+      onOk: () => actions.renewLoan(loan),
+    });
+  };
+
   const columns = buildLoanColumns({
     actions,
     onReturn: (loan) => confirmReturn(loan),
     onLost: (loan) => confirmReturn(loan, true),
+    onRenew: confirmRenew,
+    maxRenewals,
     t,
   });
 

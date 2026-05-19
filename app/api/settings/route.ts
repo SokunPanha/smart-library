@@ -15,6 +15,7 @@ const DEFAULTS: Record<string, string> = {
   loanDaysResearcher: "30",
   finePerDay: "500",
   maxLoansPerMember: "5",
+  maxRenewalsPerLoan: "2",
 };
 
 export async function GET() {

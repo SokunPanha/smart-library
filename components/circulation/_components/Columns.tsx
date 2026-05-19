@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Space, Tag, Tooltip } from "antd";
-import { CheckOutlined, StopOutlined } from "@ant-design/icons";
+import { CheckOutlined, StopOutlined, SyncOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import type { ColumnsType } from "antd/es/table";
 import type { Loan } from "../helper/useFetchLoans";
@@ -18,10 +18,12 @@ interface ColumnArgs {
   actions: ReturnType<typeof useLoans>;
   onReturn: (loan: Loan) => void;
   onLost: (loan: Loan) => void;
+  onRenew: (loan: Loan) => void;
+  maxRenewals: number;
   t: (key: string, values?: Record<string, string | number | Date>) => string;
 }
 
-export function buildLoanColumns({ onReturn, onLost, t }: ColumnArgs): ColumnsType<Loan> {
+export function buildLoanColumns({ onReturn, onLost, onRenew, maxRenewals, t }: ColumnArgs): ColumnsType<Loan> {
   return [
     {
       title: t("circulation.colBook"),
@@ -104,14 +106,22 @@ export function buildLoanColumns({ onReturn, onLost, t }: ColumnArgs): ColumnsTy
     {
       title: t("circulation.colFine"),
       key: "fine",
-      render: (_, row) =>
-        row.fineAmount > 0 ? (
-          <span className={row.finePaid ? "text-slate-400 line-through" : "text-red-500 font-medium"}>
-            {row.fineAmount.toLocaleString()} ៛
-          </span>
-        ) : (
-          <span className="text-slate-300">—</span>
-        ),
+      render: (_, row) => (
+        <div>
+          {row.fineAmount > 0 ? (
+            <span className={row.finePaid ? "text-slate-400 line-through" : "text-red-500 font-medium"}>
+              {row.fineAmount.toLocaleString()} ៛
+            </span>
+          ) : (
+            <span className="text-slate-300">—</span>
+          )}
+          {row.renewalCount > 0 && (
+            <p className="text-[10px] text-slate-400 mt-0.5">
+              {t("circulation.renewals", { count: row.renewalCount })}
+            </p>
+          )}
+        </div>
+      ),
     },
     {
       title: t("common.createdBy"),
@@ -139,12 +149,28 @@ export function buildLoanColumns({ onReturn, onLost, t }: ColumnArgs): ColumnsTy
     {
       title: t("common.actions"),
       key: "actions",
-      width: 100,
+      width: 120,
       render: (_, row) =>
         row.status === "ACTIVE" || row.status === "OVERDUE" ? (
           <Space size="small">
             <Tooltip title={t("circulation.returnTooltip")}>
               <Button type="text" size="small" icon={<CheckOutlined />} onClick={() => onReturn(row)} />
+            </Tooltip>
+            <Tooltip
+              title={
+                row.renewalCount >= maxRenewals
+                  ? t("circulation.renewMaxReached")
+                  : t("circulation.renewTooltip", { current: row.renewalCount, max: maxRenewals })
+              }
+            >
+              <Button
+                type="text"
+                size="small"
+                icon={<SyncOutlined />}
+                onClick={() => onRenew(row)}
+                disabled={row.renewalCount >= maxRenewals}
+                className={row.renewalCount >= maxRenewals ? "" : "text-blue-500"}
+              />
             </Tooltip>
             <Tooltip title={t("circulation.lostTooltip")}>
               <Button type="text" size="small" danger icon={<StopOutlined />} onClick={() => onLost(row)} />

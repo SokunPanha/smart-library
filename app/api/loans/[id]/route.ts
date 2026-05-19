@@ -11,6 +11,10 @@ const returnSchema = z.object({
   finePaid: z.boolean().optional().default(false),
 });
 
+const renewSchema = z.object({
+  action: z.literal("renew"),
+});
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -40,6 +44,66 @@ export async function PATCH(
 
   const { id } = await params;
   const body = await req.json();
+  const actor = (session.user as { name?: string; email?: string }).name ?? session.user?.email ?? "unknown";
+
+  // --- Renew action ---
+  if (body?.action === "renew") {
+    const parsed = renewSchema.safeParse(body);
+    if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
+
+    const loan = await prisma.loan.findUnique({
+      where: { id },
+      include: { member: { select: { type: true } } },
+    });
+    if (!loan) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (loan.status !== "ACTIVE" && loan.status !== "OVERDUE") {
+      return NextResponse.json({ error: "Loan is already closed." }, { status: 409 });
+    }
+
+    const settings = await prisma.setting.findMany({
+      where: { key: { in: ["maxRenewalsPerLoan", "loanDaysStudent", "loanDaysTeacher", "loanDaysPublic", "loanDaysResearcher"] } },
+    });
+    const settingsMap: Record<string, string> = {
+      maxRenewalsPerLoan: "2",
+      loanDaysStudent: "14",
+      loanDaysTeacher: "30",
+      loanDaysPublic: "14",
+      loanDaysResearcher: "30",
+    };
+    for (const s of settings) settingsMap[s.key] = s.value;
+
+    const maxRenewals = Number(settingsMap.maxRenewalsPerLoan);
+    if (loan.renewalCount >= maxRenewals) {
+      return NextResponse.json({ error: "MAX_RENEWALS_REACHED", maxRenewals }, { status: 409 });
+    }
+
+    const loanDaysKey = `loanDays${loan.member.type.charAt(0) + loan.member.type.slice(1).toLowerCase()}` as keyof typeof settingsMap;
+    const loanDays = Number(settingsMap[loanDaysKey] ?? "14");
+    // Extend from current due date (or today if overdue), so renewal never shortens remaining time
+    const baseDate = loan.dueAt > new Date() ? loan.dueAt : new Date();
+    const newDueAt = new Date(baseDate);
+    newDueAt.setDate(newDueAt.getDate() + loanDays);
+
+    const updated = await prisma.loan.update({
+      where: { id },
+      data: {
+        dueAt: newDueAt,
+        renewalCount: { increment: 1 },
+        status: "ACTIVE",
+      },
+      include: {
+        book: { select: { titleEn: true, titleKh: true } },
+        member: { select: { nameEn: true, nameKh: true, memberId: true, type: true } },
+      },
+    });
+
+    const bookTitle = updated.book.titleKh ?? updated.book.titleEn;
+    const memberName = updated.member.nameKh ?? updated.member.nameEn ?? updated.member.memberId;
+    await logActivity(session, "LOAN_RENEWED", `Renewed: "${bookTitle}" by ${memberName} (renewal #${updated.renewalCount}, due ${newDueAt.toLocaleDateString()})`, id);
+    return NextResponse.json(updated);
+  }
+
+  // --- Return / Lost action ---
   const parsed = returnSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
@@ -58,7 +122,6 @@ export async function PATCH(
   );
   const fineAmount = overdueDays * FINE_PER_DAY_KHR;
 
-  const actor = (session.user as { name?: string; email?: string }).name ?? session.user?.email ?? "unknown";
   const [updatedLoan] = await prisma.$transaction([
     prisma.loan.update({
       where: { id },
@@ -74,7 +137,6 @@ export async function PATCH(
         member: { select: { nameEn: true, nameKh: true, memberId: true } },
       },
     }),
-    // Only return the copy to available if RETURNED (not LOST)
     ...(parsed.data.status === "RETURNED"
       ? [
           prisma.book.update({

@@ -28,5 +28,22 @@ export function useLoans() {
     ctx.table.reload();
   };
 
-  return { closeLoan };
+  const renewLoan = async (loan: Loan) => {
+    try {
+      await apiFetch(`/api/loans/${loan.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ action: "renew" }),
+      });
+      message.success(t("renewSuccess"));
+      ctx.table.reload();
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message === "MAX_RENEWALS_REACHED") {
+        message.error(t("renewMaxReached"));
+      } else {
+        message.error(t("renewError"));
+      }
+    }
+  };
+
+  return { closeLoan, renewLoan };
 }

@@ -175,6 +175,7 @@
       "researcher": "Researcher",
       "finePerDay": "Fine per Overdue Day",
       "maxLoans": "Max Active Loans per Member",
+      "maxRenewals": "Max Renewals per Loan",
       "days": "days"
     },
     "users": {
@@ -555,6 +556,13 @@
       "OVERDUE": "Overdue",
       "LOST": "Lost"
     },
-    "lostMarked": "Book marked as lost."
+    "lostMarked": "Book marked as lost.",
+    "renewTitle": "Renew Loan?",
+    "renewContent": "Extend the due date for \"{title}\"?",
+    "renewTooltip": "Renew ({current}/{max})",
+    "renewSuccess": "Loan renewed successfully.",
+    "renewMaxReached": "Maximum renewals reached.",
+    "renewError": "Failed to renew loan.",
+    "renewals": "Renewed {count}×"
   }
 }

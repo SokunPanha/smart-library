@@ -97,9 +97,10 @@ model Loan {
   dueAt       DateTime
   returnedAt  DateTime?
   status      LoanStatus @default(ACTIVE)
-  fineAmount  Float      @default(0)
-  finePaid    Boolean    @default(false)
-  notes       String?
+  fineAmount    Float      @default(0)
+  finePaid      Boolean    @default(false)
+  renewalCount  Int        @default(0)
+  notes         String?
   checkedOutBy String?
   closedBy    String?
   createdAt   DateTime   @default(now())

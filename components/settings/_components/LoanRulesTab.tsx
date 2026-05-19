@@ -21,6 +21,7 @@ export function LoanRulesTab() {
         loanDaysResearcher: Number(data.loanDaysResearcher),
         finePerDay: Number(data.finePerDay),
         maxLoansPerMember: Number(data.maxLoansPerMember),
+        maxRenewalsPerLoan: Number(data.maxRenewalsPerLoan ?? 2),
       });
     }
   }, [data, form]);
@@ -82,6 +83,9 @@ export function LoanRulesTab() {
       <Divider plain>{t("loanRules.limits")}</Divider>
       <Form.Item label={t("loanRules.maxLoans")} name="maxLoansPerMember" rules={[{ required: true }]}>
         <InputNumber className="w-full max-w-xs" min={1} max={20} />
+      </Form.Item>
+      <Form.Item label={t("loanRules.maxRenewals")} name="maxRenewalsPerLoan" rules={[{ required: true }]}>
+        <InputNumber className="w-full max-w-xs" min={0} max={10} />
       </Form.Item>
 
       <Button type="primary" htmlType="submit">{t("save")}</Button>
