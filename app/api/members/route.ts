@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { z } from "zod";
+import { logActivity } from "@/lib/activityLog";
 
 const memberSchema = z.object({
+  nameKh: z.string().min(1),
   nameEn: z.string().optional().nullable(),
-  nameKh: z.string().optional().nullable(),
   email: z.string().email().optional().nullable().or(z.literal("")),
   phone: z.string().optional().nullable(),
   type: z.enum(["STUDENT", "TEACHER", "PUBLIC", "RESEARCHER"]).default("PUBLIC"),
@@ -65,6 +66,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
   }
 
+  const actor = (session.user as { name?: string; email?: string }).name ?? session.user?.email ?? "unknown";
   const { expiresAt, email, ...rest } = parsed.data;
   const memberId = await generateMemberId();
   const member = await prisma.member.create({
@@ -73,8 +75,11 @@ export async function POST(req: NextRequest) {
       memberId,
       email: email || null,
       expiresAt: expiresAt ? new Date(expiresAt) : null,
+      createdBy: actor,
+      updatedBy: actor,
     },
   });
 
+  await logActivity(session, "MEMBER_CREATED", `Added member: ${member.nameKh ?? member.nameEn ?? memberId} (${memberId})`, member.id);
   return NextResponse.json(member, { status: 201 });
 }

@@ -81,6 +81,22 @@ export function buildMemberColumns({ ctx, actions, t, onQR }: ColumnArgs): Colum
       ),
     },
     {
+      title: t("common.createdBy"),
+      key: "createdBy",
+      render: (_, row) => (
+        <div className="min-w-[110px]">
+          <p className="text-xs text-slate-700 leading-snug">{row.createdBy ?? "—"}</p>
+          <p className="text-[10px] text-slate-400">{dayjs(row.createdAt).format("DD/MM/YY HH:mm")}</p>
+          {row.updatedBy && row.updatedBy !== row.createdBy && (
+            <>
+              <p className="text-xs text-slate-500 leading-snug mt-1">{row.updatedBy}</p>
+              <p className="text-[10px] text-slate-400">{dayjs(row.updatedAt).format("DD/MM/YY HH:mm")}</p>
+            </>
+          )}
+        </div>
+      ),
+    },
+    {
       title: t("common.actions"),
       key: "actions",
       width: 100,

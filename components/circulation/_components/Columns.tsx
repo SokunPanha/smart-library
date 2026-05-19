@@ -2,8 +2,8 @@
 
 import { Button, Space, Tag, Tooltip } from "antd";
 import { CheckOutlined, StopOutlined } from "@ant-design/icons";
-import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
+import type { ColumnsType } from "antd/es/table";
 import type { Loan } from "../helper/useFetchLoans";
 import type { useLoans } from "../helper/useLoans";
 
@@ -112,6 +112,29 @@ export function buildLoanColumns({ onReturn, onLost, t }: ColumnArgs): ColumnsTy
         ) : (
           <span className="text-slate-300">—</span>
         ),
+    },
+    {
+      title: t("common.createdBy"),
+      key: "by",
+      render: (_, row) => (
+        <div className="min-w-[110px]">
+          {row.checkedOutBy && (
+            <>
+              <p className="text-[10px] text-slate-400 uppercase tracking-wide">{t("circulation.checkedOutBy")}</p>
+              <p className="text-xs text-slate-700 leading-snug">{row.checkedOutBy}</p>
+              <p className="text-[10px] text-slate-400">{dayjs(row.borrowedAt).format("DD/MM/YY HH:mm")}</p>
+            </>
+          )}
+          {row.closedBy && (
+            <div className="mt-1">
+              <p className="text-[10px] text-slate-400 uppercase tracking-wide">{t("circulation.closedBy")}</p>
+              <p className="text-xs text-slate-700 leading-snug">{row.closedBy}</p>
+              {row.returnedAt && <p className="text-[10px] text-slate-400">{dayjs(row.returnedAt).format("DD/MM/YY HH:mm")}</p>}
+            </div>
+          )}
+          {!row.checkedOutBy && !row.closedBy && <span className="text-slate-300 text-xs">—</span>}
+        </div>
+      ),
     },
     {
       title: t("common.actions"),

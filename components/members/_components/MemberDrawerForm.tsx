@@ -11,11 +11,11 @@ function MemberFields() {
 
   return (
     <>
-      <Form.Item label={t("nameEn")} name="nameEn" rules={[{ required: true }]}>
-        <Input />
-      </Form.Item>
-      <Form.Item label={t("nameKh")} name="nameKh">
+      <Form.Item label={t("nameKh")} name="nameKh" rules={[{ required: true }]}>
         <Input placeholder="ឈ្មោះពេញ" />
+      </Form.Item>
+      <Form.Item label={t("nameEn")} name="nameEn">
+        <Input />
       </Form.Item>
       <Form.Item label={t("type")} name="type" rules={[{ required: true }]} initialValue="PUBLIC">
         <Select

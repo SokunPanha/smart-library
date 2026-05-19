@@ -51,6 +51,8 @@ model Book {
   totalCopies     Int      @default(1)
   availableCopies Int      @default(1)
   tags            String[]
+  createdBy       String?
+  updatedBy       String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   loans           Loan[]
@@ -66,26 +68,30 @@ model Member {
   photo     String?
   type      MemberType @default(PUBLIC)
   expiresAt DateTime?
+  createdBy String?
+  updatedBy String?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   loans     Loan[]
 }
 
 model Loan {
-  id         String     @id @default(cuid())
-  bookId     String
-  memberId   String
-  borrowedAt DateTime   @default(now())
-  dueAt      DateTime
-  returnedAt DateTime?
-  status     LoanStatus @default(ACTIVE)
-  fineAmount Float      @default(0)
-  finePaid   Boolean    @default(false)
-  notes      String?
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  book       Book       @relation(fields: [bookId], references: [id])
-  member     Member     @relation(fields: [memberId], references: [id])
+  id          String     @id @default(cuid())
+  bookId      String
+  memberId    String
+  borrowedAt  DateTime   @default(now())
+  dueAt       DateTime
+  returnedAt  DateTime?
+  status      LoanStatus @default(ACTIVE)
+  fineAmount  Float      @default(0)
+  finePaid    Boolean    @default(false)
+  notes       String?
+  checkedOutBy String?
+  closedBy    String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  book        Book       @relation(fields: [bookId], references: [id])
+  member      Member     @relation(fields: [memberId], references: [id])
 }
 
 model Setting {
@@ -98,4 +104,16 @@ model Category {
   id        String   @id @default(cuid())
   name      String   @unique
   createdAt DateTime @default(now())
+}
+
+model ActivityLog {
+  id          String   @id @default(cuid())
+  userEmail   String
+  userName    String
+  action      String
+  description String
+  entityId    String?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
 }

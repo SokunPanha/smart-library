@@ -13,7 +13,8 @@
     "actions": "Actions",
     "status": "Status",
     "createdAt": "Created At",
-    "updatedAt": "Updated At"
+    "updatedAt": "Updated At",
+    "createdBy": "Added by / Updated by"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -106,7 +107,8 @@
       "general": "General",
       "loanRules": "Loan Rules",
       "categories": "Categories",
-      "users": "Users"
+      "users": "Users",
+      "logs": "Activity Logs"
     },
     "general": {
       "libraryNameEn": "Library Name (English)",
@@ -147,6 +149,15 @@
         "LIBRARIAN": "Librarian",
         "STAFF": "Staff"
       }
+    },
+    "logs": {
+      "colTime": "Time",
+      "colUser": "User",
+      "colAction": "Action",
+      "colDescription": "Description",
+      "searchPlaceholder": "Search by user, action, description…",
+      "total": "Total {total} records",
+      "empty": "No activity yet."
     },
     "categories": {
       "addCategory": "Add Category",
@@ -239,6 +250,8 @@
     "available": "available",
     "noBooks": "No available books found",
     "noMembers": "No members found",
+    "checkedOutBy": "Checked out by",
+    "closedBy": "Returned/Lost by",
     "checkoutSuccess": "Book checked out successfully.",
     "scan": {
       "title": "Scan QR — Checkout / Return",

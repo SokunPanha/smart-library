@@ -68,11 +68,11 @@ function UserDrawer({ open, user, onClose }: { open: boolean; user: StaffUser | 
       }
     >
       <Form form={form} layout="vertical" onFinish={handleFinish} requiredMark="optional">
-        <Form.Item label={t("users.nameEn")} name="nameEn" rules={[{ required: true }]}>
-          <Input />
-        </Form.Item>
-        <Form.Item label={t("users.nameKh")} name="nameKh">
+        <Form.Item label={t("users.nameKh")} name="nameKh" rules={[{ required: true }]}>
           <Input placeholder="ឈ្មោះពេញ" />
+        </Form.Item>
+        <Form.Item label={t("users.nameEn")} name="nameEn">
+          <Input />
         </Form.Item>
         {!isEdit && (
           <Form.Item label={t("users.email")} name="email" rules={[{ required: true, type: "email" }]}>

@@ -11,6 +11,8 @@ export interface Loan {
   returnedAt: string | null;
   fineAmount: number;
   finePaid: boolean;
+  checkedOutBy: string | null;
+  closedBy: string | null;
   book: { id: string; titleEn: string; titleKh: string | null; coverImage: string | null };
   member: { id: string; nameEn: string | null; nameKh: string | null; memberId: string };
 }

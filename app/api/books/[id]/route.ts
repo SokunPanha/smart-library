@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { z } from "zod";
+import { logActivity } from "@/lib/activityLog";
 
 const bookSchema = z.object({
   isbn: z.string().optional().nullable(),
@@ -48,15 +49,18 @@ export async function PUT(
   const existing = await prisma.book.findUnique({ where: { id } });
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
+  const actor = (session.user as { name?: string; email?: string }).name ?? session.user?.email ?? "unknown";
   const copiesDiff = parsed.data.totalCopies - existing.totalCopies;
   const book = await prisma.book.update({
     where: { id },
     data: {
       ...parsed.data,
       availableCopies: Math.max(0, existing.availableCopies + copiesDiff),
+      updatedBy: actor,
     },
   });
 
+  await logActivity(session, "BOOK_UPDATED", `Updated book: ${book.titleKh ?? book.titleEn}`, book.id);
   return NextResponse.json(book);
 }
 
@@ -78,6 +82,8 @@ export async function DELETE(
     );
   }
 
+  const book = await prisma.book.findUnique({ where: { id }, select: { titleEn: true, titleKh: true } });
   await prisma.book.delete({ where: { id } });
+  await logActivity(session, "BOOK_DELETED", `Deleted book: ${book?.titleKh ?? book?.titleEn}`, id);
   return new NextResponse(null, { status: 204 });
 }

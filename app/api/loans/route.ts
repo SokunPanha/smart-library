@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { z } from "zod";
+import { logActivity } from "@/lib/activityLog";
 
 const LOAN_DAYS: Record<string, number> = {
   STUDENT: 14,
@@ -93,12 +94,14 @@ export async function POST(req: NextRequest) {
     ? new Date(parsed.data.dueAt)
     : new Date(Date.now() + days * 86400000);
 
+  const actor = (session.user as { name?: string; email?: string }).name ?? session.user?.email ?? "unknown";
   const [loan] = await prisma.$transaction([
     prisma.loan.create({
       data: {
         bookId: book.id,
         memberId: member.id,
         dueAt,
+        checkedOutBy: actor,
       },
       include: {
         book: { select: { titleEn: true, titleKh: true } },
@@ -111,5 +114,8 @@ export async function POST(req: NextRequest) {
     }),
   ]);
 
+  const bookTitle = loan.book.titleKh ?? loan.book.titleEn;
+  const memberName = loan.member.nameKh ?? loan.member.nameEn ?? loan.member.memberId;
+  await logActivity(session, "LOAN_CHECKOUT", `Checked out: "${bookTitle}" → ${memberName} (${loan.member.memberId})`, loan.id);
   return NextResponse.json(loan, { status: 201 });
 }

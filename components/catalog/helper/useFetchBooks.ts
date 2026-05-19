@@ -17,6 +17,10 @@ export interface Book {
   availableCopies: number;
   tags: string[];
   coverImage: string | null;
+  createdBy: string | null;
+  updatedBy: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface BooksResponse {

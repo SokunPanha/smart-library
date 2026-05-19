@@ -3,6 +3,7 @@
 import { Button, Space, Popconfirm, Tag, Badge, Image, Tooltip } from "antd";
 import { EditOutlined, DeleteOutlined, QrcodeOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
+import dayjs from "dayjs";
 import type { Book } from "../helper/useFetchBooks";
 import type { useBooks } from "../helper/useBooks";
 import type { useCatalogContext } from "../helper/hooks";
@@ -71,6 +72,22 @@ export function buildBookColumns({ ctx, actions, t, onQR }: ColumnArgs): Columns
           status={row.availableCopies > 0 ? "success" : "error"}
           text={`${row.availableCopies} / ${row.totalCopies}`}
         />
+      ),
+    },
+    {
+      title: t("common.createdBy"),
+      key: "createdBy",
+      render: (_, row) => (
+        <div className="min-w-[110px]">
+          <p className="text-xs text-slate-700 leading-snug">{row.createdBy ?? "—"}</p>
+          <p className="text-[10px] text-slate-400">{dayjs(row.createdAt).format("DD/MM/YY HH:mm")}</p>
+          {row.updatedBy && row.updatedBy !== row.createdBy && (
+            <>
+              <p className="text-xs text-slate-500 leading-snug mt-1">{row.updatedBy}</p>
+              <p className="text-[10px] text-slate-400">{dayjs(row.updatedAt).format("DD/MM/YY HH:mm")}</p>
+            </>
+          )}
+        </div>
       ),
     },
     {

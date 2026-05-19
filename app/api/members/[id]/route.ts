@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { z } from "zod";
+import { logActivity } from "@/lib/activityLog";
 
 const memberSchema = z.object({
+  nameKh: z.string().min(1),
   nameEn: z.string().optional().nullable(),
-  nameKh: z.string().optional().nullable(),
   email: z.string().email().optional().nullable().or(z.literal("")),
   phone: z.string().optional().nullable(),
   type: z.enum(["STUDENT", "TEACHER", "PUBLIC", "RESEARCHER"]).default("PUBLIC"),
@@ -48,6 +49,7 @@ export async function PUT(
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
   }
 
+  const actor = (session.user as { name?: string; email?: string }).name ?? session.user?.email ?? "unknown";
   const { expiresAt, email, ...rest } = parsed.data;
   const member = await prisma.member.update({
     where: { id },
@@ -55,9 +57,11 @@ export async function PUT(
       ...rest,
       email: email || null,
       expiresAt: expiresAt ? new Date(expiresAt) : null,
+      updatedBy: actor,
     },
   });
 
+  await logActivity(session, "MEMBER_UPDATED", `Updated member: ${member.nameKh ?? member.nameEn ?? member.memberId} (${member.memberId})`, member.id);
   return NextResponse.json(member);
 }
 
@@ -79,6 +83,8 @@ export async function DELETE(
     );
   }
 
+  const member = await prisma.member.findUnique({ where: { id }, select: { nameEn: true, nameKh: true, memberId: true } });
   await prisma.member.delete({ where: { id } });
+  await logActivity(session, "MEMBER_DELETED", `Deleted member: ${member?.nameKh ?? member?.nameEn ?? member?.memberId} (${member?.memberId})`, id);
   return new NextResponse(null, { status: 204 });
 }

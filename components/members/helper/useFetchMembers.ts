@@ -12,6 +12,10 @@ export interface Member {
   email: string | null;
   type: "STUDENT" | "TEACHER" | "PUBLIC" | "RESEARCHER";
   expiresAt: string | null;
+  createdBy: string | null;
+  updatedBy: string | null;
+  createdAt: string;
+  updatedAt: string;
   _count: { loans: number };
 }
 

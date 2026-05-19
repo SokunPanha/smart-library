@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { z } from "zod";
+import { logActivity } from "@/lib/activityLog";
 
 const FINE_PER_DAY_KHR = 500;
 
@@ -57,6 +58,7 @@ export async function PATCH(
   );
   const fineAmount = overdueDays * FINE_PER_DAY_KHR;
 
+  const actor = (session.user as { name?: string; email?: string }).name ?? session.user?.email ?? "unknown";
   const [updatedLoan] = await prisma.$transaction([
     prisma.loan.update({
       where: { id },
@@ -65,6 +67,7 @@ export async function PATCH(
         returnedAt: now,
         fineAmount,
         finePaid: parsed.data.finePaid,
+        closedBy: actor,
       },
       include: {
         book: { select: { titleEn: true, titleKh: true } },
@@ -82,5 +85,12 @@ export async function PATCH(
       : []),
   ]);
 
+  const bookTitle = updatedLoan.book.titleKh ?? updatedLoan.book.titleEn;
+  const memberName = updatedLoan.member.nameKh ?? updatedLoan.member.nameEn ?? updatedLoan.member.memberId;
+  const action = parsed.data.status === "RETURNED" ? "LOAN_RETURNED" : "LOAN_LOST";
+  const desc = parsed.data.status === "RETURNED"
+    ? `Returned: "${bookTitle}" by ${memberName}${fineAmount > 0 ? ` (fine: ${fineAmount.toLocaleString()} KHR)` : ""}`
+    : `Marked lost: "${bookTitle}" by ${memberName}`;
+  await logActivity(session, action, desc, id);
   return NextResponse.json(updatedLoan);
 }

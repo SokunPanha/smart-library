@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { z } from "zod";
+import { logActivity } from "@/lib/activityLog";
 
 const bookSchema = z.object({
   isbn: z.string().optional().nullable(),
@@ -60,12 +61,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
   }
 
+  const actor = (session.user as { name?: string; email?: string }).name ?? session.user?.email ?? "unknown";
   const book = await prisma.book.create({
     data: {
       ...parsed.data,
       availableCopies: parsed.data.totalCopies,
+      createdBy: actor,
+      updatedBy: actor,
     },
   });
 
+  await logActivity(session, "BOOK_CREATED", `Added book: ${book.titleKh ?? book.titleEn}`, book.id);
   return NextResponse.json(book, { status: 201 });
 }

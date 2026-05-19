@@ -20,11 +20,11 @@ export function GeneralTab() {
 
   return (
     <Form form={form} layout="vertical" onFinish={saveSettings} requiredMark={false} className="max-w-lg">
-      <Form.Item label={t("general.libraryNameEn")} name="libraryName" rules={[{ required: true }]}>
-        <Input />
-      </Form.Item>
-      <Form.Item label={t("general.libraryNameKh")} name="libraryNameKh">
+      <Form.Item label={t("general.libraryNameKh")} name="libraryNameKh" rules={[{ required: true }]}>
         <Input placeholder="ឈ្មោះបណ្ណាល័យ" />
+      </Form.Item>
+      <Form.Item label={t("general.libraryNameEn")} name="libraryName">
+        <Input />
       </Form.Item>
       <Form.Item label={t("general.address")} name="address">
         <Input.TextArea rows={2} />

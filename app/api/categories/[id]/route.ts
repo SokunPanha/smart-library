@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
+import { logActivity } from "@/lib/activityLog";
 
 type Params = { params: Promise<{ id: string }> };
 
 export async function PUT(req: Request, { params }: Params) {
+  const session = await auth();
   const { id } = await params;
   const { name } = await req.json();
   if (!name?.trim()) return NextResponse.json({ error: "Name is required." }, { status: 400 });
@@ -18,10 +21,13 @@ export async function PUT(req: Request, { params }: Params) {
     prisma.category.update({ where: { id }, data: { name: name.trim() } }),
     prisma.book.updateMany({ where: { category: old.name }, data: { category: name.trim() } }),
   ]);
+
+  if (session) await logActivity(session, "CATEGORY_UPDATED", `Renamed category: "${old.name}" → "${name.trim()}"`, id);
   return NextResponse.json(category);
 }
 
 export async function DELETE(_req: Request, { params }: Params) {
+  const session = await auth();
   const { id } = await params;
   const category = await prisma.category.findUnique({ where: { id } });
   if (!category) return NextResponse.json({ error: "Not found." }, { status: 404 });
@@ -35,5 +41,6 @@ export async function DELETE(_req: Request, { params }: Params) {
   }
 
   await prisma.category.delete({ where: { id } });
+  if (session) await logActivity(session, "CATEGORY_DELETED", `Deleted category: ${category.name}`, id);
   return NextResponse.json({ ok: true });
 }
