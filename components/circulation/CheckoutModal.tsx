@@ -93,6 +93,7 @@ export default function CheckoutModal({ open, onClose, onSuccess }: Props) {
       }}
       footer={null}
       width={440}
+      style={{ maxWidth: "calc(100vw - 32px)" }}
     >
       <Form
         form={form}

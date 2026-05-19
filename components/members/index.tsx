@@ -25,10 +25,10 @@ function MembersPageInner() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <h1 className="text-xl font-semibold text-slate-800">{t("members.title")}</h1>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => ctx.createForm.open()}>
-          {t("members.addMember")}
+          <span className="hidden sm:inline">{t("members.addMember")}</span>
         </Button>
       </div>
 
@@ -48,7 +48,7 @@ function MembersPageInner() {
             rowKey="id"
             loading={isLoading}
             size="small"
-            scroll={{ y: scrollY }}
+            scroll={{ x: "max-content", y: scrollY }}
             {...ctx.table.props}
             pagination={{ ...ctx.table.props.pagination, total: data?.total ?? 0 }}
             locale={{ emptyText: "No members found." }}

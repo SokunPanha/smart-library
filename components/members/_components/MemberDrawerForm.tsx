@@ -55,7 +55,7 @@ export function CreateMemberDrawer() {
       title={t("addMember")}
       open={createForm.isOpen}
       onClose={createForm.close}
-      styles={{ wrapper: { width: 440 } }}
+      styles={{ wrapper: { width: "min(440px, 100vw)" } }}
       extra={
         <Space>
           <Button onClick={createForm.close}>{tc("cancel")}</Button>
@@ -86,7 +86,7 @@ export function EditMemberDrawer() {
       title={t("editMember")}
       open={editForm.isOpen}
       onClose={editForm.close}
-      styles={{ wrapper: { width: 440 } }}
+      styles={{ wrapper: { width: "min(440px, 100vw)" } }}
       extra={
         <Space>
           <Button onClick={editForm.close}>{tc("cancel")}</Button>

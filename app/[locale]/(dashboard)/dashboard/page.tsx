@@ -122,6 +122,7 @@ export default function DashboardPage() {
           rowKey="id"
           pagination={false}
           size="small"
+          scroll={{ x: "max-content" }}
           locale={{ emptyText: t("common.noData") }}
         />
       </Card>

@@ -5,6 +5,7 @@ import {
   UserOutlined,
   GlobalOutlined,
   LogoutOutlined,
+  MenuOutlined,
 } from "@ant-design/icons";
 import { useRouter, usePathname } from "next/navigation";
 import { useLocale } from "next-intl";
@@ -13,7 +14,12 @@ import type { MenuProps } from "antd";
 
 const { Header } = Layout;
 
-export default function AppHeader() {
+interface Props {
+  onMenuToggle: () => void;
+  showMenuButton: boolean;
+}
+
+export default function AppHeader({ onMenuToggle, showMenuButton }: Props) {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
@@ -40,15 +46,24 @@ export default function AppHeader() {
 
   return (
     <Header
-      className="flex items-center justify-between border-b border-slate-100 px-6"
+      className="flex items-center justify-between border-b border-slate-100 px-4"
       style={{
         background: "#fff",
         height: 56,
         lineHeight: "56px",
-        padding: "0 24px",
+        padding: "0 16px",
       }}
     >
-      <div />
+      <div>
+        {showMenuButton && (
+          <Button
+            type="text"
+            icon={<MenuOutlined />}
+            onClick={onMenuToggle}
+            className="text-slate-600"
+          />
+        )}
+      </div>
       <div className="flex items-center gap-3">
         <Dropdown menu={{ items: langItems }} placement="bottomRight">
           <Button

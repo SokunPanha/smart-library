@@ -85,7 +85,7 @@ export function OverdueTab() {
         rowKey="id"
         loading={isLoading}
         size="small"
-        scroll={{ y: scrollY }}
+        scroll={{ x: "max-content", y: scrollY }}
         pagination={{ pageSize: 20 }}
         locale={{ emptyText: t("overdue.empty") }}
       />

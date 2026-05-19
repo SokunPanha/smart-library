@@ -63,7 +63,7 @@ export function PopularBooksTab() {
           rowKey={(r) => r.book.id}
           loading={isLoading}
           size="small"
-          scroll={{ y: scrollY }}
+          scroll={{ x: "max-content", y: scrollY }}
           pagination={false}
           locale={{ emptyText: t("popular.empty") }}
         />

@@ -59,7 +59,7 @@ function UserDrawer({ open, user, onClose }: { open: boolean; user: StaffUser | 
       title={isEdit ? t("users.editUser") : t("users.addUser")}
       open={open}
       onClose={() => { form.resetFields(); onClose(); }}
-      styles={{ wrapper: { width: 420 } }}
+      styles={{ wrapper: { width: "min(420px, 100vw)" } }}
       extra={
         <Space>
           <Button onClick={() => { form.resetFields(); onClose(); }}>{tc("cancel")}</Button>
@@ -161,7 +161,7 @@ export function UsersTab() {
 
   return (
     <>
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-end mb-4 flex-wrap gap-2">
         <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditUser(null); setDrawerOpen(true); }}>
           {t("users.addUser")}
         </Button>
@@ -173,7 +173,7 @@ export function UsersTab() {
           rowKey="id"
           loading={isLoading}
           size="small"
-          scroll={{ y: scrollY }}
+          scroll={{ x: "max-content", y: scrollY }}
           pagination={false}
         />
       </div>

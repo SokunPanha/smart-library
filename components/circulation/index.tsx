@@ -49,10 +49,10 @@ function CirculationPageInner() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <h1 className="text-xl font-semibold text-slate-800">{t("circulation.title")}</h1>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => ctx.checkoutModal.open()}>
-          {t("circulation.checkout")}
+          <span className="hidden sm:inline">{t("circulation.checkout")}</span>
         </Button>
       </div>
 
@@ -76,7 +76,7 @@ function CirculationPageInner() {
             rowKey="id"
             loading={isLoading}
             size="small"
-            scroll={{ y: scrollY }}
+            scroll={{ x: "max-content", y: scrollY }}
             {...ctx.table.props}
             pagination={{ ...ctx.table.props.pagination, total: data?.total ?? 0 }}
             rowClassName={(row) => (row.status === "OVERDUE" ? "bg-red-50" : "")}

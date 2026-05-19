@@ -56,7 +56,7 @@ function CategoryDrawer({
       title={category ? t("categories.editCategory") : t("categories.addCategory")}
       open={open}
       onClose={() => { form.resetFields(); onClose(); }}
-      styles={{ wrapper: { width: 360 } }}
+      styles={{ wrapper: { width: "min(360px, 100vw)" } }}
       extra={
         <Space>
           <Button onClick={() => { form.resetFields(); onClose(); }}>{tc("cancel")}</Button>
@@ -143,7 +143,7 @@ export function CategoriesTab() {
 
   return (
     <>
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex flex-wrap items-center gap-3 mb-4">
         <Input.Search
           placeholder={t("categories.searchPlaceholder")}
           value={search}
@@ -167,7 +167,7 @@ export function CategoriesTab() {
           rowKey="id"
           loading={isLoading}
           size="small"
-          scroll={{ y: scrollY }}
+          scroll={{ x: "max-content", y: scrollY }}
           pagination={{
             pageSize: 10,
             showSizeChanger: false,

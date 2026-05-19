@@ -67,7 +67,7 @@ export function CreateBookDrawer() {
       title={t("addBook")}
       open={createForm.isOpen}
       onClose={createForm.close}
-      styles={{ wrapper: { width: 480 } }}
+      styles={{ wrapper: { width: "min(480px, 100vw)" } }}
       extra={
         <Space>
           <Button onClick={createForm.close}>{tc("cancel")}</Button>
@@ -93,7 +93,7 @@ export function EditBookDrawer() {
       title={t("editBook")}
       open={editForm.isOpen}
       onClose={editForm.close}
-      styles={{ wrapper: { width: 480 } }}
+      styles={{ wrapper: { width: "min(480px, 100vw)" } }}
       extra={
         <Space>
           <Button onClick={editForm.close}>{tc("cancel")}</Button>
