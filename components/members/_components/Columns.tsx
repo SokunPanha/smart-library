@@ -1,7 +1,7 @@
 "use client";
 
-import { Button, Space, Tag } from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Button, Space, Tag, Tooltip } from "antd";
+import { EditOutlined, DeleteOutlined, QrcodeOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import type { Member } from "../helper/useFetchMembers";
@@ -20,9 +20,10 @@ interface ColumnArgs {
   ctx: ReturnType<typeof useMembersContext>;
   actions: ReturnType<typeof useMembers>;
   t: (key: string) => string;
+  onQR: (member: Member) => void;
 }
 
-export function buildMemberColumns({ ctx, actions, t }: ColumnArgs): ColumnsType<Member> {
+export function buildMemberColumns({ ctx, actions, t, onQR }: ColumnArgs): ColumnsType<Member> {
   return [
     {
       title: t("members.memberId"),
@@ -85,6 +86,14 @@ export function buildMemberColumns({ ctx, actions, t }: ColumnArgs): ColumnsType
       width: 100,
       render: (_, row) => (
         <Space size="small">
+          <Tooltip title={t("members.qrCode")}>
+            <Button
+              type="text"
+              size="small"
+              icon={<QrcodeOutlined />}
+              onClick={() => onQR(row)}
+            />
+          </Tooltip>
           <Button
             type="text"
             size="small"

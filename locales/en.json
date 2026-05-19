@@ -87,6 +87,10 @@
     "colLoans": "Loans",
     "colExpires": "Expires",
     "searchPlaceholder": "Search by name, ID, phone…",
+    "qrCode": "QR Code",
+    "printQR": "Print",
+    "qrScanHint": "Scan to retrieve member ID",
+    "printSelected": "Print QR Labels",
     "types": {
       "STUDENT": "Student",
       "TEACHER": "Teacher",
