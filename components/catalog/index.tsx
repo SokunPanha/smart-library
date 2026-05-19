@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { Table, Button, Input, Space } from "antd";
-import { PlusOutlined, SearchOutlined, PrinterOutlined } from "@ant-design/icons";
+import { PlusOutlined, SearchOutlined, PrinterOutlined, ImportOutlined } from "@ant-design/icons";
 import { QRCodeSVG } from "qrcode.react";
 import { useTranslations } from "next-intl";
 import { CatalogProvider, useCatalogContext } from "./helper/hooks";
@@ -11,6 +11,7 @@ import { useBooks } from "./helper/useBooks";
 import { buildBookColumns } from "./_components/Columns";
 import { CreateBookDrawer, EditBookDrawer } from "./_components/BookDrawerForm";
 import { BookQRModal } from "./_components/BookQRModal";
+import { BulkImportModal } from "./_components/BulkImportModal";
 import type { Book } from "./helper/useFetchBooks";
 import { useDebounce, useTableScroll } from "@/lib/hooks";
 
@@ -22,6 +23,7 @@ function CatalogPageInner() {
   const search = useDebounce(inputVal, 400);
   const [qrBook, setQrBook] = useState<Book | null>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [importOpen, setImportOpen] = useState(false);
   const bulkQRRef = useRef<HTMLDivElement>(null);
 
   const t = useTranslations();
@@ -109,6 +111,9 @@ function CatalogPageInner() {
               {` (${selectedRowKeys.length})`}
             </Button>
           )}
+          <Button icon={<ImportOutlined />} onClick={() => setImportOpen(true)}>
+            <span className="hidden sm:inline">{t("catalog.bulkImport.title")}</span>
+          </Button>
           <Button type="primary" icon={<PlusOutlined />} onClick={() => ctx.createForm.open()}>
             <span className="hidden sm:inline">{t("catalog.addBook")}</span>
           </Button>
@@ -160,6 +165,11 @@ function CatalogPageInner() {
       <CreateBookDrawer />
       <EditBookDrawer />
       <BookQRModal book={qrBook} onClose={() => setQrBook(null)} />
+      <BulkImportModal
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        onSuccess={() => ctx.table.reload()}
+      />
     </div>
   );
 }

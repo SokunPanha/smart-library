@@ -102,7 +102,32 @@
     "bookDeleted": "Book deleted.",
     "deleteTitle": "Delete Book?",
     "deleteContent": "\"{title}\" will be permanently removed.",
-    "uploadError": "Failed to upload image."
+    "uploadError": "Failed to upload image.",
+    "bulkImport": {
+      "title": "Bulk Import Books",
+      "instructions": "Download the template, fill in your book data, then upload the file.",
+      "downloadTemplate": "Download Template",
+      "dropHint": "Click or drag file here to upload",
+      "fileTypes": "Supports .xlsx, .xls, .csv",
+      "invalidFileType": "Please upload an Excel or CSV file.",
+      "emptyFile": "The file contains no data rows.",
+      "parseError": "Could not read the file. Please check the format.",
+      "importError": "Import failed. Please try again.",
+      "validCount": "{count} valid row(s)",
+      "errorCount": "{count} row(s) with errors",
+      "errorRowsWarning": "Rows with errors will be skipped during import.",
+      "valid": "Valid",
+      "importCount": "Import {count} book(s)",
+      "colTitleKh": "Title (KH)",
+      "colTitleEn": "Title (EN)",
+      "colAuthor": "Author",
+      "colCopies": "Copies",
+      "colISBN": "ISBN",
+      "doneTitle": "Import Complete",
+      "created": "Books Added",
+      "skipped": "Skipped",
+      "importMore": "Import More"
+    }
   },
   "members": {
     "title": "Members",

@@ -102,7 +102,32 @@
     "bookDeleted": "លុបសៀវភៅ។",
     "deleteTitle": "លុបសៀវភៅ?",
     "deleteContent": "\"{title}\" នឹងត្រូវបានលុបចោលជាអចិន្ត្រៃយ៍។",
-    "uploadError": "បរាជ័យក្នុងការផ្ទុករូបភាព។"
+    "uploadError": "បរាជ័យក្នុងការផ្ទុករូបភាព។",
+    "bulkImport": {
+      "title": "នាំចូលសៀវភៅច្រើន",
+      "instructions": "ទាញយកគំរូ បំពេញទិន្នន័យ រួចផ្ទុកឯកសារ។",
+      "downloadTemplate": "ទាញយកគំរូ",
+      "dropHint": "ចុចឬអូសឯកសារមកទីនេះ",
+      "fileTypes": "គាំទ្រ .xlsx, .xls, .csv",
+      "invalidFileType": "សូមផ្ទុកឯកសារ Excel ឬ CSV។",
+      "emptyFile": "ឯកសារមិនមានទិន្នន័យ។",
+      "parseError": "មិនអាចអានឯកសារ។ សូមពិនិត្យទម្រង់ឡើងវិញ។",
+      "importError": "នាំចូលបរាជ័យ។ សូមព្យាយាមម្ដងទៀត។",
+      "validCount": "{count} ជួរ​ត្រឹមត្រូវ",
+      "errorCount": "{count} ជួរ​មានបញ្ហា",
+      "errorRowsWarning": "ជួរដែលមានបញ្ហានឹងត្រូវបានរំលងក្នុងពេលនាំចូល។",
+      "valid": "ត្រឹមត្រូវ",
+      "importCount": "នាំចូល {count} សៀវភៅ",
+      "colTitleKh": "ចំណងជើង (ខ្មែរ)",
+      "colTitleEn": "ចំណងជើង (អង់គ្លេស)",
+      "colAuthor": "អ្នកនិពន្ធ",
+      "colCopies": "ចំណែក",
+      "colISBN": "ISBN",
+      "doneTitle": "នាំចូលបានបញ្ចប់",
+      "created": "សៀវភៅបានបន្ថែម",
+      "skipped": "បានរំលង",
+      "importMore": "នាំចូលបន្ថែម"
+    }
   },
   "members": {
     "title": "សមាជិក",
