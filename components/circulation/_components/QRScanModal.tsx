@@ -287,8 +287,8 @@ export function QRScanModal({ open, onClose, onCheckout, onReturn }: Props) {
                     <img src={b.coverImage} alt="cover" className="w-7 h-10 object-cover rounded flex-shrink-0" />
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-slate-800 leading-snug line-clamp-1">{b.titleEn}</p>
-                    {b.titleKh && <p className="text-xs text-slate-400 line-clamp-1">{b.titleKh}</p>}
+                    <p className="text-xs font-semibold text-slate-800 leading-snug line-clamp-1">{b.titleKh ?? b.titleEn}</p>
+                    {b.titleKh && b.titleEn && <p className="text-xs text-slate-400 line-clamp-1">{b.titleEn}</p>}
                     <p className="text-[10px] mt-0.5">
                       {loan
                         ? <span className="text-orange-500 font-medium">{t("scan.onLoan")}</span>

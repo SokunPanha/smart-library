@@ -33,8 +33,9 @@ export function OverdueTab() {
       key: "member",
       render: (_, r) => (
         <div>
-          <div className="font-medium">{r.member.nameEn ?? r.member.memberId}</div>
-          <div className="text-slate-400 text-xs">{r.member.memberId}</div>
+          <div className="font-medium">{r.member.nameKh ?? r.member.nameEn ?? r.member.memberId}</div>
+          {r.member.nameKh && r.member.nameEn && <div className="text-slate-400 text-xs">{r.member.nameEn}</div>}
+          <div className="text-slate-400 text-xs font-mono">{r.member.memberId}</div>
         </div>
       ),
     },
@@ -43,8 +44,8 @@ export function OverdueTab() {
       key: "book",
       render: (_, r) => (
         <div>
-          <div>{r.book.titleEn}</div>
-          {r.book.titleKh && <div className="text-slate-400 text-xs">{r.book.titleKh}</div>}
+          <div>{r.book.titleKh ?? r.book.titleEn}</div>
+          {r.book.titleKh && r.book.titleEn && <div className="text-slate-400 text-xs">{r.book.titleEn}</div>}
         </div>
       ),
     },

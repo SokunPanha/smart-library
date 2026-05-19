@@ -41,8 +41,8 @@ export function buildBookColumns({ ctx, actions, t, onQR }: ColumnArgs): Columns
       key: "title",
       render: (_, row) => (
         <div>
-          <p className="font-medium text-slate-800 leading-snug">{row.titleEn}</p>
-          {row.titleKh && <p className="text-xs text-slate-400 mt-0.5">{row.titleKh}</p>}
+          <p className="font-medium text-slate-800 leading-snug">{row.titleKh ?? row.titleEn}</p>
+          {row.titleKh && row.titleEn && <p className="text-xs text-slate-400 mt-0.5">{row.titleEn}</p>}
         </div>
       ),
     },

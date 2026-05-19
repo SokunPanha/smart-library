@@ -37,9 +37,9 @@ export function buildMemberColumns({ ctx, actions, t, onQR }: ColumnArgs): Colum
       render: (_, row) => (
         <div>
           <p className="font-medium text-slate-800 leading-snug">
-            {row.nameEn ?? <span className="text-slate-300">—</span>}
+            {row.nameKh ?? row.nameEn ?? <span className="text-slate-300">—</span>}
           </p>
-          {row.nameKh && <p className="text-xs text-slate-400">{row.nameKh}</p>}
+          {row.nameKh && row.nameEn && <p className="text-xs text-slate-400">{row.nameEn}</p>}
         </div>
       ),
     },

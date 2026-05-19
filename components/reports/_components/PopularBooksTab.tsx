@@ -31,8 +31,8 @@ export function PopularBooksTab() {
       key: "title",
       render: (_, r) => (
         <div>
-          <div className="font-medium">{r.book.titleEn}</div>
-          {r.book.titleKh && <div className="text-slate-400 text-xs">{r.book.titleKh}</div>}
+          <div className="font-medium">{r.book.titleKh ?? r.book.titleEn}</div>
+          {r.book.titleKh && r.book.titleEn && <div className="text-slate-400 text-xs">{r.book.titleEn}</div>}
         </div>
       ),
     },
