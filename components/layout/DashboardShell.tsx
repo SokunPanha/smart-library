@@ -20,8 +20,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
         placement="left"
-        width={220}
-        styles={{ body: { padding: 0 }, header: { display: "none" } }}
+        styles={{ wrapper: { width: 220 }, body: { padding: 0 }, header: { display: "none" } }}
         closable={false}
       >
         <SidebarContent onClose={() => setMobileOpen(false)} />

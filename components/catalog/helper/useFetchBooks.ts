@@ -16,6 +16,7 @@ export interface Book {
   totalCopies: number;
   availableCopies: number;
   tags: string[];
+  coverImage: string | null;
 }
 
 interface BooksResponse {
@@ -23,12 +24,12 @@ interface BooksResponse {
   total: number;
 }
 
-export function useFetchBooks(search: string, page: number) {
+export function useFetchBooks(search: string, page: number, pageSize: number) {
   return useQuery({
-    queryKey: ["books", search, page],
+    queryKey: ["books", search, page, pageSize],
     queryFn: () =>
       apiFetch<BooksResponse>(
-        `/api/books?search=${encodeURIComponent(search)}&page=${page}&limit=20`
+        `/api/books?search=${encodeURIComponent(search)}&page=${page}&limit=${pageSize}`
       ),
   });
 }

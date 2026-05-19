@@ -16,6 +16,7 @@ export interface BookPayload {
   deweyCode?: string | null;
   totalCopies: number;
   tags?: string[];
+  coverImage?: string | null;
 }
 
 export function useBooks() {
@@ -30,6 +31,16 @@ export function useBooks() {
     message.success("Book added successfully.");
     ctx.createForm.close();
     ctx.table.reload();
+  };
+
+  const createBookAndContinue = async (values: BookPayload, onSuccess: () => void) => {
+    await apiFetch("/api/books", {
+      method: "POST",
+      body: JSON.stringify(filterRequestParam(values)),
+    });
+    message.success("Book added. Ready for next entry.");
+    ctx.table.reload();
+    onSuccess();
   };
 
   const updateBook = async (values: BookPayload) => {
@@ -59,5 +70,5 @@ export function useBooks() {
     });
   };
 
-  return { createBook, updateBook, deleteBook };
+  return { createBook, createBookAndContinue, updateBook, deleteBook };
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { Button, Space, Popconfirm, Tag, Badge } from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Button, Space, Popconfirm, Tag, Badge, Image, Tooltip } from "antd";
+import { EditOutlined, DeleteOutlined, QrcodeOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import type { Book } from "../helper/useFetchBooks";
 import type { useBooks } from "../helper/useBooks";
@@ -11,10 +11,31 @@ interface ColumnArgs {
   ctx: ReturnType<typeof useCatalogContext>;
   actions: ReturnType<typeof useBooks>;
   t: (key: string) => string;
+  onQR: (book: Book) => void;
 }
 
-export function buildBookColumns({ ctx, actions, t }: ColumnArgs): ColumnsType<Book> {
+export function buildBookColumns({ ctx, actions, t, onQR }: ColumnArgs): ColumnsType<Book> {
   return [
+    {
+      title: t("catalog.coverImage"),
+      key: "cover",
+      width: 56,
+      render: (_, row) =>
+        row.coverImage ? (
+          <Image
+            src={row.coverImage}
+            alt="cover"
+            width={36}
+            height={50}
+            style={{ objectFit: "cover", borderRadius: 4 }}
+            preview={{ mask: false }}
+          />
+        ) : (
+          <div className="w-9 h-12 bg-slate-100 rounded flex items-center justify-center text-slate-300 text-xs">
+            —
+          </div>
+        ),
+    },
     {
       title: t("catalog.colTitle"),
       key: "title",
@@ -58,6 +79,14 @@ export function buildBookColumns({ ctx, actions, t }: ColumnArgs): ColumnsType<B
       width: 100,
       render: (_, row) => (
         <Space size="small">
+          <Tooltip title={t("catalog.qrCode")}>
+            <Button
+              type="text"
+              size="small"
+              icon={<QrcodeOutlined />}
+              onClick={() => onQR(row)}
+            />
+          </Tooltip>
           <Button
             type="text"
             size="small"
