@@ -45,8 +45,26 @@
     "totalMembers": "សមាជិកសរុប",
     "activeLoans": "ការខ្ចីសកម្ម",
     "overdueLoans": "ការខ្ចីហួសកំណត់",
+    "visitorsInside": "នៅក្នុងឥឡូវ",
+    "visitorsToday": "អ្នកចូលថ្ងៃនេះ",
     "recentLoans": "ការខ្ចីថ្មីៗ",
-    "popularBooks": "សៀវភៅពេញនិយម"
+    "popularBooks": "សៀវភៅពេញនិយម",
+    "dueSoon": "ត្រូវត្រឡប់ក្នុង ៧ ថ្ងៃ",
+    "recentMembers": "សមាជិកថ្មីៗ",
+    "noDueSoon": "គ្មានការខ្ចីជិតផុតកំណត់។",
+    "noRecentMembers": "គ្មានសមាជិកនៅឡើយ។",
+    "noPopularBooks": "គ្មានទិន្នន័យការខ្ចីនៅឡើយ។",
+    "loanCount": "{count} ការខ្ចី",
+    "daysLeft": "នៅ {days} ថ្ងៃ",
+    "overdue": "ហួសកំណត់",
+    "period": {
+      "all": "គ្រប់ពេល",
+      "year": "ឆ្នាំនេះ",
+      "sixMonth": "៦ ខែចុងក្រោយ",
+      "month": "ខែនេះ",
+      "week": "សប្តាហ៍នេះ",
+      "custom": "កំណត់ផ្ទាល់ខ្លួន"
+    }
   },
   "catalog": {
     "title": "បញ្ជីសៀវភៅ",
@@ -227,7 +245,15 @@
       "savedSuccess": "បានរក្សាទុកប្រភេទ។",
       "deletedSuccess": "បានលុបប្រភេទ។",
       "failedToSave": "បរាជ័យក្នុងការរក្សាទុក។",
-      "failedToDelete": "បរាជ័យក្នុងការលុប។"
+      "failedToDelete": "បរាជ័យក្នុងការលុប។",
+      "tabSingle": "មួយ",
+      "tabBulk": "ច្រើន",
+      "bulkPlaceholder": "មួយប្រភេទក្នុងមួយបន្ទាត់…\nឧ.\nប្រឌិត\nវិទ្យាសាស្ត្រ\nប្រវត្តិសាស្ត្រ",
+      "bulkHint": "ឈ្មោះដែលស្ទួន ឬមានរួចហើយនឹងត្រូវរំលង។",
+      "bulkPreview": "នឹងបង្កើត ({count}):",
+      "bulkCreated": "បានបង្កើត {created} ប្រភេទ។",
+      "bulkSkipped": "{skipped} មានរួចហើយ ត្រូវបានរំលង។",
+      "noNames": "សូមបញ្ចូលឈ្មោះប្រភេទយ៉ាងហោចណាស់មួយ។"
     },
     "shelves": {
       "cabinetBuilder": "ឧបករណ៍បង្កើតទូ",

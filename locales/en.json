@@ -45,8 +45,26 @@
     "totalMembers": "Total Members",
     "activeLoans": "Active Loans",
     "overdueLoans": "Overdue Loans",
+    "visitorsInside": "Inside Now",
+    "visitorsToday": "Visitors Today",
     "recentLoans": "Recent Loans",
-    "popularBooks": "Popular Books"
+    "popularBooks": "Popular Books",
+    "dueSoon": "Due in 7 Days",
+    "recentMembers": "Recent Members",
+    "noDueSoon": "No loans due soon.",
+    "noRecentMembers": "No members yet.",
+    "noPopularBooks": "No loan data yet.",
+    "loanCount": "{count} loans",
+    "daysLeft": "{days}d left",
+    "overdue": "Overdue",
+    "period": {
+      "all": "All Time",
+      "year": "This Year",
+      "sixMonth": "Last 6 Months",
+      "month": "This Month",
+      "week": "This Week",
+      "custom": "Custom"
+    }
   },
   "catalog": {
     "title": "Catalog",
@@ -227,7 +245,15 @@
       "savedSuccess": "Category saved.",
       "deletedSuccess": "Category deleted.",
       "failedToSave": "Failed to save.",
-      "failedToDelete": "Failed to delete."
+      "failedToDelete": "Failed to delete.",
+      "tabSingle": "Single",
+      "tabBulk": "Bulk",
+      "bulkPlaceholder": "One category per line…\ne.g.\nFiction\nScience\nHistory",
+      "bulkHint": "Duplicates and already-existing names will be skipped automatically.",
+      "bulkPreview": "Will create ({count}):",
+      "bulkCreated": "Created {created} category(ies).",
+      "bulkSkipped": "{skipped} already existed and were skipped.",
+      "noNames": "Enter at least one category name."
     },
     "shelves": {
       "cabinetBuilder": "Cabinet Builder",

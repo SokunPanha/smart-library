@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Table, Button, Input, Space, Popconfirm, Drawer, Form, App } from "antd";
+import { Table, Button, Input, Space, Popconfirm, Modal, Form, App, Tag, Tabs } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
@@ -11,7 +11,153 @@ import type { ColumnsType } from "antd/es/table";
 
 type Category = { id: string; name: string; createdAt: string };
 
-function CategoryDrawer({
+function parseBulkNames(raw: string): string[] {
+  return [...new Set(raw.split("\n").map((l) => l.trim()).filter(Boolean))];
+}
+
+function CreateCategoryModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [form] = Form.useForm();
+  const { message } = App.useApp();
+  const qc = useQueryClient();
+  const t = useTranslations("settings");
+  const tc = useTranslations("common");
+
+  const [tab, setTab] = useState<"single" | "bulk">("single");
+  const [bulkText, setBulkText] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const bulkNames = parseBulkNames(bulkText);
+
+  useEffect(() => {
+    if (!open) {
+      form.resetFields();
+      setBulkText("");
+      setTab("single");
+    }
+  }, [open, form]);
+
+  async function handleSingleFinish({ name }: { name: string }) {
+    setSaving(true);
+    try {
+      await apiFetch("/api/categories", { method: "POST", body: JSON.stringify({ name }) });
+      message.success(t("categories.savedSuccess"));
+      qc.invalidateQueries({ queryKey: ["categories"] });
+      onClose();
+    } catch (e: unknown) {
+      message.error(e instanceof Error ? e.message : t("categories.failedToSave"));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleBulkSubmit() {
+    if (!bulkNames.length) {
+      message.warning(t("categories.noNames"));
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await apiFetch<{ created: number; skipped: number }>(
+        "/api/categories",
+        { method: "POST", body: JSON.stringify({ names: bulkNames }) }
+      );
+      let msg = t("categories.bulkCreated", { created: res.created });
+      if (res.skipped > 0) msg += " " + t("categories.bulkSkipped", { skipped: res.skipped });
+      message.success(msg);
+      qc.invalidateQueries({ queryKey: ["categories"] });
+      onClose();
+    } catch (e: unknown) {
+      message.error(e instanceof Error ? e.message : t("categories.failedToSave"));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function handleOk() {
+    if (tab === "single") {
+      form.submit();
+    } else {
+      handleBulkSubmit();
+    }
+  }
+
+  return (
+    <Modal
+      open={open}
+      title={t("categories.addCategory")}
+      onCancel={onClose}
+      onOk={handleOk}
+      okText={tc("save")}
+      cancelText={tc("cancel")}
+      confirmLoading={saving}
+      destroyOnHidden
+      width={440}
+    >
+      <Tabs
+        activeKey={tab}
+        onChange={(k) => setTab(k as "single" | "bulk")}
+        size="small"
+        className="mt-2"
+        items={[
+          {
+            key: "single",
+            label: t("categories.tabSingle"),
+            children: (
+              <Form
+                form={form}
+                layout="vertical"
+                onFinish={handleSingleFinish}
+                requiredMark="optional"
+                className="mt-3"
+              >
+                <Form.Item
+                  label={t("categories.name")}
+                  name="name"
+                  rules={[{ required: true }]}
+                >
+                  <Input autoFocus placeholder="e.g. Fiction" />
+                </Form.Item>
+              </Form>
+            ),
+          },
+          {
+            key: "bulk",
+            label: t("categories.tabBulk"),
+            children: (
+              <div className="mt-3 space-y-3">
+                <Input.TextArea
+                  rows={7}
+                  placeholder={t("categories.bulkPlaceholder")}
+                  value={bulkText}
+                  onChange={(e) => setBulkText(e.target.value)}
+                  autoFocus
+                />
+                <p className="text-xs text-slate-400">{t("categories.bulkHint")}</p>
+
+                {bulkNames.length > 0 && (
+                  <div>
+                    <p className="text-xs text-slate-500 mb-2">
+                      {t("categories.bulkPreview", { count: bulkNames.length })}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto p-2 bg-slate-50 rounded border border-slate-200">
+                      {bulkNames.map((name) => (
+                        <Tag key={name} className="border-0 bg-blue-50 text-blue-700 text-xs">
+                          {name}
+                        </Tag>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ),
+          },
+        ]}
+      />
+    </Modal>
+  );
+}
+
+function EditCategoryModal({
   open,
   category,
   onClose,
@@ -25,6 +171,7 @@ function CategoryDrawer({
   const qc = useQueryClient();
   const t = useTranslations("settings");
   const tc = useTranslations("common");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -36,45 +183,44 @@ function CategoryDrawer({
   }, [open, category, form]);
 
   async function handleFinish({ name }: { name: string }) {
+    if (!category) return;
+    setSaving(true);
     try {
-      if (category) {
-        await apiFetch(`/api/categories/${category.id}`, { method: "PUT", body: JSON.stringify({ name }) });
-      } else {
-        await apiFetch("/api/categories", { method: "POST", body: JSON.stringify({ name }) });
-      }
+      await apiFetch(`/api/categories/${category.id}`, { method: "PUT", body: JSON.stringify({ name }) });
       message.success(t("categories.savedSuccess"));
       qc.invalidateQueries({ queryKey: ["categories"] });
-      form.resetFields();
       onClose();
     } catch (e: unknown) {
       message.error(e instanceof Error ? e.message : t("categories.failedToSave"));
+    } finally {
+      setSaving(false);
     }
   }
 
   return (
-    <Drawer
-      title={category ? t("categories.editCategory") : t("categories.addCategory")}
+    <Modal
       open={open}
-      onClose={() => { form.resetFields(); onClose(); }}
-      styles={{ wrapper: { width: "min(360px, 100vw)" } }}
-      extra={
-        <Space>
-          <Button onClick={() => { form.resetFields(); onClose(); }}>{tc("cancel")}</Button>
-          <Button type="primary" onClick={() => form.submit()}>{tc("save")}</Button>
-        </Space>
-      }
+      title={t("categories.editCategory")}
+      onCancel={onClose}
+      onOk={() => form.submit()}
+      okText={tc("save")}
+      cancelText={tc("cancel")}
+      confirmLoading={saving}
+      destroyOnHidden
+      width={400}
     >
       <Form
         form={form}
         layout="vertical"
         onFinish={handleFinish}
         requiredMark="optional"
+        className="mt-4"
       >
         <Form.Item label={t("categories.name")} name="name" rules={[{ required: true }]}>
           <Input autoFocus />
         </Form.Item>
       </Form>
-    </Drawer>
+    </Modal>
   );
 }
 
@@ -84,7 +230,7 @@ export function CategoriesTab() {
   const t = useTranslations("settings");
   const tc = useTranslations("common");
   const [search, setSearch] = useState("");
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
   const [editCategory, setEditCategory] = useState<Category | null>(null);
   const { ref: tableRef, scrollY } = useTableScroll();
 
@@ -125,7 +271,7 @@ export function CategoriesTab() {
             type="text"
             size="small"
             icon={<EditOutlined />}
-            onClick={() => { setEditCategory(record); setDrawerOpen(true); }}
+            onClick={() => setEditCategory(record)}
           />
           <Popconfirm
             title={t("categories.deleteConfirm")}
@@ -154,7 +300,7 @@ export function CategoriesTab() {
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={() => { setEditCategory(null); setDrawerOpen(true); }}
+          onClick={() => setCreateOpen(true)}
         >
           {t("categories.addCategory")}
         </Button>
@@ -177,10 +323,11 @@ export function CategoriesTab() {
         />
       </div>
 
-      <CategoryDrawer
-        open={drawerOpen}
+      <CreateCategoryModal open={createOpen} onClose={() => setCreateOpen(false)} />
+      <EditCategoryModal
+        open={!!editCategory}
         category={editCategory}
-        onClose={() => setDrawerOpen(false)}
+        onClose={() => setEditCategory(null)}
       />
     </>
   );
