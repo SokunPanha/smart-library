@@ -67,11 +67,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
   }
 
-  const [book, member, activeLoans] = await Promise.all([
+  const [book, member, activeLoans, maxLoansSetting] = await Promise.all([
     prisma.book.findUnique({ where: { id: parsed.data.bookId } }),
     prisma.member.findUnique({ where: { id: parsed.data.memberId } }),
     prisma.loan.count({ where: { memberId: parsed.data.memberId, status: "ACTIVE" } }),
+    prisma.setting.findUnique({ where: { key: "maxLoansPerMember" } }),
   ]);
+
+  const maxLoans = Number(maxLoansSetting?.value ?? 5);
 
   if (!book) return NextResponse.json({ error: "Book not found." }, { status: 404 });
   if (!member) return NextResponse.json({ error: "Member not found." }, { status: 404 });
@@ -81,8 +84,8 @@ export async function POST(req: NextRequest) {
   if (book.availableCopies <= 2) {
     return NextResponse.json({ error: "Cannot borrow — library must keep at least 2 copies." }, { status: 409 });
   }
-  if (activeLoans >= 3) {
-    return NextResponse.json({ error: "Member already has 3 active loans. A book must be returned before borrowing another." }, { status: 409 });
+  if (activeLoans >= maxLoans) {
+    return NextResponse.json({ error: `Member already has ${maxLoans} active loans. A book must be returned before borrowing another.` }, { status: 409 });
   }
 
   const days = LOAN_DAYS[member.type] ?? 14;

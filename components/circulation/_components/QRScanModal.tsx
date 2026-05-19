@@ -7,6 +7,7 @@ import { ReloadOutlined, QrcodeOutlined, DeleteOutlined } from "@ant-design/icon
 import { useTranslations } from "next-intl";
 import dayjs from "dayjs";
 import { apiFetch } from "@/libs/utils/request";
+import { useFetchSettings } from "@/components/settings/helper/useFetchSettings";
 
 // Book IDs are CUIDs (no hyphens). Member IDs are human-readable like LIB-2025-002.
 const isMemberId = (value: string) => value.includes("-");
@@ -46,6 +47,8 @@ interface Props {
 
 export function QRScanModal({ open, onClose, onCheckout, onReturn }: Props) {
   const t = useTranslations("circulation");
+  const { data: settings } = useFetchSettings();
+  const maxLoans = Number(settings?.maxLoansPerMember ?? 5);
 
   const [books, setBooks] = useState<ScannedBook[]>([]);
   const [member, setMember] = useState<ScannedMember | null>(null);
@@ -138,7 +141,7 @@ export function QRScanModal({ open, onClose, onCheckout, onReturn }: Props) {
   }, [open]);
 
   const activeLoansCount = member ? member.loans.filter((l) => l.status === "ACTIVE").length : 0;
-  const slotsLeft = Math.max(0, 3 - activeLoansCount);
+  const slotsLeft = Math.max(0, maxLoans - activeLoansCount);
 
   function getActiveLoanForBook(bookId: string): LoanEntry | null {
     return member?.loans.find((l) => l.bookId === bookId && l.status === "ACTIVE") ?? null;
@@ -212,13 +215,13 @@ export function QRScanModal({ open, onClose, onCheckout, onReturn }: Props) {
         )}
       </div>
       <p className="text-xs text-center text-slate-400 mt-2">
-        {t("scan.hint")}
+        {t("scan.hint", { max: maxLoans })}
       </p>
 
       {error && (
         <Alert
           type="error"
-          message={error}
+          title={error}
           className="mt-3"
           showIcon
           closable
@@ -244,8 +247,8 @@ export function QRScanModal({ open, onClose, onCheckout, onReturn }: Props) {
             </div>
             <div className="text-right">
               <Tag className="border-0 text-xs">{member.type}</Tag>
-              <p className={`text-xs mt-1 font-medium ${activeLoansCount >= 3 ? "text-red-500" : "text-slate-500"}`}>
-                {t("scan.activeLoans", { current: activeLoansCount })} · {t("scan.slotsLeft", { count: slotsLeft })}
+              <p className={`text-xs mt-1 font-medium ${activeLoansCount >= maxLoans ? "text-red-500" : "text-slate-500"}`}>
+                {t("scan.activeLoans", { current: activeLoansCount, max: maxLoans })} · {t("scan.slotsLeft", { count: slotsLeft })}
               </p>
             </div>
           </div>
@@ -348,7 +351,7 @@ export function QRScanModal({ open, onClose, onCheckout, onReturn }: Props) {
           )}
           {member && !canCheckout && !canReturn && books.length > 0 && (
             <span className="text-xs text-red-500">
-              {slotsLeft === 0 ? t("scan.loanLimitReached") : t("scan.noValidBooks")}
+              {slotsLeft === 0 ? t("scan.loanLimitReached", { max: maxLoans }) : t("scan.noValidBooks")}
             </span>
           )}
         </Space>

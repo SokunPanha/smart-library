@@ -241,7 +241,7 @@
     "checkoutSuccess": "Book checked out successfully.",
     "scan": {
       "title": "Scan QR — Checkout / Return",
-      "hint": "Scan member QR first, then scan book QR(s) — up to 3 total (including previous loans)",
+      "hint": "Scan member QR first, then scan book QR(s) — up to {max} total (including previous loans)",
       "bookAlreadyAdded": "This book is already in the list.",
       "memberNotFound": "Member not found",
       "cameraUnavailable": "Camera not available. Please allow camera access.",
@@ -257,11 +257,11 @@
       "readyToBorrow": "Ready to borrow",
       "defaultDueDateHint": "Leave blank to use default loan period",
       "clearAll": "Clear all",
-      "loanLimitReached": "Loan limit reached (3/3)",
+      "loanLimitReached": "Loan limit reached ({max}/{max})",
       "noValidBooks": "No valid books to checkout",
       "booksLabel": "Books ({count})",
       "slotsLeft": "{count} slot(s) left",
-      "activeLoans": "{current}/3 loans",
+      "activeLoans": "{current}/{max} loans",
       "returnCount": "Return ({count})",
       "checkoutCount": "Checkout ({count})"
     },
