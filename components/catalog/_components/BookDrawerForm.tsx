@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Drawer, Form, Input, InputNumber, Select, Button, Space, Upload, App, Image } from "antd";
-import { UploadOutlined, DeleteOutlined } from "@ant-design/icons";
+import { UploadOutlined, DeleteOutlined, CameraOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import type { UploadRequestOption } from "rc-upload/lib/interface";
@@ -16,12 +16,9 @@ function CoverUpload() {
   const form = Form.useFormInstance();
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  // Tracks the Cloudinary public_id of an image uploaded in this session (not from DB).
-  // Cleared when the form resets so we don't try to delete already-saved images.
   const [sessionPublicId, setSessionPublicId] = useState<string | null>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  // Sync preview when form is reset (drawer close) or populated (edit mode).
-  // Also clears sessionPublicId so a post-save reset doesn't delete the saved image.
   const formValue = Form.useWatch("coverImage", form);
   useEffect(() => {
     setPreviewUrl(formValue ?? null);
@@ -32,19 +29,16 @@ function CoverUpload() {
     await fetch(`/api/upload?publicId=${encodeURIComponent(publicId)}`, { method: "DELETE" });
   }
 
-  async function handleUpload({ file }: UploadRequestOption) {
-    // If a session-uploaded image exists, delete it from Cloudinary before uploading the new one
+  async function processFile(file: File) {
     if (sessionPublicId) {
       deleteFromCloudinary(sessionPublicId);
       setSessionPublicId(null);
     }
-    // Show instant local preview before upload completes
-    const objectUrl = URL.createObjectURL(file as Blob);
-    setPreviewUrl(objectUrl);
+    setPreviewUrl(URL.createObjectURL(file));
     setUploading(true);
     try {
       const fd = new FormData();
-      fd.append("file", file as File);
+      fd.append("file", file);
       const res = await fetch("/api/upload", { method: "POST", body: fd });
       if (!res.ok) throw new Error("Upload failed");
       const { url, publicId } = (await res.json()) as { url: string; publicId: string };
@@ -57,6 +51,16 @@ function CoverUpload() {
     } finally {
       setUploading(false);
     }
+  }
+
+  async function handleUpload({ file }: UploadRequestOption) {
+    await processFile(file as File);
+  }
+
+  function handleCameraChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) processFile(file);
+    e.target.value = "";
   }
 
   async function handleRemove() {
@@ -72,34 +76,60 @@ function CoverUpload() {
 
   return (
     <>
-      {/* Hidden field stores the URL in the form */}
       <Form.Item name="coverImage" noStyle><Input type="hidden" /></Form.Item>
 
       <Form.Item label={t("coverImage")}>
-        <div className="flex flex-col gap-2">
-          {displayUrl && (
-            <div className="relative inline-block">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={displayUrl}
-                alt="cover"
-                className="w-24 h-32 object-cover rounded border border-slate-200"
-              />
-              <Button
-                type="text"
-                size="small"
-                danger
-                icon={<DeleteOutlined />}
-                className="absolute top-0 right-0 bg-white shadow-sm"
-                onClick={handleRemove}
-              />
-            </div>
-          )}
-          <Upload accept="image/*" showUploadList={false} customRequest={handleUpload}>
-            <Button icon={<UploadOutlined />} loading={uploading} size="small">
-              {displayUrl ? t("changeCover") : t("uploadCover")}
+        <div className="flex items-start gap-3">
+          {/* Preview / placeholder */}
+          <div className="relative flex-shrink-0">
+            {displayUrl ? (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={displayUrl}
+                  alt="cover"
+                  className="w-20 h-28 object-cover rounded border border-slate-200"
+                />
+                <Button
+                  type="text"
+                  size="small"
+                  danger
+                  icon={<DeleteOutlined />}
+                  className="absolute top-0 right-0 bg-white shadow-sm"
+                  onClick={handleRemove}
+                />
+              </>
+            ) : (
+              <div className="w-20 h-28 rounded border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-300 text-xs text-center leading-tight px-1">
+                {t("coverImage")}
+              </div>
+            )}
+          </div>
+
+          {/* Action buttons — stack vertically, full width */}
+          <div className="flex flex-col gap-2 flex-1 min-w-0">
+            <Upload accept="image/*" showUploadList={false} customRequest={handleUpload} className="block">
+              <Button icon={<UploadOutlined />} loading={uploading} block>
+                {displayUrl ? t("changeCover") : t("uploadCover")}
+              </Button>
+            </Upload>
+            <input
+              ref={cameraInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={handleCameraChange}
+            />
+            <Button
+              icon={<CameraOutlined />}
+              loading={uploading}
+              block
+              onClick={() => cameraInputRef.current?.click()}
+            >
+              {t("takePhoto")}
             </Button>
-          </Upload>
+          </div>
         </div>
       </Form.Item>
     </>
