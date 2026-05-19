@@ -11,7 +11,7 @@ export interface Loan {
   returnedAt: string | null;
   fineAmount: number;
   finePaid: boolean;
-  book: { id: string; titleEn: string; titleKh: string | null };
+  book: { id: string; titleEn: string; titleKh: string | null; coverImage: string | null };
   member: { id: string; nameEn: string | null; nameKh: string | null; memberId: string };
 }
 
@@ -20,12 +20,13 @@ interface LoansResponse {
   total: number;
 }
 
-export function useFetchLoans(status: string, page: number) {
+export function useFetchLoans(status: string, search: string, page: number) {
   const params = new URLSearchParams({ page: String(page), limit: "20" });
   if (status) params.set("status", status);
+  if (search) params.set("search", search);
 
   return useQuery({
-    queryKey: ["loans", status, page],
+    queryKey: ["loans", status, search, page],
     queryFn: () => apiFetch<LoansResponse>(`/api/loans?${params}`),
   });
 }

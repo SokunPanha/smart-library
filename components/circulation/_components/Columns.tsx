@@ -18,7 +18,7 @@ interface ColumnArgs {
   actions: ReturnType<typeof useLoans>;
   onReturn: (loan: Loan) => void;
   onLost: (loan: Loan) => void;
-  t: (key: string) => string;
+  t: (key: string, values?: Record<string, unknown>) => string;
 }
 
 export function buildLoanColumns({ onReturn, onLost, t }: ColumnArgs): ColumnsType<Loan> {
@@ -27,9 +27,18 @@ export function buildLoanColumns({ onReturn, onLost, t }: ColumnArgs): ColumnsTy
       title: t("circulation.colBook"),
       key: "book",
       render: (_, row) => (
-        <div>
-          <p className="font-medium text-slate-800 leading-snug">{row.book.titleEn}</p>
-          {row.book.titleKh && <p className="text-xs text-slate-400">{row.book.titleKh}</p>}
+        <div className="flex gap-2 items-start">
+          {row.book.coverImage ? (
+            <img src={row.book.coverImage} alt="cover" className="w-8 h-11 object-cover rounded flex-shrink-0" />
+          ) : (
+            <div className="w-8 h-11 bg-slate-100 rounded flex-shrink-0" />
+          )}
+          <div>
+            <p className="font-medium text-slate-800 leading-snug">{row.book.titleKh ?? row.book.titleEn}</p>
+            {row.book.titleKh && row.book.titleEn && (
+              <p className="text-xs text-slate-400">{row.book.titleEn}</p>
+            )}
+          </div>
         </div>
       ),
     },
@@ -38,7 +47,10 @@ export function buildLoanColumns({ onReturn, onLost, t }: ColumnArgs): ColumnsTy
       key: "member",
       render: (_, row) => (
         <div>
-          <p className="text-slate-700">{row.member.nameEn ?? row.member.nameKh ?? "—"}</p>
+          <p className="font-medium text-slate-800 leading-snug">{row.member.nameKh ?? row.member.nameEn ?? "—"}</p>
+          {row.member.nameKh && row.member.nameEn && (
+            <p className="text-xs text-slate-500">{row.member.nameEn}</p>
+          )}
           <p className="text-xs font-mono text-slate-400">{row.member.memberId}</p>
         </div>
       ),
@@ -60,6 +72,23 @@ export function buildLoanColumns({ onReturn, onLost, t }: ColumnArgs): ColumnsTy
             {dayjs(v).format("DD/MM/YYYY")}
           </span>
         );
+      },
+    },
+    {
+      title: t("circulation.colDaysLeft"),
+      key: "daysLeft",
+      render: (_, row) => {
+        if (row.status === "RETURNED" || row.status === "LOST") {
+          return <span className="text-slate-300">—</span>;
+        }
+        const days = dayjs(row.dueAt).startOf("day").diff(dayjs().startOf("day"), "day");
+        if (days < 0) {
+          return <span className="text-red-500 font-medium">{t("circulation.daysOverdue", { count: Math.abs(days) })}</span>;
+        }
+        if (days === 0) {
+          return <span className="text-orange-500 font-medium">{t("circulation.dueToday")}</span>;
+        }
+        return <span className={days <= 3 ? "text-orange-400 font-medium" : "text-slate-600"}>{t("circulation.daysLeft", { count: days })}</span>;
       },
     },
     {

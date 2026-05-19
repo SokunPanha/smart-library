@@ -16,6 +16,7 @@ interface BookOption {
   id: string;
   titleEn: string;
   titleKh: string | null;
+  totalCopies: number;
   availableCopies: number;
 }
 
@@ -109,13 +110,13 @@ export default function CheckoutModal({ open, onClose, onSuccess }: Props) {
             filterOption={false}
             onSearch={setBookSearch}
             options={(booksData ?? [])
-              .filter((b) => b.availableCopies > 0)
+              .filter((b) => b.totalCopies > 2 && b.availableCopies > 2)
               .map((b) => ({
                 label: (
                   <div>
                     <span>{b.titleEn}</span>
                     <span className="text-xs text-slate-400 ml-2">
-                      ({b.availableCopies} {t("available")})
+                      ({b.availableCopies - 2} {t("available")})
                     </span>
                   </div>
                 ),

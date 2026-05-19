@@ -22,10 +22,23 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status");
+  const search = searchParams.get("search") ?? "";
   const page = Math.max(1, Number(searchParams.get("page") ?? 1));
   const limit = Math.min(100, Number(searchParams.get("limit") ?? 20));
 
-  const where = status ? { status: status as "ACTIVE" | "RETURNED" | "OVERDUE" | "LOST" } : {};
+  const where = {
+    ...(status ? { status: status as "ACTIVE" | "RETURNED" | "OVERDUE" | "LOST" } : {}),
+    ...(search ? {
+      OR: [
+        { book: { titleEn: { contains: search, mode: "insensitive" as const } } },
+        { book: { titleKh: { contains: search, mode: "insensitive" as const } } },
+        { book: { isbn:    { contains: search, mode: "insensitive" as const } } },
+        { member: { nameEn:   { contains: search, mode: "insensitive" as const } } },
+        { member: { nameKh:   { contains: search, mode: "insensitive" as const } } },
+        { member: { memberId: { contains: search, mode: "insensitive" as const } } },
+      ],
+    } : {}),
+  };
 
   const [loans, total] = await Promise.all([
     prisma.loan.findMany({
@@ -34,7 +47,7 @@ export async function GET(req: NextRequest) {
       take: limit,
       orderBy: { borrowedAt: "desc" },
       include: {
-        book: { select: { id: true, titleEn: true, titleKh: true, isbn: true } },
+        book: { select: { id: true, titleEn: true, titleKh: true, isbn: true, coverImage: true } },
         member: { select: { id: true, nameEn: true, nameKh: true, memberId: true } },
       },
     }),
@@ -54,15 +67,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
   }
 
-  const [book, member] = await Promise.all([
+  const [book, member, activeLoans] = await Promise.all([
     prisma.book.findUnique({ where: { id: parsed.data.bookId } }),
     prisma.member.findUnique({ where: { id: parsed.data.memberId } }),
+    prisma.loan.count({ where: { memberId: parsed.data.memberId, status: "ACTIVE" } }),
   ]);
 
   if (!book) return NextResponse.json({ error: "Book not found." }, { status: 404 });
   if (!member) return NextResponse.json({ error: "Member not found." }, { status: 404 });
-  if (book.availableCopies < 1) {
-    return NextResponse.json({ error: "No copies available." }, { status: 409 });
+  if (book.totalCopies <= 2) {
+    return NextResponse.json({ error: "This book cannot be borrowed — it has 2 or fewer copies and must stay in the library." }, { status: 409 });
+  }
+  if (book.availableCopies <= 2) {
+    return NextResponse.json({ error: "Cannot borrow — library must keep at least 2 copies." }, { status: 409 });
+  }
+  if (activeLoans >= 3) {
+    return NextResponse.json({ error: "Member already has 3 active loans. A book must be returned before borrowing another." }, { status: 409 });
   }
 
   const days = LOAN_DAYS[member.type] ?? 14;

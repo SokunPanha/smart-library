@@ -2,8 +2,8 @@
 
 import { Button, Space, Tag, Tooltip } from "antd";
 import { EditOutlined, DeleteOutlined, QrcodeOutlined } from "@ant-design/icons";
-import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
+import type { ColumnsType } from "antd/es/table";
 import type { Member } from "../helper/useFetchMembers";
 import type { useMembers } from "../helper/useMembers";
 import type { useMembersContext } from "../helper/hooks";
@@ -105,7 +105,7 @@ export function buildMemberColumns({ ctx, actions, t, onQR }: ColumnArgs): Colum
                 phone: row.phone ?? undefined,
                 nameEn: row.nameEn ?? undefined,
                 nameKh: row.nameKh ?? undefined,
-                expiresAt: row.expiresAt ?? undefined,
+                expiresAt: row.expiresAt ? dayjs(row.expiresAt) : undefined,
               })
             }
           />

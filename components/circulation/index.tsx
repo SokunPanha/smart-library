@@ -1,31 +1,59 @@
 "use client";
 
-import { Table, Button, Select, App } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { useState } from "react";
+import { Table, Button, Select, Input, Space, App } from "antd";
+import { PlusOutlined, QrcodeOutlined, SearchOutlined } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
-import { useTableScroll } from "@/lib/hooks";
+import { useDebounce, useTableScroll } from "@/lib/hooks";
 import { CirculationProvider, useCirculationContext } from "./helper/hooks";
 import { useFetchLoans } from "./helper/useFetchLoans";
 import { useLoans } from "./helper/useLoans";
 import { buildLoanColumns } from "./_components/Columns";
 import CheckoutModal from "./CheckoutModal";
+import { QRScanModal } from "./_components/QRScanModal";
+import { apiFetch } from "@/libs/utils/request";
 import type { Loan } from "./helper/useFetchLoans";
 
 
 function CirculationPageInner() {
   const ctx = useCirculationContext();
   const actions = useLoans();
-  const { modal } = App.useApp();
+  const { modal, message } = App.useApp();
   const [statusFilter, setStatusFilter] = ctx.statusFilter;
-
+  const [scanOpen, setScanOpen] = useState(false);
+  const [inputVal, setInputVal] = useState("");
+  const search = useDebounce(inputVal, 400);
   const t = useTranslations();
+
+  async function handleScanCheckout(bookId: string, memberId: string, dueAt?: string) {
+    await apiFetch("/api/loans", {
+      method: "POST",
+      body: JSON.stringify({ bookId, memberId, dueAt }),
+    });
+    message.success(t("checkoutSuccess"));
+    ctx.table.reload();
+  }
+
+  async function handleScanReturn(loanId: string) {
+    const updated = await apiFetch<{ fineAmount: number }>(`/api/loans/${loanId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status: "RETURNED", finePaid: false }),
+    });
+    if (updated.fineAmount > 0) {
+      message.warning(`Returned. Fine: ${updated.fineAmount.toLocaleString()} ៛`);
+    } else {
+      message.success("Book returned successfully.");
+    }
+    ctx.table.reload();
+  }
+
   const STATUS_OPTIONS = [
     { label: t("circulation.statuses.ACTIVE"), value: "ACTIVE" },
     { label: t("circulation.statuses.OVERDUE"), value: "OVERDUE" },
     { label: t("circulation.statuses.RETURNED"), value: "RETURNED" },
     { label: t("circulation.statuses.LOST"), value: "LOST" },
   ];
-  const { data, isLoading } = useFetchLoans(statusFilter, ctx.table.page);
+  const { data, isLoading } = useFetchLoans(statusFilter, search, ctx.table.page);
   const { ref: tableRef, scrollY } = useTableScroll();
 
   const confirmReturn = (loan: Loan, asLost = false) => {
@@ -49,25 +77,40 @@ function CirculationPageInner() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <h1 className="text-xl font-semibold text-slate-800">{t("circulation.title")}</h1>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => ctx.checkoutModal.open()}>
-          <span className="hidden sm:inline">{t("circulation.checkout")}</span>
-        </Button>
+        <Space wrap>
+          <Button icon={<QrcodeOutlined />} onClick={() => setScanOpen(true)}>
+            <span className="hidden sm:inline">Scan QR</span>
+          </Button>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => ctx.checkoutModal.open()}>
+            <span className="hidden sm:inline">{t("circulation.checkout")}</span>
+          </Button>
+        </Space>
       </div>
 
       <div className="bg-white border border-slate-100 rounded-lg p-4">
-        <Select
-          placeholder={t("circulation.filterPlaceholder")}
-          value={statusFilter || undefined}
-          onChange={(v) => {
-            setStatusFilter(v ?? "");
-            ctx.table.setPage(1);
-          }}
-          allowClear
-          className="w-48 mb-4"
-          options={STATUS_OPTIONS}
-        />
+        <div className="flex gap-2 flex-wrap mb-4">
+          <Input
+            prefix={<SearchOutlined className="text-slate-400" />}
+            placeholder={t("circulation.searchPlaceholder")}
+            value={inputVal}
+            onChange={(e) => { setInputVal(e.target.value); ctx.table.setPage(1); }}
+            className="max-w-sm"
+            allowClear
+          />
+          <Select
+            placeholder={t("circulation.filterPlaceholder")}
+            value={statusFilter || undefined}
+            onChange={(v) => {
+              setStatusFilter(v ?? "");
+              ctx.table.setPage(1);
+            }}
+            allowClear
+            className="w-44"
+            options={STATUS_OPTIONS}
+          />
+        </div>
 
         <div ref={tableRef}>
           <Table
@@ -92,6 +135,13 @@ function CirculationPageInner() {
           ctx.checkoutModal.close();
           ctx.table.reload();
         }}
+      />
+
+      <QRScanModal
+        open={scanOpen}
+        onClose={() => setScanOpen(false)}
+        onCheckout={handleScanCheckout}
+        onReturn={handleScanReturn}
       />
     </div>
   );
