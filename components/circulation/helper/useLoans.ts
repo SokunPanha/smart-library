@@ -3,7 +3,7 @@
 import { App } from "antd";
 import { useTranslations } from "next-intl";
 import { useCirculationContext } from "./hooks";
-import { apiFetch } from "@/libs/utils/request";
+import { apiFetch } from "@/lib/request";
 import type { Loan } from "./useFetchLoans";
 
 export function useLoans() {

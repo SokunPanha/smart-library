@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { apiFetch } from "@/libs/utils/request";
+import { apiFetch } from "@/lib/request";
 
 export interface Book {
   id: string;

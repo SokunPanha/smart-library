@@ -6,7 +6,7 @@ import { UploadOutlined, DeleteOutlined, CameraOutlined } from "@ant-design/icon
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import type { UploadRequestOption } from "rc-upload/lib/interface";
-import { apiFetch } from "@/libs/utils/request";
+import { apiFetch } from "@/lib/request";
 import { useCatalogContext } from "../helper/hooks";
 import { useBooks } from "../helper/useBooks";
 

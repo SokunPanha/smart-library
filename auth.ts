@@ -7,7 +7,7 @@ import { z } from "zod";
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   pages: {
-    signIn: "/en/login",
+    signIn: "/login",
   },
   providers: [
     Credentials({

@@ -3,8 +3,9 @@
 import { App } from "antd";
 import { useTranslations } from "next-intl";
 import { useMembersContext } from "./hooks";
-import { apiFetch, filterRequestParam } from "@/libs/utils/request";
+import { apiFetch, filterRequestParam } from "@/lib/request";
 import type { Member } from "./useFetchMembers";
+import type { MemberType } from "@prisma/client";
 
 export interface MemberPayload {
   memberId: string;
@@ -12,7 +13,7 @@ export interface MemberPayload {
   nameKh?: string | null;
   email?: string | null;
   phone?: string | null;
-  type: "STUDENT" | "TEACHER" | "PUBLIC" | "RESEARCHER";
+  type: MemberType;
   expiresAt?: string | null;
 }
 

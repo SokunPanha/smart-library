@@ -61,7 +61,6 @@
     "category": "Category",
     "deweyCode": "Dewey Code",
     "totalCopies": "Total Copies",
-    "availableCopies": "Available",
     "tags": "Tags",
     "coverImage": "Cover Image",
     "uploadCover": "Upload Cover",
@@ -72,7 +71,6 @@
     "printQR": "Print",
     "qrScanHint": "Scan to retrieve book ID",
     "printSelected": "Print QR Labels",
-    "available": "Available",
     "unavailable": "Unavailable",
     "colTitle": "Title",
     "colCopies": "Copies",
@@ -289,7 +287,9 @@
       "placeShelfTitle": "Place Shelf",
       "selectShelfLabel": "Select Shelf",
       "shelfPickPlaceholder": "Pick a shelf…"
-    }
+    },
+    "savedSuccess": "Settings saved.",
+    "failedToSave": "Failed to save settings."
   },
   "map": {
     "title": "Library Map",
@@ -352,7 +352,8 @@
     "bookAlreadyAdded": "Already added",
     "searchBooksPlaceholder": "Search by title, ISBN…",
     "colDuration": "Duration",
-    "colMember": "Member"
+    "colMember": "Member",
+    "insideNowTab": "Inside Now"
   },
   "reports": {
     "title": "Reports",

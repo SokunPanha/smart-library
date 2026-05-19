@@ -4,7 +4,7 @@ import { Drawer, Form, Input, Select, Button, Space, DatePicker } from "antd";
 import dayjs from "dayjs";
 import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
-import { apiFetch } from "@/libs/utils/request";
+import { apiFetch } from "@/lib/request";
 import { useMembersContext } from "../helper/hooks";
 import { useMembers, type MemberPayload } from "../helper/useMembers";
 

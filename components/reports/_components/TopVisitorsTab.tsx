@@ -5,13 +5,12 @@ import { Table, Select, Tag, DatePicker, Segmented } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import dayjs, { Dayjs } from "dayjs";
-import { apiFetch } from "@/libs/utils/request";
+import { apiFetch } from "@/lib/request";
 import { useTableScroll } from "@/lib/hooks";
 import type { ColumnsType } from "antd/es/table";
+import type { FilterMode } from "./DateRangeFilter";
 
 const { RangePicker } = DatePicker;
-
-type FilterMode = "all" | "year" | "month" | "week" | "custom";
 
 interface TopVisitor {
   rank: number;

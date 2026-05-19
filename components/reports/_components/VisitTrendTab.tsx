@@ -8,7 +8,7 @@ import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis,
   CartesianGrid, Tooltip, Area, AreaChart,
 } from "recharts";
-import { apiFetch } from "@/libs/utils/request";
+import { apiFetch } from "@/lib/request";
 import { DateRangeFilter, type DateRange } from "./DateRangeFilter";
 
 interface TrendPoint { date: string; visits: number; }

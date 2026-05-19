@@ -5,18 +5,8 @@ import { Button, InputNumber, Modal, Input, Form, App, Select } from "antd";
 import { SaveOutlined } from "@ant-design/icons";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { apiFetch } from "@/libs/utils/request";
-
-export type CellType = "EMPTY" | "CABINET" | "SHELF" | "WALL" | "DOOR" | "TABLE" | "DESK" | "WINDOW";
-
-export interface MapCell {
-  row: number;
-  col: number;
-  type: CellType;
-  shelfId?: string;
-  cabinetCode?: string;
-  label?: string;
-}
+import { apiFetch } from "@/lib/request";
+import { type CellType, type MapCell, PALETTE } from "@/components/library-map/types";
 
 interface LibraryMapData {
   id: string;
@@ -44,8 +34,6 @@ const CELL_STYLE: Record<CellType, { bg: string; border: string; text: string }>
   DESK:    { bg: "bg-orange-100",  border: "border-orange-400", text: "text-orange-700" },
   WINDOW:  { bg: "bg-sky-50",      border: "border-sky-300",    text: "text-sky-600"    },
 };
-
-const PALETTE: CellType[] = ["EMPTY", "CABINET", "SHELF", "WALL", "DOOR", "TABLE", "DESK", "WINDOW"];
 
 function safeGetStyle(type: string) {
   return CELL_STYLE[type as CellType] ?? CELL_STYLE.EMPTY;

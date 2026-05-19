@@ -8,7 +8,7 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, Cell,
 } from "recharts";
-import { apiFetch } from "@/libs/utils/request";
+import { apiFetch } from "@/lib/request";
 import { DateRangeFilter, type DateRange } from "./DateRangeFilter";
 
 interface HourPoint { hour: number; visits: number; }

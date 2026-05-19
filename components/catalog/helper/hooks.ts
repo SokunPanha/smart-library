@@ -1,13 +1,13 @@
 "use client";
 
-import { makeContext } from "@/libs/hooks/context";
-import { useModalForm, useDrawerForm } from "@/libs/hooks/form";
-import { useTable } from "@/libs/hooks/table";
+import { makeContext } from "@/lib/context";
+import { useFormDrawer } from "@/lib/form";
+import { useTable } from "@/lib/table";
 
 export const [CatalogProvider, useCatalogContext] = makeContext(() => {
   return {
     table: useTable(["books"]),
-    createForm: useDrawerForm(),
-    editForm: useDrawerForm(),
+    createForm: useFormDrawer(),
+    editForm: useFormDrawer(),
   };
 });

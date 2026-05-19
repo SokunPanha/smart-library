@@ -5,8 +5,8 @@ import { Input, Spin, Tag, Drawer, Empty } from "antd";
 import { BookOutlined, SearchOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { apiFetch } from "@/libs/utils/request";
-import type { MapCell, CellType } from "@/components/settings/_components/LibraryMapTab";
+import { apiFetch } from "@/lib/request";
+import type { MapCell, CellType } from "./types";
 
 interface LibraryMapData { id: string; rows: number; cols: number; cells: MapCell[]; }
 

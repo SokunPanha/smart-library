@@ -5,7 +5,7 @@ import { Modal, Input, Button, Spin, App } from "antd";
 import { QrcodeOutlined, SearchOutlined, CloseOutlined } from "@ant-design/icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { apiFetch } from "@/libs/utils/request";
+import { apiFetch } from "@/lib/request";
 import { QrScanner } from "./QrScanner";
 
 interface BookResult {

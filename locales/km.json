@@ -61,7 +61,6 @@
     "category": "ប្រភេទ",
     "deweyCode": "លេខ Dewey",
     "totalCopies": "ចំនួនច្បាប់",
-    "availableCopies": "ច្បាប់នៅសេសសល់",
     "tags": "ស្លាក",
     "coverImage": "រូបភាពគម្រប",
     "uploadCover": "បញ្ចូលរូបភាព",
@@ -72,7 +71,6 @@
     "printQR": "បោះពុម្ព",
     "qrScanHint": "ស្កេនដើម្បីទទួលបាន ID សៀវភៅ",
     "printSelected": "បោះពុម្ពស្លាក QR",
-    "available": "មាន",
     "unavailable": "អស់",
     "colTitle": "ចំណងជើង",
     "colCopies": "ចំនួនច្បាប់",
@@ -289,7 +287,9 @@
       "placeShelfTitle": "ដាក់ធ្នើ",
       "selectShelfLabel": "ជ្រើសធ្នើ",
       "shelfPickPlaceholder": "ជ្រើសរើសធ្នើ…"
-    }
+    },
+    "savedSuccess": "រក្សាទុកការកំណត់ដោយជោគជ័យ។",
+    "failedToSave": "បរាជ័យក្នុងការរក្សាទុកការកំណត់។"
   },
   "map": {
     "title": "ផែនទីបណ្ណាល័យ",
@@ -352,7 +352,8 @@
     "bookAlreadyAdded": "បានបន្ថែមហើយ",
     "searchBooksPlaceholder": "ស្វែងរកតាមចំណងជើង ឬ ISBN…",
     "colDuration": "រយៈពេល",
-    "colMember": "សមាជិក"
+    "colMember": "សមាជិក",
+    "insideNowTab": "នៅក្នុងឥឡូវ"
   },
   "reports": {
     "title": "របាយការណ៍",

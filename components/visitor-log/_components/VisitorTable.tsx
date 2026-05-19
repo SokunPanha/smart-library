@@ -6,9 +6,10 @@ import { BookOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import dayjs from "dayjs";
-import { apiFetch } from "@/libs/utils/request";
+import { apiFetch } from "@/lib/request";
 import type { ColumnsType } from "antd/es/table";
 import { LinkBookModal } from "./LinkBookModal";
+import { PURPOSE_COLOR } from "../constants";
 
 const { RangePicker } = DatePicker;
 
@@ -22,10 +23,6 @@ interface VisitorLog {
   member: { id: string; memberId: string; nameKh: string | null; nameEn: string | null; type: string; class?: { name: string } | null };
   books: { book: { id: string; titleKh: string | null; titleEn: string | null } }[];
 }
-
-const PURPOSE_COLOR: Record<string, string> = {
-  READING: "blue", BORROWING: "green", SCHOOLWORK: "orange", RESEARCH: "purple", OTHER: "default",
-};
 
 function duration(arrivedAt: string, leftAt: string | null) {
   const end = leftAt ? dayjs(leftAt) : dayjs();

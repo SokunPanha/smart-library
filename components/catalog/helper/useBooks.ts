@@ -3,7 +3,7 @@
 import { App } from "antd";
 import { useTranslations } from "next-intl";
 import { useCatalogContext } from "./hooks";
-import { apiFetch, filterRequestParam } from "@/libs/utils/request";
+import { apiFetch, filterRequestParam } from "@/lib/request";
 import type { Book } from "./useFetchBooks";
 
 export interface BookPayload {

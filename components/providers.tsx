@@ -7,7 +7,7 @@ import kmKH from "@/locales/antd/km_KH";
 import { minimalTheme } from "@/lib/theme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
-import SessionProvider from "./SessionProvider";
+import { SessionProvider } from "next-auth/react";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const locale = useLocale();

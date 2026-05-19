@@ -6,7 +6,7 @@ import { Html5Qrcode } from "html5-qrcode";
 import { ReloadOutlined, QrcodeOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
 import dayjs from "dayjs";
-import { apiFetch } from "@/libs/utils/request";
+import { apiFetch } from "@/lib/request";
 import { useFetchSettings } from "@/components/settings/helper/useFetchSettings";
 
 // Book IDs are CUIDs (no hyphens). Member IDs are human-readable like LIB-2025-002.

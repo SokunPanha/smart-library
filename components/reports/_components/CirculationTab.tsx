@@ -4,7 +4,7 @@ import { Table, Select } from "antd";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { apiFetch } from "@/libs/utils/request";
+import { apiFetch } from "@/lib/request";
 import { useTableScroll } from "@/lib/hooks";
 import type { ColumnsType } from "antd/es/table";
 

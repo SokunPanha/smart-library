@@ -5,7 +5,7 @@ import { Button, Input, Tag, Popconfirm, Divider, App, Spin } from "antd";
 import { PlusOutlined, DeleteOutlined, ThunderboltOutlined } from "@ant-design/icons";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { apiFetch } from "@/libs/utils/request";
+import { apiFetch } from "@/lib/request";
 
 interface ClassItem {
   id: string;

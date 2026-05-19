@@ -5,16 +5,17 @@ import { Table, Button, Tag, Space, Popconfirm, Drawer, Form, Input, Select, App
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiFetch } from "@/libs/utils/request";
+import { apiFetch } from "@/lib/request";
 import { useTableScroll } from "@/lib/hooks";
 import type { ColumnsType } from "antd/es/table";
+import type { Role } from "@prisma/client";
 
 type StaffUser = {
   id: string;
   email: string;
   nameEn: string;
   nameKh: string | null;
-  role: "ADMIN" | "LIBRARIAN" | "STAFF";
+  role: Role;
   createdAt: string;
 };
 

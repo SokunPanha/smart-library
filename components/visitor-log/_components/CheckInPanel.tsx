@@ -4,11 +4,9 @@ import { useState, useRef } from "react";
 import { Button, Input, Tag, App, Spin } from "antd";
 import { QrcodeOutlined, BookOutlined, CloseOutlined, LoginOutlined, LogoutOutlined } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
-import { apiFetch } from "@/libs/utils/request";
+import { apiFetch } from "@/lib/request";
 import { QrScanner } from "./QrScanner";
-
-const PURPOSES = ["READING", "BORROWING", "SCHOOLWORK", "RESEARCH", "OTHER"] as const;
-type Purpose = typeof PURPOSES[number];
+import { PURPOSES, type Purpose } from "../constants";
 
 interface MemberInfo {
   id: string;
@@ -29,14 +27,6 @@ interface OpenVisit {
   id: string;
   arrivedAt: string;
 }
-
-const PURPOSE_COLOR: Record<Purpose, string> = {
-  READING: "blue",
-  BORROWING: "green",
-  SCHOOLWORK: "orange",
-  RESEARCH: "purple",
-  OTHER: "default",
-};
 
 export function CheckInPanel({ onCheckedIn }: { onCheckedIn: () => void }) {
   const t = useTranslations("visitorLog");

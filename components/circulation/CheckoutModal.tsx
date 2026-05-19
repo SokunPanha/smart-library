@@ -5,7 +5,7 @@ import { Modal, Form, Select, DatePicker, Button, App } from "antd";
 import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
-import { apiFetch } from "@/libs/utils/request";
+import { apiFetch } from "@/lib/request";
 
 interface Props {
   open: boolean;

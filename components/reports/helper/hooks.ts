@@ -1,6 +1,6 @@
 "use client";
 
-import { makeContext } from "@/libs/hooks/context";
+import { makeContext } from "@/lib/context";
 import { useState } from "react";
 
 function useReportsHook() {

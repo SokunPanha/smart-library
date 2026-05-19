@@ -11,7 +11,7 @@ import { useLoans } from "./helper/useLoans";
 import { buildLoanColumns } from "./_components/Columns";
 import CheckoutModal from "./CheckoutModal";
 import { QRScanModal } from "./_components/QRScanModal";
-import { apiFetch } from "@/libs/utils/request";
+import { apiFetch } from "@/lib/request";
 import type { Loan } from "./helper/useFetchLoans";
 
 

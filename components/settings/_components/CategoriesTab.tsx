@@ -5,7 +5,7 @@ import { Table, Button, Input, Space, Popconfirm, Drawer, Form, App } from "antd
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { apiFetch } from "@/libs/utils/request";
+import { apiFetch } from "@/lib/request";
 import { useTableScroll } from "@/lib/hooks";
 import type { ColumnsType } from "antd/es/table";
 

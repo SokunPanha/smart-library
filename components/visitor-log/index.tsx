@@ -53,6 +53,5 @@ export default function VisitorLogPage() {
 
 function InsideTabLabel() {
   const t = useTranslations("visitorLog");
-  // count is rendered inside InsideNow, label just shows static text
-  return <span>{t("insideNow", { count: "" }).replace(" ()", "")}</span>;
+  return <span>{t("insideNowTab")}</span>;
 }

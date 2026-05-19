@@ -5,7 +5,8 @@ import { LogoutOutlined } from "@ant-design/icons";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import dayjs from "dayjs";
-import { apiFetch } from "@/libs/utils/request";
+import { apiFetch } from "@/lib/request";
+import { PURPOSE_COLOR } from "../constants";
 
 interface VisitorLog {
   id: string;
@@ -14,10 +15,6 @@ interface VisitorLog {
   member: { id: string; memberId: string; nameKh: string | null; nameEn: string | null; type: string; class?: { name: string } | null };
   books: { book: { id: string; titleKh: string | null; titleEn: string | null } }[];
 }
-
-const PURPOSE_COLOR: Record<string, string> = {
-  READING: "blue", BORROWING: "green", SCHOOLWORK: "orange", RESEARCH: "purple", OTHER: "default",
-};
 
 function elapsed(arrivedAt: string) {
   const mins = dayjs().diff(dayjs(arrivedAt), "minute");

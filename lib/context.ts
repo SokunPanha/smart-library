@@ -1,14 +1,5 @@
 import { createContext, useContext, createElement, type FC, type ReactNode } from "react";
 
-/**
- * Factory that creates a typed Context + Provider + consumer hook from any hook function.
- * Keeps provider logic out of components — UI stays pure.
- *
- * Usage:
- *   export const [MyProvider, useMyContext] = makeContext(() => {
- *     return { table: useTable(), createForm: useModalForm() };
- *   });
- */
 export function makeContext<T>(
   hookFunc: () => T
 ): [FC<{ children: ReactNode }>, () => T] {

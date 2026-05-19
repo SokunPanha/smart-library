@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { makeContext } from "@/libs/hooks/context";
-import { useModalForm } from "@/libs/hooks/form";
-import { useTable } from "@/libs/hooks/table";
+import { makeContext } from "@/lib/context";
+import { useFormDrawer } from "@/lib/form";
+import { useTable } from "@/lib/table";
 
 export const [CirculationProvider, useCirculationContext] = makeContext(() => {
   return {
     table: useTable(["loans"]),
-    checkoutModal: useModalForm(),
+    checkoutModal: useFormDrawer(),
     statusFilter: useState(""),
   };
 });
