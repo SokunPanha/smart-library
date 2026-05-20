@@ -26,9 +26,22 @@ export async function GET(
   const member = await prisma.member.findUnique({
     where: { id },
     include: {
+      class: { select: { name: true } },
       loans: {
-        include: { book: true },
+        include: { book: { select: { id: true, titleKh: true, titleEn: true, author: true } } },
         orderBy: { borrowedAt: "desc" },
+        take: 100,
+      },
+      reservations: {
+        include: { book: { select: { id: true, titleKh: true, titleEn: true } } },
+        orderBy: { reservedAt: "desc" },
+      },
+      visitorLogs: {
+        include: {
+          books: { include: { book: { select: { id: true, titleKh: true, titleEn: true } } } },
+        },
+        orderBy: { arrivedAt: "desc" },
+        take: 100,
       },
     },
   });

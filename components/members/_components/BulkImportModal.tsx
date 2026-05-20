@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { Modal, Button, Table, Tag, Alert, App } from "antd";
 import { DownloadOutlined, UploadOutlined, InboxOutlined, CheckCircleOutlined } from "@ant-design/icons";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import type { ColumnsType } from "antd/es/table";
 import { apiFetch } from "@/lib/request";
 import { downloadMemberTemplate, parseMemberImportFile, type MemberImportRow } from "@/lib/excel";
@@ -24,6 +24,7 @@ interface ImportResult {
 
 export function MemberBulkImportModal({ open, onClose, onSuccess }: Props) {
   const t = useTranslations("members");
+  const locale = useLocale();
   const tc = useTranslations("common");
   const { message } = App.useApp();
 
@@ -169,7 +170,7 @@ export function MemberBulkImportModal({ open, onClose, onSuccess }: Props) {
       {step === "upload" && (
         <div className="space-y-4 py-2">
           <p className="text-sm text-slate-500">{t("bulkImport.instructions")}</p>
-          <Button icon={<DownloadOutlined />} onClick={downloadMemberTemplate}>
+          <Button icon={<DownloadOutlined />} onClick={() => downloadMemberTemplate(locale)}>
             {t("bulkImport.downloadTemplate")}
           </Button>
 

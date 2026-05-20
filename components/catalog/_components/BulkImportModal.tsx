@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { Modal, Button, Table, Tag, Alert, Progress, Upload, App } from "antd";
 import { DownloadOutlined, UploadOutlined, InboxOutlined, CheckCircleOutlined } from "@ant-design/icons";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import type { ColumnsType } from "antd/es/table";
 import { apiFetch } from "@/lib/request";
 import { downloadBookTemplate, parseBookImportFile, type BookImportRow } from "@/lib/excel";
@@ -25,6 +25,7 @@ interface ImportResult {
 export function BulkImportModal({ open, onClose, onSuccess }: Props) {
   const t = useTranslations("catalog");
   const tc = useTranslations("common");
+  const locale = useLocale();
   const { message } = App.useApp();
 
   const [step, setStep] = useState<Step>("upload");
@@ -164,7 +165,7 @@ export function BulkImportModal({ open, onClose, onSuccess }: Props) {
       {step === "upload" && (
         <div className="space-y-4 py-2">
           <p className="text-sm text-slate-500">{t("bulkImport.instructions")}</p>
-          <Button icon={<DownloadOutlined />} onClick={downloadBookTemplate}>
+          <Button icon={<DownloadOutlined />} onClick={() => downloadBookTemplate(locale)}>
             {t("bulkImport.downloadTemplate")}
           </Button>
 

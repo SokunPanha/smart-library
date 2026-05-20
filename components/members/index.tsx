@@ -11,6 +11,7 @@ import { useMembers } from "./helper/useMembers";
 import { buildMemberColumns } from "./_components/Columns";
 import { CreateMemberDrawer, EditMemberDrawer } from "./_components/MemberDrawerForm";
 import { MemberQRModal } from "./_components/MemberQRModal";
+import { MemberProfileDrawer } from "./_components/MemberProfileDrawer";
 import { MemberBulkImportModal } from "./_components/BulkImportModal";
 import type { Member } from "./helper/useFetchMembers";
 import { useDebounce, useTableScroll } from "@/lib/hooks";
@@ -22,6 +23,7 @@ function MembersPageInner() {
   const [inputVal, setInputVal] = useState("");
   const search = useDebounce(inputVal, 400);
   const [qrMember, setQrMember] = useState<Member | null>(null);
+  const [profileMemberId, setProfileMemberId] = useState<string | null>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [importOpen, setImportOpen] = useState(false);
   const bulkQRRef = useRef<HTMLDivElement>(null);
@@ -122,6 +124,14 @@ function MembersPageInner() {
             loading={isLoading}
             size="small"
             scroll={{ x: "max-content", y: scrollY }}
+            onRow={(row) => ({
+              onClick: (e) => {
+                const target = e.target as HTMLElement;
+                if (target.closest("button,a,[role=button],.ant-image")) return;
+                setProfileMemberId(row.id);
+              },
+              className: "cursor-pointer",
+            })}
             {...ctx.table.props}
             pagination={{ ...ctx.table.props.pagination, total: data?.total ?? 0 }}
             locale={{ emptyText: t("members.empty") }}
@@ -145,6 +155,7 @@ function MembersPageInner() {
       <CreateMemberDrawer />
       <EditMemberDrawer />
       <MemberQRModal member={qrMember} onClose={() => setQrMember(null)} />
+      <MemberProfileDrawer memberId={profileMemberId} onClose={() => setProfileMemberId(null)} />
       <MemberBulkImportModal
         open={importOpen}
         onClose={() => setImportOpen(false)}
