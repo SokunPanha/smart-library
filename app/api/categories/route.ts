@@ -10,6 +10,8 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const session = await auth();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const body = await req.json();
 
   // Accept either { name } (single) or { names: string[] } (bulk)
@@ -39,19 +41,13 @@ export async function POST(req: Request) {
 
   if (names.length === 1) {
     const category = await prisma.category.create({ data: { name: toCreate[0] } });
-    if (session) await logActivity(session, "CATEGORY_CREATED", `Added category: ${category.name}`, category.id);
+    await logActivity(session, "CATEGORY_CREATED", `Added category: ${category.name}`, category.id);
     return NextResponse.json(category, { status: 201 });
   }
 
   await prisma.category.createMany({ data: toCreate.map((name) => ({ name })) });
-  if (session) {
-    await logActivity(
-      session,
-      "CATEGORY_CREATED",
-      `Bulk added ${toCreate.length} categories: ${toCreate.join(", ")}`,
-      undefined
-    );
-  }
+  await logActivity(session, "CATEGORY_CREATED", `Bulk added ${toCreate.length} categories: ${toCreate.join(", ")}`
+  );
 
   return NextResponse.json({ created: toCreate.length, skipped: existingSet.size }, { status: 201 });
 }

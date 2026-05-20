@@ -241,20 +241,18 @@ export async function PATCH(
   await logActivity(session, "LOAN_RETURNED", `Returned: "${bookTitle}" by ${memberName}${fineAmount > 0 ? ` (fine: ${fineAmount.toLocaleString()} KHR)` : ""}`, id);
 
   // Auto-fulfill the oldest pending reservation for this book when a copy becomes available
-  if (true) {
-    const nextReservation = await prisma.reservation.findFirst({
-      where: { bookId: loan.bookId, status: "PENDING" },
-      orderBy: { reservedAt: "asc" },
-      include: { member: { select: { nameEn: true, nameKh: true, memberId: true } } },
+  const nextReservation = await prisma.reservation.findFirst({
+    where: { bookId: loan.bookId, status: "PENDING" },
+    orderBy: { reservedAt: "asc" },
+    include: { member: { select: { nameEn: true, nameKh: true, memberId: true } } },
+  });
+  if (nextReservation) {
+    await prisma.reservation.update({
+      where: { id: nextReservation.id },
+      data: { status: "FULFILLED", fulfilledAt: now },
     });
-    if (nextReservation) {
-      await prisma.reservation.update({
-        where: { id: nextReservation.id },
-        data: { status: "FULFILLED", fulfilledAt: now },
-      });
-      const reserveeName = nextReservation.member.nameKh ?? nextReservation.member.nameEn ?? nextReservation.member.memberId;
-      await logActivity(session, "RESERVATION_FULFILLED", `"${bookTitle}" is now ready for ${reserveeName}`, nextReservation.id);
-    }
+    const reserveeName = nextReservation.member.nameKh ?? nextReservation.member.nameEn ?? nextReservation.member.memberId;
+    await logActivity(session, "RESERVATION_FULFILLED", `"${bookTitle}" is now ready for ${reserveeName}`, nextReservation.id);
   }
 
   return NextResponse.json(updatedLoan);

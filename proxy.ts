@@ -14,7 +14,7 @@ export async function proxy(request: NextRequest) {
 
   // Check if this is a protected route (dashboard)
   const isProtectedPath =
-    /^\/(en|km)\/(dashboard|catalog|members|circulation|reports|settings)/.test(pathname);
+    /^\/(en|km)\/(dashboard|catalog|members|circulation|reports|settings|visitor-log|logs|map)/.test(pathname);
 
   if (isProtectedPath) {
     const session = await auth();

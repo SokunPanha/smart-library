@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import { z } from "zod";
 import { logActivity } from "@/lib/activityLog";
 
-const LOAN_DAYS: Record<string, number> = {
+const LOAN_DAYS_DEFAULT: Record<string, number> = {
   STUDENT: 14,
   TEACHER: 30,
   PUBLIC: 14,
@@ -74,14 +74,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
   }
 
-  const [book, member, activeLoans, maxLoansSetting] = await Promise.all([
+  const [book, member, activeLoans, settingsRows] = await Promise.all([
     prisma.book.findUnique({ where: { id: parsed.data.bookId } }),
     prisma.member.findUnique({ where: { id: parsed.data.memberId } }),
     prisma.loan.count({ where: { memberId: parsed.data.memberId, status: "ACTIVE" } }),
-    prisma.setting.findUnique({ where: { key: "maxLoansPerMember" } }),
+    prisma.setting.findMany({
+      where: { key: { in: ["maxLoansPerMember", "loanDaysStudent", "loanDaysTeacher", "loanDaysPublic", "loanDaysResearcher"] } },
+    }),
   ]);
 
-  const maxLoans = Number(maxLoansSetting?.value ?? 5);
+  const settingsMap: Record<string, string> = {};
+  for (const s of settingsRows) settingsMap[s.key] = s.value;
+  const maxLoans = Number(settingsMap.maxLoansPerMember ?? 5);
 
   if (!book) return NextResponse.json({ error: "Book not found." }, { status: 404 });
   if (!member) return NextResponse.json({ error: "Member not found." }, { status: 404 });
@@ -95,7 +99,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Member already has ${maxLoans} active loans. A book must be returned before borrowing another.` }, { status: 409 });
   }
 
-  const days = LOAN_DAYS[member.type] ?? 14;
+  const loanDaysKey = `loanDays${member.type.charAt(0) + member.type.slice(1).toLowerCase()}`;
+  const days = Number(settingsMap[loanDaysKey] ?? LOAN_DAYS_DEFAULT[member.type] ?? 14);
   const dueAt = parsed.data.dueAt
     ? new Date(parsed.data.dueAt)
     : new Date(Date.now() + days * 86400000);

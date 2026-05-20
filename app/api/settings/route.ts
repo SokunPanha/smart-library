@@ -27,14 +27,14 @@ export async function GET() {
 
 export async function PATCH(req: Request) {
   const session = await auth();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const body: Record<string, string> = await req.json();
   const ops = Object.entries(body).map(([key, value]) =>
     prisma.setting.upsert({ where: { key }, update: { value }, create: { key, value } })
   );
   await prisma.$transaction(ops);
-  if (session) {
-    const keys = Object.keys(body).join(", ");
-    await logActivity(session, "SETTINGS_UPDATED", `Updated settings: ${keys}`);
-  }
+  const keys = Object.keys(body).join(", ");
+  await logActivity(session, "SETTINGS_UPDATED", `Updated settings: ${keys}`);
   return NextResponse.json({ ok: true });
 }
