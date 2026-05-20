@@ -81,12 +81,14 @@ export function LoanRulesTab() {
       </Form.Item>
 
       <Divider plain>{t("loanRules.limits")}</Divider>
-      <Form.Item label={t("loanRules.maxLoans")} name="maxLoansPerMember" rules={[{ required: true }]}>
+      <div className="grid grid-cols-2 gap-3">
+        <Form.Item label={t("loanRules.maxLoans")} name="maxLoansPerMember" rules={[{ required: true }]}>
         <InputNumber className="w-full max-w-xs" min={1} max={20} />
       </Form.Item>
       <Form.Item label={t("loanRules.maxRenewals")} name="maxRenewalsPerLoan" rules={[{ required: true }]}>
         <InputNumber className="w-full max-w-xs" min={0} max={10} />
       </Form.Item>
+      </div>
 
       <Button type="primary" htmlType="submit">{t("save")}</Button>
     </Form>
