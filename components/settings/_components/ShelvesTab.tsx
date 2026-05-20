@@ -53,6 +53,8 @@ export function ShelvesTab() {
   const [shelfCount, setShelfCount] = useState(3);
   const [sectionsPerShelf, setSectionsPerShelf] = useState(3);
   const [builderZone, setBuilderZone] = useState("");
+  // slotId = "${side ?? ''}-${shelfNo}-${originalSectionNo}" — stable across renumbering
+  const [removedSlots, setRemovedSlots] = useState<Set<string>>(new Set());
 
   // Add/Edit modal — watch fields to compute code preview
   const [editCabinet, setEditCabinet] = useState("");
@@ -86,7 +88,35 @@ export function ShelvesTab() {
     return entries;
   }, [cabinetName, doubleSided, frontLabel, rearLabel, shelfCount, sectionsPerShelf]);
 
-  const newEntries = previewEntries.filter((e) => !existingCodes.has(e.code));
+  // After removals, renumber remaining sections so gaps are closed (1,2,3… always)
+  const effectiveEntries = useMemo(() => {
+    const grouped = new Map<string, typeof previewEntries>();
+    for (const e of previewEntries) {
+      const key = `${e.side ?? ""}|${e.shelfNo}`;
+      if (!grouped.has(key)) grouped.set(key, []);
+      grouped.get(key)!.push(e);
+    }
+    const result: { slotId: string; cabinet: string; side: string | null; shelfNo: number; sectionNo: number; code: string }[] = [];
+    for (const group of grouped.values()) {
+      const kept = group.filter(
+        (e) => !removedSlots.has(`${e.side ?? ""}-${e.shelfNo}-${e.sectionNo}`)
+      );
+      kept.forEach((e, idx) => {
+        const newSecNo = idx + 1;
+        result.push({
+          slotId: `${e.side ?? ""}-${e.shelfNo}-${e.sectionNo}`,
+          cabinet: e.cabinet,
+          side: e.side,
+          shelfNo: e.shelfNo,
+          sectionNo: newSecNo,
+          code: buildCode(e.cabinet, e.side, e.shelfNo, newSecNo),
+        });
+      });
+    }
+    return result;
+  }, [previewEntries, removedSlots]);
+
+  const newEntries = effectiveEntries.filter((e) => !existingCodes.has(e.code));
 
   const bulkMutation = useMutation({
     mutationFn: (data: object) =>
@@ -101,6 +131,7 @@ export function ShelvesTab() {
       message.success(base + suffix);
       qc.invalidateQueries({ queryKey: ["shelves"] });
       setCabinetName("");
+      setRemovedSlots(new Set());
       setBuilderOpen(false);
     },
     onError: (e: Error) => message.error(e.message),
@@ -335,6 +366,7 @@ export function ShelvesTab() {
 
       {/* Cabinet Builder modal */}
       <Modal
+        
         open={builderOpen}
         title={
           <span className="flex items-center gap-2">
@@ -357,7 +389,7 @@ export function ShelvesTab() {
             </Button>
           </div>
         }
-        width={560}
+        width={700}
         destroyOnHidden
       >
         <div className="space-y-4 py-2">
@@ -427,44 +459,115 @@ export function ShelvesTab() {
             </div>
           </div>
 
-          {/* Visual preview */}
-          {previewEntries.length > 0 && cabinetName.trim() && (
-            <div className="flex flex-wrap gap-6 pt-1 border-t border-slate-100">
-              {previewSides.map((side) => {
-                const sideEntries = previewEntries.filter((e) =>
-                  side ? e.side === side : e.side === null
-                );
+          {/* Editable entry list — sections are renumbered live after removal */}
+          {effectiveEntries.length > 0 && cabinetName.trim() && (
+            <div className="border border-slate-200 rounded-lg overflow-hidden">
+              {previewSides.map((side, sideIdx) => {
+                const sideLabel = side
+                  ? `${side === (frontLabel.trim() || "L") ? t("frontLabel") : t("rearLabel")} (${side})`
+                  : null;
+                // shelves that still have at least one entry
+                const shelvesWithEntries = Array.from(
+                  new Set(effectiveEntries.filter(e => (side ? e.side === side : e.side === null)).map(e => e.shelfNo))
+                ).sort((a, b) => a - b);
+                if (shelvesWithEntries.length === 0) return null;
                 return (
-                  <div key={side ?? "single"} className="space-y-1">
-                    {side && (
-                      <p className="text-xs font-medium text-slate-500 mb-1">
-                        {side === (frontLabel.trim() || "L") ? t("frontLabel") : t("rearLabel")}:{" "}
-                        <span className="font-mono">{side}</span>
-                      </p>
+                  <div key={side ?? "single"}>
+                    {previewSides.length > 1 && sideLabel && (
+                      <div className={`px-3 py-1.5 text-xs font-medium text-slate-500 bg-slate-50 ${sideIdx > 0 ? "border-t border-slate-200" : ""}`}>
+                        {sideLabel}
+                      </div>
                     )}
                     {Array.from({ length: shelfCount }, (_, si) => {
-                      const rowEntries = sideEntries.filter((e) => e.shelfNo === si + 1);
+                      const shelfNo = si + 1;
+                      // effective entries for this shelf (already renumbered)
+                      const rowEntries = effectiveEntries.filter(
+                        (e) => (side ? e.side === side : e.side === null) && e.shelfNo === shelfNo
+                      );
+                      // original entries for this shelf (to build remove buttons)
+                      const originalRow = previewEntries.filter(
+                        (e) => (side ? e.side === side : e.side === null) && e.shelfNo === shelfNo
+                      );
+                      const removedInRow = originalRow.filter(
+                        (e) => removedSlots.has(`${e.side ?? ""}-${e.shelfNo}-${e.sectionNo}`)
+                      );
                       return (
-                        <div key={si} className="flex items-center gap-1.5">
-                          <span className="text-xs text-slate-400 w-4 text-right">{si + 1}</span>
-                          {rowEntries.map((e) => (
-                            <span
-                              key={e.code}
-                              className={`px-2 py-0.5 rounded text-xs font-mono font-medium border ${
-                                existingCodes.has(e.code)
-                                  ? "bg-slate-100 border-slate-200 text-slate-400 line-through"
-                                  : "bg-violet-50 border-violet-200 text-violet-700"
-                              }`}
-                            >
-                              {e.code}
-                            </span>
-                          ))}
+                        <div key={si} className="flex items-start gap-2 px-3 py-1.5 border-t border-slate-100 first:border-t-0">
+                          <span className="text-xs text-slate-400 w-12 shrink-0 pt-0.5">
+                            {t("colShelf")} {shelfNo}
+                          </span>
+                          <div className="flex flex-wrap gap-1.5 flex-1">
+                            {rowEntries.map((e) => {
+                              const isExisting = existingCodes.has(e.code);
+                              return (
+                                <span
+                                  key={e.slotId}
+                                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono font-medium border ${
+                                    isExisting
+                                      ? "bg-slate-100 border-slate-200 text-slate-400"
+                                      : "bg-violet-50 border-violet-200 text-violet-700"
+                                  }`}
+                                >
+                                  {e.code}
+                                  {!isExisting && (
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        setRemovedSlots((prev) => new Set([...prev, e.slotId]))
+                                      }
+                                      className="text-violet-400 hover:text-red-500 leading-none ml-0.5"
+                                      aria-label={`Remove ${e.code}`}
+                                    >
+                                      ×
+                                    </button>
+                                  )}
+                                  {isExisting && (
+                                    <span className="text-slate-300 text-[10px] ml-0.5">↩</span>
+                                  )}
+                                </span>
+                              );
+                            })}
+                            {removedInRow.map((e) => (
+                              <span
+                                key={e.code}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono border border-dashed border-slate-200 text-slate-300 line-through"
+                              >
+                                {e.code}
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setRemovedSlots((prev) => {
+                                      const next = new Set(prev);
+                                      next.delete(`${e.side ?? ""}-${e.shelfNo}-${e.sectionNo}`);
+                                      return next;
+                                    })
+                                  }
+                                  className="text-slate-300 hover:text-violet-500 leading-none ml-0.5"
+                                  aria-label={`Restore ${e.code}`}
+                                >
+                                  ↩
+                                </button>
+                              </span>
+                            ))}
+                          </div>
                         </div>
                       );
                     })}
                   </div>
                 );
               })}
+              <div className="px-3 py-1.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-400">
+                <span>{t("addCabinet", { count: newEntries.length })}</span>
+                {removedSlots.size > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setRemovedSlots(new Set())}
+                    className="text-violet-500 hover:text-violet-700"
+                  >
+                    {t("restoreAll")}
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>

@@ -384,6 +384,7 @@
       "codeLabel": "Code",
       "codeExtra": "Auto-generated from cabinet, side, shelf, and section.",
       "codeFormatOptional": "optional",
+      "restoreAll": "Restore all",
       "sideExtra": "F = left side, R = right side. Leave blank for single-sided cabinets.",
       "shelfNoLabel": "Shelf No.",
       "shelfNoExtra": "1 = bottom shelf",
