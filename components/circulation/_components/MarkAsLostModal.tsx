@@ -97,7 +97,7 @@ export function MarkAsLostModal({ loan, onConfirm, onClose }: Props) {
               formatter={(v) => (v ? Number(v).toLocaleString() : "")}
               parser={(v) => Number((v ?? "").replace(/,/g, "")) as 0}
             />
-            <Button disabled className="!cursor-default">៛</Button>
+            <Button disabled className="cursor-default!">៛</Button>
           </Space.Compact>
         </div>
 

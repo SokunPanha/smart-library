@@ -8,6 +8,14 @@ import { apiFetch } from "@/lib/request";
 import { QrScanner } from "./QrScanner";
 import { PURPOSES, PURPOSE_COLOR, type Purpose } from "../constants";
 
+const PURPOSE_SELECTED_CLASS: Record<string, string> = {
+  READING: "bg-blue-500 border-blue-500 text-white",
+  BORROWING: "bg-green-500 border-green-500 text-white",
+  SCHOOLWORK: "bg-orange-500 border-orange-500 text-white",
+  RESEARCH: "bg-purple-500 border-purple-500 text-white",
+  OTHER: "bg-slate-500 border-slate-500 text-white",
+};
+
 interface MemberInfo {
   id: string;
   memberId: string;
@@ -209,10 +217,10 @@ export function BulkCheckInModal({ open, onClose, onCheckedIn }: Props) {
               <span className="text-xs text-slate-400 ml-auto">
                 {t("bulk.memberCount", { count: rows.length })}
                 {checkOutCount > 0 && (
-                  <span className="text-orange-500 ml-1">({checkOutCount} checkout)</span>
+                  <span className="text-orange-500 ml-1">({checkOutCount} {t("checkOut")})</span>
                 )}
                 {checkInCount > 0 && (
-                  <span className="text-blue-500 ml-1">({checkInCount} check-in)</span>
+                  <span className="text-blue-500 ml-1">({checkInCount} {t("checkIn")})</span>
                 )}
               </span>
             )}
@@ -263,7 +271,7 @@ export function BulkCheckInModal({ open, onClose, onCheckedIn }: Props) {
                             onClick={() => setRowPurpose(row.member.id, p)}
                             className={`px-2 py-0.5 rounded-full text-[11px] font-medium border transition-colors ${
                               row.purpose === p
-                                ? `bg-${PURPOSE_COLOR[p]}-500 border-${PURPOSE_COLOR[p]}-500 text-white`
+                                ? (PURPOSE_SELECTED_CLASS[p] ?? "bg-slate-500 border-slate-500 text-white")
                                 : "bg-white border-slate-200 text-slate-500 hover:border-slate-400"
                             }`}
                           >

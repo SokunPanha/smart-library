@@ -16,7 +16,10 @@
     "updatedAt": "Updated At",
     "createdBy": "Added by / Updated by",
     "signOut": "Sign Out",
-    "close": "Close"
+    "close": "Close",
+    "retry": "Retry",
+    "cameraNotAvailable": "Camera not available",
+    "enterIdManually": "Enter ID manually…"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -590,12 +593,13 @@
     "stats": {
       "active": "Active Loans",
       "overdue": "Overdue",
-      "lost": "Lost (Unpaid)",
+      "lost": "Lost Books",
       "unpaidFines": "Unpaid Fines",
       "paidFines": "Fines Collected",
       "week": "This Week",
       "month": "This Month",
-      "custom": "Custom"
+      "custom": "Custom",
+      "transactions": "{count} transaction(s)"
     },
     "title": "Circulation",
     "checkout": "Check Out",

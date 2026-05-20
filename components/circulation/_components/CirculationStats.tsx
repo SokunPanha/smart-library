@@ -130,7 +130,7 @@ export function CirculationStats() {
               formatter={(v) => Number(v).toLocaleString()}
             />
             {(data?.paidFinesCount ?? 0) > 0 && (
-              <p className="text-xs text-slate-400 mt-1">{data!.paidFinesCount} transaction{data!.paidFinesCount !== 1 ? "s" : ""}</p>
+              <p className="text-xs text-slate-400 mt-1">{t("transactions", { count: data!.paidFinesCount })}</p>
             )}
           </Card>
         </Col>

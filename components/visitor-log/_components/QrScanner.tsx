@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import { Modal, Button, Input } from "antd";
 import { Html5Qrcode } from "html5-qrcode";
 import { ReloadOutlined } from "@ant-design/icons";
+import { useTranslations } from "next-intl";
 
 interface Props {
   title: string;
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export function QrScanner({ title, onScan, onClose, persistent = false }: Props) {
+  const t = useTranslations("common");
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const hasScanned = useRef(false);
   const [cameraError, setCameraError] = useState(false);
@@ -98,7 +100,7 @@ export function QrScanner({ title, onScan, onClose, persistent = false }: Props)
 
         {cameraError && (
           <div className="text-center space-y-2">
-            <p className="text-sm text-slate-400">Camera not available</p>
+            <p className="text-sm text-slate-400">{t("cameraNotAvailable")}</p>
             <Button
               size="small"
               icon={<ReloadOutlined />}
@@ -109,14 +111,14 @@ export function QrScanner({ title, onScan, onClose, persistent = false }: Props)
                 restart(div);
               }}
             >
-              Retry
+              {t("retry")}
             </Button>
           </div>
         )}
 
         <div className="flex gap-2">
           <Input
-            placeholder="Enter ID manually…"
+            placeholder={t("enterIdManually")}
             value={manualValue}
             onChange={(e) => setManualValue(e.target.value)}
             onPressEnter={handleManual}
