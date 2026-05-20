@@ -11,20 +11,25 @@ export function useLoans() {
   const ctx = useCirculationContext();
   const t = useTranslations("circulation");
 
-  const closeLoan = async (loan: Loan, status: "RETURNED" | "LOST") => {
+  const closeLoan = async (loan: Loan, status: "RETURNED") => {
     const updated = await apiFetch<{ fineAmount: number }>(`/api/loans/${loan.id}`, {
       method: "PATCH",
-      body: JSON.stringify({ status, finePaid: false }),
+      body: JSON.stringify({ status }),
     });
-
-    if (status === "RETURNED" && updated.fineAmount > 0) {
+    if (updated.fineAmount > 0) {
       message.warning(t("returnedWithFine", { amount: updated.fineAmount.toLocaleString() }));
-    } else if (status === "RETURNED") {
-      message.success(t("returnSuccess"));
     } else {
-      message.warning(t("lostMarked"));
+      message.success(t("returnSuccess"));
     }
+    ctx.table.reload();
+  };
 
+  const markAsLost = async (loan: Loan, fineAmount: number, fineNote: string) => {
+    await apiFetch(`/api/loans/${loan.id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status: "LOST", fineAmount, fineNote: fineNote || null }),
+    });
+    message.warning(fineAmount > 0 ? t("lostMarkedWithFine", { amount: fineAmount.toLocaleString() }) : t("lostMarked"));
     ctx.table.reload();
   };
 
@@ -54,5 +59,14 @@ export function useLoans() {
     ctx.table.reload();
   };
 
-  return { closeLoan, renewLoan, payFine };
+  const waiveFine = async (loan: Loan, fineNote: string) => {
+    await apiFetch(`/api/loans/${loan.id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ action: "waiveFine", fineNote: fineNote || null }),
+    });
+    message.success(t("fineWaiveSuccess", { amount: loan.fineAmount.toLocaleString() }));
+    ctx.table.reload();
+  };
+
+  return { closeLoan, markAsLost, renewLoan, payFine, waiveFine };
 }

@@ -10,6 +10,7 @@ import { CirculationProvider, useCirculationContext } from "./helper/hooks";
 import { useFetchLoans } from "./helper/useFetchLoans";
 import { useLoans } from "./helper/useLoans";
 import { buildLoanColumns } from "./_components/Columns";
+import { MarkAsLostModal } from "./_components/MarkAsLostModal";
 import { ReservationsTab } from "./_components/ReservationsTab";
 import CheckoutModal from "./CheckoutModal";
 import { QRScanModal } from "./_components/QRScanModal";
@@ -24,6 +25,7 @@ function CirculationPageInner() {
   const { modal, message } = App.useApp();
   const [statusFilter, setStatusFilter] = ctx.statusFilter;
   const [scanOpen, setScanOpen] = useState(false);
+  const [lostLoan, setLostLoan] = useState<Loan | null>(null);
   const [inputVal, setInputVal] = useState("");
   const search = useDebounce(inputVal, 400);
   const t = useTranslations();
@@ -73,15 +75,13 @@ function CirculationPageInner() {
   });
   const fulfilledCount = reservationMeta?.total ?? 0;
 
-  const confirmReturn = (loan: Loan, asLost = false) => {
+  const confirmReturn = (loan: Loan) => {
     modal.confirm({
-      title: asLost ? t("circulation.lostTitle") : t("circulation.returnTitle"),
-      content: asLost
-        ? t("circulation.lostContent", { title: loan.book.titleEn })
-        : t("circulation.returnContent", { title: loan.book.titleEn, name: loan.member.nameEn ?? loan.member.memberId }),
+      title: t("circulation.returnTitle"),
+      content: t("circulation.returnContent", { title: loan.book.titleKh ?? loan.book.titleEn, name: loan.member.nameKh ?? loan.member.nameEn ?? loan.member.memberId }),
       okText: t("common.confirm"),
       cancelText: t("common.cancel"),
-      onOk: () => actions.closeLoan(loan, asLost ? "LOST" : "RETURNED"),
+      onOk: () => actions.closeLoan(loan, "RETURNED"),
     });
   };
 
@@ -108,12 +108,26 @@ function CirculationPageInner() {
     });
   };
 
+  const confirmWaiveFine = (loan: Loan) => {
+    modal.confirm({
+      title: t("circulation.waiveFineTitle"),
+      content: t("circulation.waiveFineContent", {
+        amount: loan.fineAmount.toLocaleString(),
+        name: loan.member.nameKh ?? loan.member.nameEn ?? loan.member.memberId,
+      }),
+      okText: t("circulation.waiveFineConfirm"),
+      cancelText: t("common.cancel"),
+      onOk: () => actions.waiveFine(loan, ""),
+    });
+  };
+
   const columns = buildLoanColumns({
     actions,
     onReturn: (loan) => confirmReturn(loan),
-    onLost: (loan) => confirmReturn(loan, true),
+    onLost: (loan) => setLostLoan(loan),
     onRenew: confirmRenew,
     onPayFine: confirmPayFine,
+    onWaiveFine: confirmWaiveFine,
     maxRenewals,
     t,
   });
@@ -215,6 +229,12 @@ function CirculationPageInner() {
         onClose={() => setScanOpen(false)}
         onCheckout={handleScanCheckout}
         onReturn={handleScanReturn}
+      />
+
+      <MarkAsLostModal
+        loan={lostLoan}
+        onConfirm={async (loan, fineAmount, fineNote) => { await actions.markAsLost(loan, fineAmount, fineNote); }}
+        onClose={() => setLostLoan(null)}
       />
     </div>
   );

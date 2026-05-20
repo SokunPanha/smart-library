@@ -7,8 +7,13 @@ import { logActivity } from "@/lib/activityLog";
 const FINE_PER_DAY_KHR = 500;
 
 const returnSchema = z.object({
-  status: z.enum(["RETURNED", "LOST"]),
-  finePaid: z.boolean().optional().default(false),
+  status: z.literal("RETURNED"),
+});
+
+const markLostSchema = z.object({
+  status: z.literal("LOST"),
+  fineAmount: z.number().min(0),
+  fineNote: z.string().optional().nullable(),
 });
 
 const renewSchema = z.object({
@@ -17,6 +22,11 @@ const renewSchema = z.object({
 
 const payFineSchema = z.object({
   action: z.literal("payFine"),
+});
+
+const waiveFineSchema = z.object({
+  action: z.literal("waiveFine"),
+  fineNote: z.string().optional().nullable(),
 });
 
 export async function GET(
@@ -49,6 +59,33 @@ export async function PATCH(
   const { id } = await params;
   const body = await req.json();
   const actor = (session.user as { name?: string; email?: string }).name ?? session.user?.email ?? "unknown";
+
+  // --- Waive Fine action ---
+  if (body?.action === "waiveFine") {
+    const parsed = waiveFineSchema.safeParse(body);
+    if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
+
+    const loan = await prisma.loan.findUnique({
+      where: { id },
+      include: {
+        book: { select: { titleEn: true, titleKh: true } },
+        member: { select: { nameEn: true, nameKh: true, memberId: true } },
+      },
+    });
+    if (!loan) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (loan.fineAmount === 0) return NextResponse.json({ error: "No fine on this loan." }, { status: 409 });
+    if (loan.finePaid) return NextResponse.json({ error: "Fine already resolved." }, { status: 409 });
+
+    const updated = await prisma.loan.update({
+      where: { id },
+      data: { finePaid: true, fineWaived: true, fineNote: parsed.data.fineNote ?? null },
+    });
+
+    const bookTitle = loan.book.titleKh ?? loan.book.titleEn;
+    const memberName = loan.member.nameKh ?? loan.member.nameEn ?? loan.member.memberId;
+    await logActivity(session, "FINE_WAIVED", `Fine waived: ${loan.fineAmount.toLocaleString()} KHR for "${bookTitle}" by ${memberName}${parsed.data.fineNote ? ` — ${parsed.data.fineNote}` : ""}`, id);
+    return NextResponse.json(updated);
+  }
 
   // --- Pay Fine action ---
   if (body?.action === "payFine") {
@@ -134,7 +171,41 @@ export async function PATCH(
     return NextResponse.json(updated);
   }
 
-  // --- Return / Lost action ---
+  // --- Mark as Lost ---
+  if (body?.status === "LOST") {
+    const parsed = markLostSchema.safeParse(body);
+    if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
+
+    const loan = await prisma.loan.findUnique({ where: { id } });
+    if (!loan) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (loan.status !== "ACTIVE" && loan.status !== "OVERDUE") {
+      return NextResponse.json({ error: "Loan is already closed." }, { status: 409 });
+    }
+
+    const now = new Date();
+    const updatedLoan = await prisma.loan.update({
+      where: { id },
+      data: {
+        status: "LOST",
+        returnedAt: now,
+        fineAmount: parsed.data.fineAmount,
+        fineNote: parsed.data.fineNote ?? null,
+        finePaid: false,
+        closedBy: actor,
+      },
+      include: {
+        book: { select: { titleEn: true, titleKh: true } },
+        member: { select: { nameEn: true, nameKh: true, memberId: true } },
+      },
+    });
+
+    const bookTitle = updatedLoan.book.titleKh ?? updatedLoan.book.titleEn;
+    const memberName = updatedLoan.member.nameKh ?? updatedLoan.member.nameEn ?? updatedLoan.member.memberId;
+    await logActivity(session, "LOAN_LOST", `Marked lost: "${bookTitle}" by ${memberName} — fine: ${parsed.data.fineAmount.toLocaleString()} KHR${parsed.data.fineNote ? ` (${parsed.data.fineNote})` : ""}`, id);
+    return NextResponse.json(updatedLoan);
+  }
+
+  // --- Return ---
   const parsed = returnSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
@@ -147,47 +218,30 @@ export async function PATCH(
   }
 
   const now = new Date();
-  const overdueDays = Math.max(
-    0,
-    Math.floor((now.getTime() - loan.dueAt.getTime()) / 86400000)
-  );
+  const overdueDays = Math.max(0, Math.floor((now.getTime() - loan.dueAt.getTime()) / 86400000));
   const fineAmount = overdueDays * FINE_PER_DAY_KHR;
 
   const [updatedLoan] = await prisma.$transaction([
     prisma.loan.update({
       where: { id },
-      data: {
-        status: parsed.data.status,
-        returnedAt: now,
-        fineAmount,
-        finePaid: parsed.data.finePaid,
-        closedBy: actor,
-      },
+      data: { status: "RETURNED", returnedAt: now, fineAmount, finePaid: false, closedBy: actor },
       include: {
         book: { select: { titleEn: true, titleKh: true } },
         member: { select: { nameEn: true, nameKh: true, memberId: true } },
       },
     }),
-    ...(parsed.data.status === "RETURNED"
-      ? [
-          prisma.book.update({
-            where: { id: loan.bookId },
-            data: { availableCopies: { increment: 1 } },
-          }),
-        ]
-      : []),
+    prisma.book.update({
+      where: { id: loan.bookId },
+      data: { availableCopies: { increment: 1 } },
+    }),
   ]);
 
   const bookTitle = updatedLoan.book.titleKh ?? updatedLoan.book.titleEn;
   const memberName = updatedLoan.member.nameKh ?? updatedLoan.member.nameEn ?? updatedLoan.member.memberId;
-  const action = parsed.data.status === "RETURNED" ? "LOAN_RETURNED" : "LOAN_LOST";
-  const desc = parsed.data.status === "RETURNED"
-    ? `Returned: "${bookTitle}" by ${memberName}${fineAmount > 0 ? ` (fine: ${fineAmount.toLocaleString()} KHR)` : ""}`
-    : `Marked lost: "${bookTitle}" by ${memberName}`;
-  await logActivity(session, action, desc, id);
+  await logActivity(session, "LOAN_RETURNED", `Returned: "${bookTitle}" by ${memberName}${fineAmount > 0 ? ` (fine: ${fineAmount.toLocaleString()} KHR)` : ""}`, id);
 
   // Auto-fulfill the oldest pending reservation for this book when a copy becomes available
-  if (parsed.data.status === "RETURNED") {
+  if (true) {
     const nextReservation = await prisma.reservation.findFirst({
       where: { bookId: loan.bookId, status: "PENDING" },
       orderBy: { reservedAt: "asc" },

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Space, Tag, Tooltip } from "antd";
-import { CheckOutlined, StopOutlined, SyncOutlined, DollarOutlined } from "@ant-design/icons";
+import { CheckOutlined, StopOutlined, SyncOutlined, DollarOutlined, MinusCircleOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import type { ColumnsType } from "antd/es/table";
 import type { Loan } from "../helper/useFetchLoans";
@@ -20,11 +20,12 @@ interface ColumnArgs {
   onLost: (loan: Loan) => void;
   onRenew: (loan: Loan) => void;
   onPayFine: (loan: Loan) => void;
+  onWaiveFine: (loan: Loan) => void;
   maxRenewals: number;
   t: (key: string, values?: Record<string, string | number | Date>) => string;
 }
 
-export function buildLoanColumns({ onReturn, onLost, onRenew, onPayFine, maxRenewals, t }: ColumnArgs): ColumnsType<Loan> {
+export function buildLoanColumns({ onReturn, onLost, onRenew, onPayFine, onWaiveFine, maxRenewals, t }: ColumnArgs): ColumnsType<Loan> {
   return [
     {
       title: t("circulation.colBook"),
@@ -114,10 +115,18 @@ export function buildLoanColumns({ onReturn, onLost, onRenew, onPayFine, maxRene
               <span className={row.finePaid ? "text-slate-400 line-through text-xs" : "text-red-500 font-medium"}>
                 {row.fineAmount.toLocaleString()} ៛
               </span>
-              {row.finePaid && (
+              {row.finePaid && !row.fineWaived && (
                 <Tag color="success" className="border-0 text-[10px] px-1 leading-tight m-0">
                   {t("circulation.finePaid")}
                 </Tag>
+              )}
+              {row.fineWaived && (
+                <Tag color="default" className="border-0 text-[10px] px-1 leading-tight m-0">
+                  {t("circulation.fineWaived")}
+                </Tag>
+              )}
+              {row.fineNote && (
+                <p className="text-[10px] text-slate-400 w-full mt-0.5 truncate max-w-[120px]">{row.fineNote}</p>
               )}
             </div>
           ) : (
@@ -189,15 +198,26 @@ export function buildLoanColumns({ onReturn, onLost, onRenew, onPayFine, maxRene
         }
         if (row.fineAmount > 0 && !row.finePaid) {
           return (
-            <Tooltip title={t("circulation.payFineTooltip", { amount: row.fineAmount.toLocaleString() })}>
-              <Button
-                type="text"
-                size="small"
-                icon={<DollarOutlined />}
-                onClick={() => onPayFine(row)}
-                className="text-amber-500"
-              />
-            </Tooltip>
+            <Space size="small">
+              <Tooltip title={t("circulation.payFineTooltip", { amount: row.fineAmount.toLocaleString() })}>
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<DollarOutlined />}
+                  onClick={() => onPayFine(row)}
+                  className="text-amber-500"
+                />
+              </Tooltip>
+              <Tooltip title={t("circulation.waiveFineTooltip")}>
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<MinusCircleOutlined />}
+                  onClick={() => onWaiveFine(row)}
+                  className="text-slate-400"
+                />
+              </Tooltip>
+            </Space>
           );
         }
         return null;

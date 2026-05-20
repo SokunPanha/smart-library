@@ -11,6 +11,8 @@ export interface Loan {
   returnedAt: string | null;
   fineAmount: number;
   finePaid: boolean;
+  fineWaived: boolean;
+  fineNote: string | null;
   renewalCount: number;
   checkedOutBy: string | null;
   closedBy: string | null;

@@ -107,6 +107,8 @@ model Loan {
   status      LoanStatus @default(ACTIVE)
   fineAmount    Float      @default(0)
   finePaid      Boolean    @default(false)
+  fineWaived    Boolean    @default(false)
+  fineNote      String?
   renewalCount  Int        @default(0)
   notes         String?
   checkedOutBy String?
