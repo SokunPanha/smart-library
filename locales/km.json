@@ -587,6 +587,16 @@
     }
   },
   "circulation": {
+    "stats": {
+      "active": "ការខ្ចីសកម្ម",
+      "overdue": "ហួសកំណត់",
+      "lost": "បាត់ (មិនទាន់បង់)",
+      "unpaidFines": "ពិន័យមិនទាន់បង់",
+      "paidFines": "ពិន័យបានទទួល",
+      "week": "សប្តាហ៍នេះ",
+      "month": "ខែនេះ",
+      "custom": "កំណត់ខ្លួនឯង"
+    },
     "title": "ការខ្ចី-ប្រគល់",
     "checkout": "ខ្ចីសៀវភៅ",
     "checkin": "ប្រគល់សៀវភៅ",
@@ -678,6 +688,8 @@
     "renewError": "មិនអាចបន្តការខ្ចីបានទេ។",
     "renewals": "បន្ត {count}ដង",
     "filterUnpaidFines": "ពិន័យមិនទាន់បង់",
+    "filterPaidFines": "ពិន័យបានបង់",
+    "filterWaivedFines": "ពិន័យបានលើក",
     "tabLoans": "ការខ្ចី",
     "tabReservations": "ការកក់",
     "reservation": {

@@ -108,6 +108,7 @@ model Loan {
   fineAmount    Float      @default(0)
   finePaid      Boolean    @default(false)
   fineWaived    Boolean    @default(false)
+  finePaidAt    DateTime?
   fineNote      String?
   renewalCount  Int        @default(0)
   notes         String?

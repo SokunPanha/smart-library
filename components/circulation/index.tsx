@@ -10,6 +10,7 @@ import { CirculationProvider, useCirculationContext } from "./helper/hooks";
 import { useFetchLoans } from "./helper/useFetchLoans";
 import { useLoans } from "./helper/useLoans";
 import { buildLoanColumns } from "./_components/Columns";
+import { CirculationStats } from "./_components/CirculationStats";
 import { MarkAsLostModal } from "./_components/MarkAsLostModal";
 import { ReservationsTab } from "./_components/ReservationsTab";
 import CheckoutModal from "./CheckoutModal";
@@ -53,11 +54,13 @@ function CirculationPageInner() {
   }
 
   const STATUS_OPTIONS = [
-    { label: t("circulation.statuses.ACTIVE"), value: "ACTIVE" },
-    { label: t("circulation.statuses.OVERDUE"), value: "OVERDUE" },
-    { label: t("circulation.statuses.RETURNED"), value: "RETURNED" },
-    { label: t("circulation.statuses.LOST"), value: "LOST" },
+    { label: t("circulation.statuses.ACTIVE"),   value: "ACTIVE"      },
+    { label: t("circulation.statuses.OVERDUE"),  value: "OVERDUE"     },
+    { label: t("circulation.statuses.RETURNED"), value: "RETURNED"    },
+    { label: t("circulation.statuses.LOST"),     value: "LOST"        },
     { label: t("circulation.filterUnpaidFines"), value: "UNPAID_FINE" },
+    { label: t("circulation.filterPaidFines"),   value: "PAID_FINE"   },
+    { label: t("circulation.filterWaivedFines"), value: "WAIVED_FINE" },
   ];
   const { data, isLoading } = useFetchLoans(statusFilter, search, ctx.table.page);
   const { data: settings } = useFetchSettings();
@@ -192,6 +195,8 @@ function CirculationPageInner() {
           </Button>
         </Space>
       </div>
+
+      <CirculationStats />
 
       <div className="bg-white border border-slate-100 rounded-lg p-4">
         <Tabs

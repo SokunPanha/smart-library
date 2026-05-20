@@ -23,7 +23,9 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status");
-  const fineUnpaid = searchParams.get("fineUnpaid") === "true";
+  const fineUnpaid  = searchParams.get("fineUnpaid")  === "true";
+  const finePaid    = searchParams.get("finePaid")    === "true";
+  const fineWaived  = searchParams.get("fineWaived")  === "true";
   const search = searchParams.get("search") ?? "";
   const page = Math.max(1, Number(searchParams.get("page") ?? 1));
   const limit = Math.min(100, Number(searchParams.get("limit") ?? 20));
@@ -31,6 +33,8 @@ export async function GET(req: NextRequest) {
   const where = {
     ...(status ? { status: status as "ACTIVE" | "RETURNED" | "OVERDUE" | "LOST" } : {}),
     ...(fineUnpaid ? { fineAmount: { gt: 0 }, finePaid: false } : {}),
+    ...(finePaid   ? { fineAmount: { gt: 0 }, finePaid: true, fineWaived: false } : {}),
+    ...(fineWaived ? { fineWaived: true } : {}),
     ...(search ? {
       OR: [
         { book: { titleEn: { contains: search, mode: "insensitive" as const } } },

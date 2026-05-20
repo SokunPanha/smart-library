@@ -78,7 +78,7 @@ export async function PATCH(
 
     const updated = await prisma.loan.update({
       where: { id },
-      data: { finePaid: true, fineWaived: true, fineNote: parsed.data.fineNote ?? null },
+      data: { finePaid: true, fineWaived: true, finePaidAt: new Date(), fineNote: parsed.data.fineNote ?? null },
     });
 
     const bookTitle = loan.book.titleKh ?? loan.book.titleEn;
@@ -105,7 +105,7 @@ export async function PATCH(
 
     const updated = await prisma.loan.update({
       where: { id },
-      data: { finePaid: true },
+      data: { finePaid: true, finePaidAt: new Date() },
     });
 
     const bookTitle = loan.book.titleKh ?? loan.book.titleEn;

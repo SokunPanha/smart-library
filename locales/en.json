@@ -587,6 +587,16 @@
     }
   },
   "circulation": {
+    "stats": {
+      "active": "Active Loans",
+      "overdue": "Overdue",
+      "lost": "Lost (Unpaid)",
+      "unpaidFines": "Unpaid Fines",
+      "paidFines": "Fines Collected",
+      "week": "This Week",
+      "month": "This Month",
+      "custom": "Custom"
+    },
     "title": "Circulation",
     "checkout": "Check Out",
     "checkin": "Return Book",
@@ -678,6 +688,8 @@
     "renewError": "Failed to renew loan.",
     "renewals": "Renewed {count}×",
     "filterUnpaidFines": "Unpaid Fines",
+    "filterPaidFines": "Paid Fines",
+    "filterWaivedFines": "Waived Fines",
     "tabLoans": "Loans",
     "tabReservations": "Reservations",
     "reservation": {

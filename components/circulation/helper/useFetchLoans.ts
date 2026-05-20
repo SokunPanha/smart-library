@@ -27,11 +27,10 @@ interface LoansResponse {
 
 export function useFetchLoans(status: string, search: string, page: number) {
   const params = new URLSearchParams({ page: String(page), limit: "20" });
-  if (status === "UNPAID_FINE") {
-    params.set("fineUnpaid", "true");
-  } else if (status) {
-    params.set("status", status);
-  }
+  if (status === "UNPAID_FINE")  params.set("fineUnpaid",  "true");
+  else if (status === "PAID_FINE")   params.set("finePaid",    "true");
+  else if (status === "WAIVED_FINE") params.set("fineWaived",  "true");
+  else if (status) params.set("status", status);
   if (search) params.set("search", search);
 
   return useQuery({
