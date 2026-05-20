@@ -523,7 +523,12 @@
       "exit": "ចេញពីម៉ូតKiosk",
       "openKiosk": "ម៉ូត Kiosk",
       "selectPurpose": "តើអ្នកមកបណ្ណាល័យដើម្បីអ្វី?",
-      "cancel": "បោះបង់"
+      "cancel": "បោះបង់",
+      "topReaders": "អ្នកអានច្រើនបំផុតខែនេះ",
+      "topBooks": "សៀវភៅដែលខ្ចីច្រើនបំផុតខែនេះ",
+      "visits": "{count} ដង",
+      "borrows": "{count} ដង",
+      "noData": "មិនទាន់មានទិន្នន័យ"
     }
   },
   "reports": {

@@ -3,6 +3,52 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { logActivity } from "@/lib/activityLog";
 
+export async function GET() {
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const [readerGroups, loanGroups] = await Promise.all([
+    prisma.visitorLog.groupBy({
+      by: ["memberId"],
+      where: { arrivedAt: { gte: startOfMonth } },
+      _count: { memberId: true },
+      orderBy: { _count: { memberId: "desc" } },
+      take: 10,
+    }),
+    prisma.loan.groupBy({
+      by: ["bookId"],
+      where: { borrowedAt: { gte: startOfMonth } },
+      _count: { bookId: true },
+      orderBy: { _count: { bookId: "desc" } },
+      take: 10,
+    }),
+  ]);
+
+  const [members, books] = await Promise.all([
+    prisma.member.findMany({
+      where: { id: { in: readerGroups.map((r) => r.memberId) } },
+      select: { id: true, nameKh: true, nameEn: true, photo: true, class: { select: { name: true } } },
+    }),
+    prisma.book.findMany({
+      where: { id: { in: loanGroups.map((b) => b.bookId) } },
+      select: { id: true, titleKh: true, titleEn: true, coverImage: true, author: true },
+    }),
+  ]);
+
+  const memberMap = new Map(members.map((m) => [m.id, m]));
+  const bookMap = new Map(books.map((b) => [b.id, b]));
+
+  const topReaders = readerGroups
+    .map((g, i) => ({ rank: i + 1, ...memberMap.get(g.memberId), visitCount: g._count.memberId }))
+    .filter((r) => r.id);
+
+  const topBooks = loanGroups
+    .map((g, i) => ({ rank: i + 1, ...bookMap.get(g.bookId), borrowCount: g._count.bookId }))
+    .filter((b) => b.id);
+
+  return NextResponse.json({ topReaders, topBooks });
+}
+
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -24,6 +24,12 @@ body {
   to   { width: 0%; }
 }
 
+/* Kiosk leaderboard — seamless upward loop (content is doubled; -50% = one full list) */
+@keyframes kiosk-scroll-up {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+
 /* Remove AntD default focus glow to keep minimal look */
 .ant-btn:focus-visible,
 .ant-input:focus-visible {

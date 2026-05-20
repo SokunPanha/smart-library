@@ -523,7 +523,12 @@
       "exit": "Exit Kiosk",
       "openKiosk": "Kiosk Mode",
       "selectPurpose": "Why are you visiting the library today?",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "topReaders": "Top Readers This Month",
+      "topBooks": "Most Borrowed This Month",
+      "visits": "{count} visits",
+      "borrows": "{count} borrows",
+      "noData": "No data yet"
     }
   },
   "reports": {
