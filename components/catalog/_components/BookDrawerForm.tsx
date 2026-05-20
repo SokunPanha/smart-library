@@ -22,6 +22,7 @@ function CoverUpload() {
 
   const formValue = Form.useWatch("coverImage", form);
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPreviewUrl(formValue ?? null);
     if (!formValue) setSessionPublicId(null);
   }, [formValue]);

@@ -128,9 +128,13 @@ export function QRScanModal({ open, onClose, onCheckout, onReturn }: Props) {
   useEffect(() => {
     if (!open) {
       stopScanner();
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setBooks([]);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMember(null);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDueAt(null);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setError(null);
       lockRef.current = false;
       return;

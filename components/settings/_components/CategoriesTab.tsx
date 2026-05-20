@@ -30,7 +30,9 @@ function CreateCategoryModal({ open, onClose }: { open: boolean; onClose: () => 
 
   useEffect(() => {
     if (!open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setBulkText("");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTab("single");
     }
   }, [open]);

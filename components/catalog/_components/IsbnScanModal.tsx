@@ -104,6 +104,7 @@ export function IsbnScanModal({ open, onClose, onScanned }: Props) {
     if (!open) {
       stopScanner();
       lockRef.current = false;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFound(null);
       setErrorMsg(null);
       setState("scanning");

@@ -74,6 +74,7 @@ export function MemberQRModal({ member, onClose }: Props) {
   const [cardTitle, setCardTitle] = useState("");
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (libraryName) setCardTitle(libraryName);
   }, [libraryName]);
 

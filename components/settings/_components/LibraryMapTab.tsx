@@ -75,8 +75,11 @@ export function LibraryMapTab() {
 
   useEffect(() => {
     if (!mapData) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCells(mapData.cells ?? []);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setRows(mapData.rows);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCols(mapData.cols);
   }, [mapData]);
 

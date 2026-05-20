@@ -101,7 +101,10 @@ export async function POST(req: NextRequest) {
 
   const loanDaysKey = `loanDays${member.type.charAt(0) + member.type.slice(1).toLowerCase()}`;
   const days = Number(settingsMap[loanDaysKey] ?? LOAN_DAYS_DEFAULT[member.type] ?? 14);
-  const dueAt = parsed.data.dueAt
+
+  const role = (session.user as { role?: string }).role;
+  const canOverrideDueDate = role === "ADMIN" || role === "LIBRARIAN";
+  const dueAt = (parsed.data.dueAt && canOverrideDueDate)
     ? new Date(parsed.data.dueAt)
     : new Date(Date.now() + days * 86400000);
 

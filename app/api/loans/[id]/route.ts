@@ -219,7 +219,9 @@ export async function PATCH(
 
   const now = new Date();
   const overdueDays = Math.max(0, Math.floor((now.getTime() - loan.dueAt.getTime()) / 86400000));
-  const fineAmount = overdueDays * FINE_PER_DAY_KHR;
+  const fineSetting = await prisma.setting.findFirst({ where: { key: "finePerDay" } });
+  const finePerDay = Math.max(0, Number(fineSetting?.value ?? FINE_PER_DAY_KHR));
+  const fineAmount = overdueDays * finePerDay;
 
   const [updatedLoan] = await prisma.$transaction([
     prisma.loan.update({
