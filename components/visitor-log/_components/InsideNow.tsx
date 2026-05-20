@@ -1,12 +1,15 @@
 "use client";
 
-import { Tag, Spin, Button, App, Avatar, Image } from "antd";
+import { Table, Tag, Button, App, Avatar, Image } from "antd";
 import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import dayjs from "dayjs";
 import { apiFetch } from "@/lib/request";
 import { PURPOSE_COLOR } from "../constants";
+import { useTableScroll } from "@/lib/hooks";
+import type { ColumnsType } from "antd/es/table";
+import { useState } from "react";
 
 interface VisitorLog {
   id: string;
@@ -26,6 +29,8 @@ export function InsideNow() {
   const t = useTranslations("visitorLog");
   const { message } = App.useApp();
   const qc = useQueryClient();
+  const [pageSize, setPageSize] = useState(20);
+  const { ref: tableRef, scrollY } = useTableScroll();
 
   const { data, isLoading } = useQuery({
     queryKey: ["visitor-log", "open"],
@@ -43,64 +48,115 @@ export function InsideNow() {
     onError: (e: Error) => message.error(e.message),
   });
 
-  if (isLoading) return <Spin />;
-
   const logs = data?.logs ?? [];
 
-  if (logs.length === 0) return <p className="text-sm text-slate-300 py-4">{t("insideEmpty")}</p>;
+  const columns: ColumnsType<VisitorLog> = [
+    {
+      title: t("colMember"),
+      key: "member",
+      render: (_, row) => (
+        <div className="flex items-center gap-2">
+          {row.member.photo ? (
+            <Image
+              src={row.member.photo}
+              alt=""
+              width={36}
+              height={36}
+              className="rounded-full object-cover flex-shrink-0"
+              style={{ borderRadius: "50%" }}
+              preview={{ mask: false }}
+            />
+          ) : (
+            <Avatar size={36} icon={<UserOutlined />} className="bg-slate-100 text-slate-400 flex-shrink-0" />
+          )}
+          <div>
+            <p className="font-medium text-slate-800 text-sm leading-snug">{row.member.nameKh ?? row.member.nameEn}</p>
+            <div className="flex gap-1 mt-0.5 flex-wrap">
+              <span className="text-xs text-slate-400">{row.member.memberId}</span>
+              {row.member.class && (
+                <Tag className="border-0 text-xs bg-indigo-50 text-indigo-600">{row.member.class.name}</Tag>
+              )}
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: t("purpose"),
+      key: "purpose",
+      width: 120,
+      render: (_, row) => (
+        <Tag color={PURPOSE_COLOR[row.purpose] ?? "default"} className="border-0 text-xs">
+          {t(`purposes.${row.purpose}`)}
+        </Tag>
+      ),
+    },
+    {
+      title: t("arrivedAt"),
+      key: "arrivedAt",
+      width: 100,
+      render: (_, row) => (
+        <span className="text-xs font-mono text-slate-500">{dayjs(row.arrivedAt).format("HH:mm")}</span>
+      ),
+    },
+    {
+      title: t("colDuration"),
+      key: "elapsed",
+      width: 80,
+      render: (_, row) => (
+        <span className="text-xs font-mono text-green-600">{elapsed(row.arrivedAt)}</span>
+      ),
+    },
+    {
+      title: t("booksRead"),
+      key: "books",
+      render: (_, row) => (
+        <div className="space-y-0.5">
+          {row.books.map(({ book }) => (
+            <p key={book.id} className="text-xs text-slate-600">📖 {book.titleKh ?? book.titleEn}</p>
+          ))}
+          {row.books.length === 0 && <span className="text-slate-300 text-xs">—</span>}
+        </div>
+      ),
+    },
+    {
+      title: "",
+      key: "actions",
+      width: 100,
+      render: (_, row) => (
+        <Button
+          size="small"
+          danger
+          icon={<LogoutOutlined />}
+          loading={checkoutMutation.isPending}
+          onClick={() => checkoutMutation.mutate(row.id)}
+        >
+          {t("checkOut")}
+        </Button>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-2">
       <p className="text-xs text-slate-400">{t("insideNow", { count: logs.length })}</p>
-      <div className="divide-y divide-slate-100">
-        {logs.map((log) => (
-          <div key={log.id} className="flex items-center gap-3 py-2 flex-wrap">
-            {log.member.photo ? (
-              <Image
-                src={log.member.photo}
-                alt=""
-                width={36}
-                height={36}
-                className="rounded-full object-cover flex-shrink-0"
-                style={{ borderRadius: "50%" }}
-                preview={{ mask: false }}
-              />
-            ) : (
-              <Avatar size={36} icon={<UserOutlined />} className="bg-slate-100 text-slate-400 flex-shrink-0" />
-            )}
-            <div className="flex-1 min-w-[160px]">
-              <p className="font-medium text-slate-800 text-sm leading-snug">
-                {log.member.nameKh ?? log.member.nameEn}
-              </p>
-              <div className="flex gap-1 mt-0.5 flex-wrap">
-                <span className="text-xs text-slate-400">{log.member.memberId}</span>
-                {log.member.class && (
-                  <Tag className="border-0 text-xs bg-indigo-50 text-indigo-600">{log.member.class.name}</Tag>
-                )}
-              </div>
-              {log.books.length > 0 && (
-                <div className="mt-0.5 flex flex-wrap gap-1">
-                  {log.books.map(({ book }) => (
-                    <span key={book.id} className="text-xs text-slate-400">📖 {book.titleKh ?? book.titleEn}</span>
-                  ))}
-                </div>
-              )}
-            </div>
-            <Tag color={PURPOSE_COLOR[log.purpose] ?? "default"} className="border-0 text-xs">
-              {t(`purposes.${log.purpose}`)}
-            </Tag>
-            <span className="text-xs text-slate-400 font-mono">{elapsed(log.arrivedAt)}</span>
-            <Button
-              size="small"
-              danger
-              icon={<LogoutOutlined />}
-              loading={checkoutMutation.isPending}
-              onClick={() => checkoutMutation.mutate(log.id)}
-            >
-              {t("checkOut")}
-            </Button>
-          </div>
-        ))}
+      <div ref={tableRef}>
+        <Table
+          dataSource={logs}
+          columns={columns}
+          rowKey="id"
+          loading={isLoading}
+          size="small"
+          pagination={{
+            pageSize,
+            onShowSizeChange: (_, size) => setPageSize(size),
+            showSizeChanger: true,
+            pageSizeOptions: ["10", "20", "50", "100"],
+            hideOnSinglePage: false,
+          }}
+          scroll={{ x: "max-content", y: scrollY }}
+          locale={{ emptyText: t("insideEmpty") }}
+        />
       </div>
     </div>
   );

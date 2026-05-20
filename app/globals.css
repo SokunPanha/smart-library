@@ -18,6 +18,12 @@ body {
   color: #0f172a;
 }
 
+/* Kiosk progress bar dismiss animation */
+@keyframes shrink {
+  from { width: 100%; }
+  to   { width: 0%; }
+}
+
 /* Remove AntD default focus glow to keep minimal look */
 .ant-btn:focus-visible,
 .ant-input:focus-visible {

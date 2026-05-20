@@ -10,6 +10,7 @@ import { apiFetch } from "@/lib/request";
 import type { ColumnsType } from "antd/es/table";
 import { LinkBookModal } from "./LinkBookModal";
 import { PURPOSE_COLOR } from "../constants";
+import { useTableScroll } from "@/lib/hooks";
 
 const { RangePicker } = DatePicker;
 
@@ -38,12 +39,14 @@ interface Props {
 export function VisitorTable({ todayOnly }: Props) {
   const t = useTranslations("visitorLog");
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   const [search, setSearch] = useState("");
   const [purpose, setPurpose] = useState("");
   const [dateRange, setDateRange] = useState<[string, string] | null>(null);
   const [linkingLog, setLinkingLog] = useState<VisitorLog | null>(null);
+  const { ref: tableRef, scrollY } = useTableScroll();
 
-  const params = new URLSearchParams({ page: String(page), limit: "50" });
+  const params = new URLSearchParams({ page: String(page), limit: String(pageSize) });
   if (todayOnly) params.set("todayOnly", "true");
   if (search) params.set("search", search);
   if (purpose) params.set("purpose", purpose);
@@ -53,7 +56,7 @@ export function VisitorTable({ todayOnly }: Props) {
   }
 
   const { data, isLoading } = useQuery({
-    queryKey: ["visitor-log", todayOnly ? "today" : "history", page, search, purpose, dateRange],
+    queryKey: ["visitor-log", todayOnly ? "today" : "history", page, pageSize, search, purpose, dateRange],
     queryFn: () => apiFetch<{ logs: VisitorLog[]; total: number }>(`/api/visitor-log?${params}`),
     refetchInterval: todayOnly ? 30_000 : false,
   });
@@ -187,22 +190,26 @@ export function VisitorTable({ todayOnly }: Props) {
 
       <p className="text-xs text-slate-400">{t("total", { total: data?.total ?? 0 })}</p>
 
-      <Table
-        dataSource={data?.logs ?? []}
-        columns={columns}
-        rowKey="id"
-        loading={isLoading}
-        size="small"
-        pagination={{
-          current: page,
-          pageSize: 50,
-          total: data?.total ?? 0,
-          onChange: setPage,
-          showSizeChanger: false,
-        }}
-        scroll={{ x: true }}
-        locale={{ emptyText: todayOnly ? t("todayEmpty") : t("empty") }}
-      />
+      <div ref={tableRef}>
+        <Table
+          dataSource={data?.logs ?? []}
+          columns={columns}
+          rowKey="id"
+          loading={isLoading}
+          size="small"
+          pagination={{
+            current: page,
+            pageSize,
+            total: data?.total ?? 0,
+            onChange: (p) => setPage(p),
+            onShowSizeChange: (_, size) => { setPageSize(size); setPage(1); },
+            showSizeChanger: true,
+            pageSizeOptions: ["10", "20", "50", "100"],
+          }}
+          scroll={{ x: "max-content", y: scrollY }}
+          locale={{ emptyText: todayOnly ? t("todayEmpty") : t("empty") }}
+        />
+      </div>
 
       {linkingLog && (
         <LinkBookModal

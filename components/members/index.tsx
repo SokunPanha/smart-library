@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Table, Button, Input, Space, Modal } from "antd";
+import { Table, Button, Input, Space, App } from "antd";
 import { PlusOutlined, SearchOutlined, PrinterOutlined, ImportOutlined } from "@ant-design/icons";
 import { QRCodeSVG } from "qrcode.react";
 import { useTranslations } from "next-intl";
@@ -21,6 +21,7 @@ import { apiFetch } from "@/lib/request";
 function MembersPageInner() {
   const ctx = useMembersContext();
   const actions = useMembers();
+  const { modal } = App.useApp();
 
   const [inputVal, setInputVal] = useState("");
   const search = useDebounce(inputVal, 400);
@@ -80,7 +81,7 @@ function MembersPageInner() {
   function handleBulkPrint() {
     if (selectedMembers.length === 0) return;
     let title = libraryName;
-    Modal.confirm({
+    modal.confirm({
       title: t("members.cardTitle"),
       content: (
         <Input

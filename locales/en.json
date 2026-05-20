@@ -494,6 +494,24 @@
       "individualPurposeRequired": "{name} needs a purpose",
       "result": "{success} checked in{failed}",
       "resultFailed": ", {count} failed"
+    },
+    "kiosk": {
+      "schoolName": "Hun Sen Kchao High School",
+      "libraryName": "School Library",
+      "instruction": "Scan your member QR card",
+      "welcomeMessage": "Welcome! ✓",
+      "goodbyeMessage": "Goodbye! See you next time",
+      "memberNotFound": "Member not found",
+      "error": "An error occurred. Please try again.",
+      "insideCount": "{count} people inside",
+      "noOneInside": "No one inside",
+      "duration": "Time spent",
+      "minutes": "min",
+      "hours": "hr",
+      "exit": "Exit Kiosk",
+      "openKiosk": "Kiosk Mode",
+      "selectPurpose": "Why are you visiting the library today?",
+      "cancel": "Cancel"
     }
   },
   "reports": {

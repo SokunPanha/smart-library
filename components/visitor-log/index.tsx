@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { Button, Tabs } from "antd";
-import { QrcodeOutlined } from "@ant-design/icons";
+import { QrcodeOutlined, ExpandOutlined } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
+import { useParams } from "next/navigation";
 import { CheckInPanel } from "./_components/CheckInPanel";
 import { BulkCheckInModal } from "./_components/BulkCheckInModal";
 import { InsideNow } from "./_components/InsideNow";
@@ -14,6 +15,8 @@ import { useQueryClient } from "@tanstack/react-query";
 export default function VisitorLogPage() {
   const t = useTranslations("visitorLog");
   const qc = useQueryClient();
+  const params = useParams();
+  const locale = params.locale as string;
   const [activeTab, setActiveTab] = useState("today");
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
@@ -27,6 +30,12 @@ export default function VisitorLogPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold text-slate-800">{t("title")}</h1>
         <div className="flex gap-2">
+          <Button
+            icon={<ExpandOutlined />}
+            onClick={() => window.open(`/${locale}/visitor-log/kiosk`, "_blank")}
+          >
+            {t("kiosk.openKiosk")}
+          </Button>
           <Button
             icon={<QrcodeOutlined />}
             onClick={() => setBulkOpen(true)}

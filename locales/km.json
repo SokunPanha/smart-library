@@ -494,6 +494,24 @@
       "individualPurposeRequired": "{name} ត្រូវការគោលបំណង",
       "result": "បានកត់ត្រាការចូល {success} នាក់{failed}",
       "resultFailed": " បានបរាជ័យ {count} នាក់"
+    },
+    "kiosk": {
+      "schoolName": "វិទ្យាល័យ ហ៊ុនសែនខ្ចៅ",
+      "libraryName": "បណ្ណាល័យសាលា",
+      "instruction": "ស្កេនកាតសមាជិករបស់អ្នក",
+      "welcomeMessage": "ស្វាគមន៍! ✓",
+      "goodbyeMessage": "លា​ហើយ! សូមបន្តជោគជ័យ",
+      "memberNotFound": "រកមិនឃើញសមាជិក",
+      "error": "មានបញ្ហា។ សូមព្យាយាមម្តងទៀត",
+      "insideCount": "មាន {count} នាក់ក្នុងបណ្ណាល័យ",
+      "noOneInside": "គ្មាននរណាក្នុងបណ្ណាល័យ",
+      "duration": "រយៈពេលស្នាក់នៅ",
+      "minutes": "នាទី",
+      "hours": "ម៉ោង",
+      "exit": "ចេញពីម៉ូតKiosk",
+      "openKiosk": "ម៉ូត Kiosk",
+      "selectPurpose": "តើអ្នកមកបណ្ណាល័យដើម្បីអ្វី?",
+      "cancel": "បោះបង់"
     }
   },
   "reports": {
