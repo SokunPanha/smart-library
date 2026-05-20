@@ -260,7 +260,7 @@ export function LibraryMapTab() {
                 placeholder={t("cabinetSelectPlaceholder")}
                 optionFilterProp="label"
                 options={cabinetOptions}
-                dropdownRender={(menu) => (
+                popupRender={(menu) => (
                   <>
                     {menu}
                     <div className="px-3 py-2 border-t border-slate-100">

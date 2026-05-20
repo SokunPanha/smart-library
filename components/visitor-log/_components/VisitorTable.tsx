@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Table, Tag, Input, Select, DatePicker, Button, Tooltip } from "antd";
-import { BookOutlined } from "@ant-design/icons";
+import { Table, Tag, Input, Select, DatePicker, Button, Tooltip, Avatar, Image } from "antd";
+import { BookOutlined, UserOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import dayjs from "dayjs";
@@ -20,7 +20,7 @@ interface VisitorLog {
   leftAt: string | null;
   note: string | null;
   recordedBy: string;
-  member: { id: string; memberId: string; nameKh: string | null; nameEn: string | null; type: string; class?: { name: string } | null };
+  member: { id: string; memberId: string; nameKh: string | null; nameEn: string | null; type: string; photo: string | null; class?: { name: string } | null };
   books: { book: { id: string; titleKh: string | null; titleEn: string | null } }[];
 }
 
@@ -82,13 +82,28 @@ export function VisitorTable({ todayOnly }: Props) {
       title: t("colMember"),
       key: "member",
       render: (_, row) => (
-        <div>
-          <p className="font-medium text-slate-800 text-sm leading-snug">{row.member.nameKh ?? row.member.nameEn}</p>
-          <div className="flex gap-1 mt-0.5 flex-wrap">
-            <span className="text-xs text-slate-400">{row.member.memberId}</span>
-            {row.member.class && (
-              <Tag className="border-0 text-xs bg-indigo-50 text-indigo-600">{row.member.class.name}</Tag>
-            )}
+        <div className="flex items-center gap-2">
+          {row.member.photo ? (
+            <Image
+              src={row.member.photo}
+              alt=""
+              width={32}
+              height={32}
+              className="rounded-full object-cover flex-shrink-0"
+              style={{ borderRadius: "50%" }}
+              preview={{ mask: false }}
+            />
+          ) : (
+            <Avatar size={32} icon={<UserOutlined />} className="bg-slate-100 text-slate-400 flex-shrink-0" />
+          )}
+          <div>
+            <p className="font-medium text-slate-800 text-sm leading-snug">{row.member.nameKh ?? row.member.nameEn}</p>
+            <div className="flex gap-1 mt-0.5 flex-wrap">
+              <span className="text-xs text-slate-400">{row.member.memberId}</span>
+              {row.member.class && (
+                <Tag className="border-0 text-xs bg-indigo-50 text-indigo-600">{row.member.class.name}</Tag>
+              )}
+            </div>
           </div>
         </div>
       ),

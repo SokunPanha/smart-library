@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { Table, Button, Input, Space } from "antd";
-import { PlusOutlined, SearchOutlined, PrinterOutlined } from "@ant-design/icons";
+import { PlusOutlined, SearchOutlined, PrinterOutlined, ImportOutlined } from "@ant-design/icons";
 import { QRCodeSVG } from "qrcode.react";
 import { useTranslations } from "next-intl";
 import { MembersProvider, useMembersContext } from "./helper/hooks";
@@ -11,6 +11,7 @@ import { useMembers } from "./helper/useMembers";
 import { buildMemberColumns } from "./_components/Columns";
 import { CreateMemberDrawer, EditMemberDrawer } from "./_components/MemberDrawerForm";
 import { MemberQRModal } from "./_components/MemberQRModal";
+import { MemberBulkImportModal } from "./_components/BulkImportModal";
 import type { Member } from "./helper/useFetchMembers";
 import { useDebounce, useTableScroll } from "@/lib/hooks";
 
@@ -22,6 +23,7 @@ function MembersPageInner() {
   const search = useDebounce(inputVal, 400);
   const [qrMember, setQrMember] = useState<Member | null>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [importOpen, setImportOpen] = useState(false);
   const bulkQRRef = useRef<HTMLDivElement>(null);
 
   const t = useTranslations();
@@ -89,6 +91,9 @@ function MembersPageInner() {
               {` (${selectedRowKeys.length})`}
             </Button>
           )}
+          <Button icon={<ImportOutlined />} onClick={() => setImportOpen(true)}>
+            <span className="hidden sm:inline">{t("members.bulkImport.title")}</span>
+          </Button>
           <Button type="primary" icon={<PlusOutlined />} onClick={() => ctx.createForm.open()}>
             <span className="hidden sm:inline">{t("members.addMember")}</span>
           </Button>
@@ -140,6 +145,11 @@ function MembersPageInner() {
       <CreateMemberDrawer />
       <EditMemberDrawer />
       <MemberQRModal member={qrMember} onClose={() => setQrMember(null)} />
+      <MemberBulkImportModal
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        onSuccess={() => ctx.table.reload()}
+      />
     </div>
   );
 }

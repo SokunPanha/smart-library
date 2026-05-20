@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Table, Button, Select, Input, Space, App, Tabs, Badge } from "antd";
 import { PlusOutlined, QrcodeOutlined, SearchOutlined } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
@@ -61,6 +61,12 @@ function CirculationPageInner() {
   const { data: settings } = useFetchSettings();
   const maxRenewals = Number(settings?.maxRenewalsPerLoan ?? 2);
   const { ref: tableRef, scrollY } = useTableScroll();
+  useEffect(() => {
+    apiFetch<{ marked: number }>("/api/loans/mark-overdue", { method: "POST" })
+      .then(({ marked }) => { if (marked > 0) ctx.table.reload(); })
+      .catch(() => {});
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const { data: reservationMeta } = useQuery({
     queryKey: ["reservations", "FULFILLED", "", 1],
     queryFn: () => apiFetch<{ total: number }>("/api/reservations?status=FULFILLED&limit=1"),

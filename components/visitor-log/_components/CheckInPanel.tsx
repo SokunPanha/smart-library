@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Button, Input, Tag, App, Spin } from "antd";
-import { QrcodeOutlined, BookOutlined, CloseOutlined, LoginOutlined, LogoutOutlined } from "@ant-design/icons";
+import { Button, Input, Tag, App, Spin, Avatar, Image } from "antd";
+import { QrcodeOutlined, BookOutlined, CloseOutlined, LoginOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/request";
 import { QrScanner } from "./QrScanner";
@@ -14,6 +14,7 @@ interface MemberInfo {
   nameKh: string | null;
   nameEn: string | null;
   type: string;
+  photo?: string | null;
   class?: { name: string } | null;
 }
 
@@ -143,7 +144,20 @@ export function CheckInPanel({ onCheckedIn }: { onCheckedIn: () => void }) {
         {resolving && <Spin className="mt-2" />}
 
         {member && (
-          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 flex-1 min-w-[200px]">
+          <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 flex-1 min-w-[200px]">
+            {member.photo ? (
+              <Image
+                src={member.photo}
+                alt=""
+                width={40}
+                height={40}
+                className="rounded-full object-cover flex-shrink-0"
+                style={{ borderRadius: "50%" }}
+                preview={{ mask: false }}
+              />
+            ) : (
+              <Avatar size={40} icon={<UserOutlined />} className="bg-slate-200 text-slate-500 flex-shrink-0" />
+            )}
             <div className="flex-1">
               <p className="font-medium text-slate-800 leading-snug">{member.nameKh ?? member.nameEn}</p>
               {member.nameKh && member.nameEn && <p className="text-xs text-slate-400">{member.nameEn}</p>}

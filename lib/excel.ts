@@ -30,6 +30,94 @@ export function downloadBookTemplate() {
   XLSX.writeFile(wb, "book-import-template.xlsx");
 }
 
+export const MEMBER_IMPORT_COLUMNS = [
+  "Name (KH)",
+  "Name (EN)",
+  "Member ID",
+  "Type (STUDENT/TEACHER/PUBLIC/RESEARCHER)",
+  "Class",
+  "Phone",
+  "Email",
+  "Expires At (YYYY-MM-DD)",
+] as const;
+
+export function downloadMemberTemplate() {
+  const ws = XLSX.utils.aoa_to_sheet([[...MEMBER_IMPORT_COLUMNS]]);
+  ws["!cols"] = MEMBER_IMPORT_COLUMNS.map(() => ({ wch: 26 }));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Members");
+  XLSX.writeFile(wb, "member-import-template.xlsx");
+}
+
+export type MemberImportRow = {
+  nameKh: string | null;
+  nameEn: string | null;
+  memberId: string | null;
+  type: "STUDENT" | "TEACHER" | "PUBLIC" | "RESEARCHER";
+  className: string | null;
+  phone: string | null;
+  email: string | null;
+  expiresAt: string | null;
+  _row: number;
+  _error: string | null;
+};
+
+const VALID_TYPES = new Set(["STUDENT", "TEACHER", "PUBLIC", "RESEARCHER"]);
+
+export function parseMemberImportFile(file: File): Promise<MemberImportRow[]> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target!.result as ArrayBuffer);
+        const wb = XLSX.read(data, { type: "array" });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const raw = XLSX.utils.sheet_to_json<Record<string, unknown>>(ws, { defval: "" });
+
+        const rows: MemberImportRow[] = raw.map((r, i) => {
+          const get = (key: string) => {
+            const val = r[key];
+            return val != null && String(val).trim() !== "" ? String(val).trim() : null;
+          };
+
+          const nameKh = get("Name (KH)");
+          const nameEn = get("Name (EN)");
+          const typeRaw = (get("Type (STUDENT/TEACHER/PUBLIC/RESEARCHER)") ?? "STUDENT").toUpperCase();
+          const type = VALID_TYPES.has(typeRaw) ? (typeRaw as MemberImportRow["type"]) : "STUDENT";
+
+          const expiresRaw = get("Expires At (YYYY-MM-DD)");
+          let expiresAt: string | null = null;
+          if (expiresRaw) {
+            const d = new Date(expiresRaw);
+            expiresAt = isNaN(d.getTime()) ? null : d.toISOString();
+          }
+
+          const error = !nameKh && !nameEn ? "Name (KH) or Name (EN) is required" : null;
+
+          return {
+            nameKh,
+            nameEn,
+            memberId: get("Member ID"),
+            type,
+            className: get("Class"),
+            phone: get("Phone"),
+            email: get("Email"),
+            expiresAt,
+            _row: i + 2,
+            _error: error,
+          };
+        });
+
+        resolve(rows);
+      } catch (err) {
+        reject(err);
+      }
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
 export type BookImportRow = {
   titleKh: string | null;
   titleEn: string | null;

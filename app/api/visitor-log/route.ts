@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
       take: limit,
       orderBy: { arrivedAt: "desc" },
       include: {
-        member: { select: { id: true, memberId: true, nameKh: true, nameEn: true, type: true, class: { select: { name: true } } } },
+        member: { select: { id: true, memberId: true, nameKh: true, nameEn: true, type: true, photo: true, class: { select: { name: true } } } },
         ...bookInclude,
       },
     }),
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
         : undefined,
     },
     include: {
-      member: { select: { id: true, memberId: true, nameKh: true, nameEn: true, type: true, class: { select: { name: true } } } },
+      member: { select: { id: true, memberId: true, nameKh: true, nameEn: true, type: true, photo: true, class: { select: { name: true } } } },
       ...bookInclude,
     },
   });

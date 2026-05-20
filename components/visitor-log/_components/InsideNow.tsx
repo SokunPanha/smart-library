@@ -1,7 +1,7 @@
 "use client";
 
-import { Tag, Spin, Button, App } from "antd";
-import { LogoutOutlined } from "@ant-design/icons";
+import { Tag, Spin, Button, App, Avatar, Image } from "antd";
+import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import dayjs from "dayjs";
@@ -12,7 +12,7 @@ interface VisitorLog {
   id: string;
   purpose: string;
   arrivedAt: string;
-  member: { id: string; memberId: string; nameKh: string | null; nameEn: string | null; type: string; class?: { name: string } | null };
+  member: { id: string; memberId: string; nameKh: string | null; nameEn: string | null; type: string; photo: string | null; class?: { name: string } | null };
   books: { book: { id: string; titleKh: string | null; titleEn: string | null } }[];
 }
 
@@ -55,6 +55,19 @@ export function InsideNow() {
       <div className="divide-y divide-slate-100">
         {logs.map((log) => (
           <div key={log.id} className="flex items-center gap-3 py-2 flex-wrap">
+            {log.member.photo ? (
+              <Image
+                src={log.member.photo}
+                alt=""
+                width={36}
+                height={36}
+                className="rounded-full object-cover flex-shrink-0"
+                style={{ borderRadius: "50%" }}
+                preview={{ mask: false }}
+              />
+            ) : (
+              <Avatar size={36} icon={<UserOutlined />} className="bg-slate-100 text-slate-400 flex-shrink-0" />
+            )}
             <div className="flex-1 min-w-[160px]">
               <p className="font-medium text-slate-800 text-sm leading-snug">
                 {log.member.nameKh ?? log.member.nameEn}
