@@ -465,7 +465,12 @@
     "searchBooksPlaceholder": "Search by title, ISBN…",
     "colDuration": "Duration",
     "colMember": "Member",
-    "insideNowTab": "Inside Now"
+    "insideNowTab": "Inside Now",
+    "stats": {
+      "insideNow": "Inside Now",
+      "todayTotal": "Today's Visitors",
+      "todayByPurpose": "Today by Purpose"
+    }
   },
   "reports": {
     "title": "Reports",

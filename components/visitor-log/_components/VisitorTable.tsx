@@ -152,7 +152,7 @@ export function VisitorTable({ todayOnly }: Props) {
   return (
     <div className="space-y-3">
       {/* Filters */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex w-3/6 gap-2">
         <Input
           placeholder={t("searchPlaceholder")}
           value={search}

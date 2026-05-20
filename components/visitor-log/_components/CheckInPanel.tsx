@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { Button, Input, Tag, App, Spin, Avatar, Image } from "antd";
+import { useState } from "react";
+import { Button, Input, Tag, App, Spin, Avatar, Image, Modal } from "antd";
 import { QrcodeOutlined, BookOutlined, CloseOutlined, LoginOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/request";
@@ -29,7 +29,13 @@ interface OpenVisit {
   arrivedAt: string;
 }
 
-export function CheckInPanel({ onCheckedIn }: { onCheckedIn: () => void }) {
+interface Props {
+  open: boolean;
+  onClose: () => void;
+  onCheckedIn: () => void;
+}
+
+export function CheckInPanel({ open, onClose, onCheckedIn }: Props) {
   const t = useTranslations("visitorLog");
   const { message } = App.useApp();
 
@@ -108,7 +114,7 @@ export function CheckInPanel({ onCheckedIn }: { onCheckedIn: () => void }) {
         message.success(t("checkinSuccess"));
       }
       onCheckedIn();
-      reset();
+      handleClose();
     } catch (e: unknown) {
       message.error(e instanceof Error ? e.message : "Error");
     } finally {
@@ -122,137 +128,148 @@ export function CheckInPanel({ onCheckedIn }: { onCheckedIn: () => void }) {
     setBooks([]);
     setPurpose(null);
     setNote("");
+    setScannerTarget(null);
+  }
+
+  function handleClose() {
+    reset();
+    onClose();
   }
 
   const isCheckout = !!openVisit;
   const canSubmit = !!member && (isCheckout || !!purpose);
 
   return (
-    <div className="bg-white border border-slate-100 rounded-lg p-4 space-y-4">
-      {/* Member scan */}
-      <div className="flex flex-wrap gap-2 items-start">
-        <Button
-          icon={<QrcodeOutlined />}
-          onClick={() => setScannerTarget("member")}
-          type={member ? "default" : "primary"}
-          size="large"
-          className="flex-shrink-0"
-        >
-          {t("scanMember")}
-        </Button>
+    <>
+      <Modal
+        open={open}
+        onCancel={handleClose}
+        title={t("scanMember")}
+        width={480}
+        destroyOnHidden
+        footer={
+          member ? (
+            <Button
+              type="primary"
+              size="large"
+              icon={isCheckout ? <LogoutOutlined /> : <LoginOutlined />}
+              loading={loading}
+              disabled={!canSubmit}
+              onClick={handleSubmit}
+              danger={isCheckout}
+              block
+            >
+              {isCheckout ? t("checkOut") : t("checkIn")}
+            </Button>
+          ) : null
+        }
+      >
+        <div className="space-y-4 py-2">
+          {/* Member scan */}
+          <div className="flex flex-wrap gap-2 items-start">
+            <Button
+              icon={<QrcodeOutlined />}
+              onClick={() => setScannerTarget("member")}
+              type={member ? "default" : "primary"}
+            >
+              {t("scanMember")}
+            </Button>
 
-        {resolving && <Spin className="mt-2" />}
+            {resolving && <Spin className="mt-1" />}
 
-        {member && (
-          <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 flex-1 min-w-[200px]">
-            {member.photo ? (
-              <Image
-                src={member.photo}
-                alt=""
-                width={40}
-                height={40}
-                className="rounded-full object-cover flex-shrink-0"
-                style={{ borderRadius: "50%" }}
-                preview={{ mask: false }}
-              />
-            ) : (
-              <Avatar size={40} icon={<UserOutlined />} className="bg-slate-200 text-slate-500 flex-shrink-0" />
-            )}
-            <div className="flex-1">
-              <p className="font-medium text-slate-800 leading-snug">{member.nameKh ?? member.nameEn}</p>
-              {member.nameKh && member.nameEn && <p className="text-xs text-slate-400">{member.nameEn}</p>}
-              <div className="flex gap-1 mt-1 flex-wrap">
-                <Tag className="border-0 text-xs bg-slate-100 text-slate-500">{member.memberId}</Tag>
-                {member.class && (
-                  <Tag className="border-0 text-xs bg-indigo-50 text-indigo-600">{member.class.name}</Tag>
+            {member && (
+              <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 flex-1 min-w-[200px]">
+                {member.photo ? (
+                  <Image
+                    src={member.photo}
+                    alt=""
+                    width={40}
+                    height={40}
+                    className="rounded-full object-cover flex-shrink-0"
+                    style={{ borderRadius: "50%" }}
+                    preview={{ mask: false }}
+                  />
+                ) : (
+                  <Avatar size={40} icon={<UserOutlined />} className="bg-slate-200 text-slate-500 flex-shrink-0" />
                 )}
-                {isCheckout && <Tag color="orange" className="border-0 text-xs">{t("open")}</Tag>}
-              </div>
-            </div>
-            <Button type="text" size="small" icon={<CloseOutlined />} onClick={reset} />
-          </div>
-        )}
-      </div>
-
-      {/* Only show purpose + books if checking in */}
-      {member && !isCheckout && (
-        <>
-          {/* Purpose chips */}
-          <div>
-            <p className="text-xs text-slate-500 mb-2">{t("purpose")}</p>
-            <div className="flex flex-wrap gap-2">
-              {PURPOSES.map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setPurpose(p)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
-                    purpose === p
-                      ? "bg-blue-500 border-blue-500 text-white"
-                      : "bg-white border-slate-300 text-slate-600 hover:border-blue-400"
-                  }`}
-                >
-                  {t(`purposes.${p}`)}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Book scan — multiple */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Button icon={<BookOutlined />} size="small" onClick={() => setScannerTarget("book")}>
-                {t("scanBookOptional")}
-              </Button>
-              {books.length > 0 && (
-                <span className="text-xs text-slate-400">{t("booksRead")}: {books.length}</span>
-              )}
-            </div>
-            {books.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {books.map((b) => (
-                  <span
-                    key={b.id}
-                    className="flex items-center gap-1 bg-blue-50 border border-blue-100 rounded px-2 py-0.5 text-xs text-blue-700"
-                  >
-                    {b.titleKh ?? b.titleEn}
-                    <button
-                      type="button"
-                      onClick={() => setBooks((prev) => prev.filter((x) => x.id !== b.id))}
-                      className="text-blue-400 hover:text-blue-700 ml-0.5"
-                    >
-                      <CloseOutlined style={{ fontSize: 10 }} />
-                    </button>
-                  </span>
-                ))}
+                <div className="flex-1">
+                  <p className="font-medium text-slate-800 leading-snug">{member.nameKh ?? member.nameEn}</p>
+                  {member.nameKh && member.nameEn && <p className="text-xs text-slate-400">{member.nameEn}</p>}
+                  <div className="flex gap-1 mt-1 flex-wrap">
+                    <Tag className="border-0 text-xs bg-slate-100 text-slate-500">{member.memberId}</Tag>
+                    {member.class && (
+                      <Tag className="border-0 text-xs bg-indigo-50 text-indigo-600">{member.class.name}</Tag>
+                    )}
+                    {isCheckout && <Tag color="orange" className="border-0 text-xs">{t("open")}</Tag>}
+                  </div>
+                </div>
+                <Button type="text" size="small" icon={<CloseOutlined />} onClick={reset} />
               </div>
             )}
           </div>
 
-          {/* Note */}
-          <Input
-            placeholder={t("notePlaceholder")}
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            className="max-w-sm"
-          />
-        </>
-      )}
+          {/* Purpose + books only for check-in */}
+          {member && !isCheckout && (
+            <>
+              <div>
+                <p className="text-xs text-slate-500 mb-2">{t("purpose")}</p>
+                <div className="flex flex-wrap gap-2">
+                  {PURPOSES.map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setPurpose(p)}
+                      className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+                        purpose === p
+                          ? "bg-blue-500 border-blue-500 text-white"
+                          : "bg-white border-slate-300 text-slate-600 hover:border-blue-400"
+                      }`}
+                    >
+                      {t(`purposes.${p}`)}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-      {/* Submit */}
-      {member && (
-        <Button
-          type="primary"
-          size="large"
-          icon={isCheckout ? <LogoutOutlined /> : <LoginOutlined />}
-          loading={loading}
-          disabled={!canSubmit}
-          onClick={handleSubmit}
-          danger={isCheckout}
-        >
-          {isCheckout ? t("checkOut") : t("checkIn")}
-        </Button>
-      )}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Button icon={<BookOutlined />} size="small" onClick={() => setScannerTarget("book")}>
+                    {t("scanBookOptional")}
+                  </Button>
+                  {books.length > 0 && (
+                    <span className="text-xs text-slate-400">{t("booksRead")}: {books.length}</span>
+                  )}
+                </div>
+                {books.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {books.map((b) => (
+                      <span
+                        key={b.id}
+                        className="flex items-center gap-1 bg-blue-50 border border-blue-100 rounded px-2 py-0.5 text-xs text-blue-700"
+                      >
+                        {b.titleKh ?? b.titleEn}
+                        <button
+                          type="button"
+                          onClick={() => setBooks((prev) => prev.filter((x) => x.id !== b.id))}
+                          className="text-blue-400 hover:text-blue-700 ml-0.5"
+                        >
+                          <CloseOutlined style={{ fontSize: 10 }} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <Input
+                placeholder={t("notePlaceholder")}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+              />
+            </>
+          )}
+        </div>
+      </Modal>
 
       {scannerTarget && (
         <QrScanner
@@ -264,6 +281,6 @@ export function CheckInPanel({ onCheckedIn }: { onCheckedIn: () => void }) {
           title={scannerTarget === "member" ? t("scanMember") : t("scanBook")}
         />
       )}
-    </div>
+    </>
   );
 }

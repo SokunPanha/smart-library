@@ -465,7 +465,12 @@
     "searchBooksPlaceholder": "ស្វែងរកតាមចំណងជើង ឬ ISBN…",
     "colDuration": "រយៈពេល",
     "colMember": "សមាជិក",
-    "insideNowTab": "នៅក្នុងឥឡូវ"
+    "insideNowTab": "នៅក្នុងឥឡូវ",
+    "stats": {
+      "insideNow": "នៅក្នុងឥឡូវ",
+      "todayTotal": "អ្នកចូលថ្ងៃនេះ",
+      "todayByPurpose": "ថ្ងៃនេះតាមគោលបំណង"
+    }
   },
   "reports": {
     "title": "របាយការណ៍",
