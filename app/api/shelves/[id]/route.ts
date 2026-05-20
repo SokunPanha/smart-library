@@ -28,8 +28,7 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id:
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { id } = await params;
-  const count = await prisma.book.count({ where: { shelfId: id } });
-  if (count > 0) return NextResponse.json({ error: `Shelf has ${count} books. Reassign them first.` }, { status: 409 });
+  const { count } = await prisma.book.updateMany({ where: { shelfId: id }, data: { shelfId: null } });
   await prisma.shelf.delete({ where: { id } });
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, unlocated: count });
 }

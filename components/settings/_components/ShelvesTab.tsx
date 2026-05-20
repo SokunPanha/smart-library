@@ -44,6 +44,7 @@ export function ShelvesTab() {
   const [open, setOpen] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
   const [builderOpen, setBuilderOpen] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   // Cabinet Builder state
   const [cabinetName, setCabinetName] = useState("");
@@ -164,9 +165,32 @@ export function ShelvesTab() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => apiFetch(`/api/shelves/${id}`, { method: "DELETE" }),
-    onSuccess: () => {
-      message.success(t("deletedSuccess"));
+    mutationFn: (id: string) =>
+      apiFetch<{ ok: boolean; unlocated: number }>(`/api/shelves/${id}`, { method: "DELETE" }),
+    onSuccess: (data) => {
+      const msg = data.unlocated > 0
+        ? t("deletedSuccessWithUnlocated", { count: data.unlocated })
+        : t("deletedSuccess");
+      message.success(msg);
+      qc.invalidateQueries({ queryKey: ["shelves"] });
+    },
+    onError: (e: Error) => message.error(e.message),
+  });
+
+  const bulkDeleteMutation = useMutation({
+    mutationFn: (ids: string[]) =>
+      Promise.all(
+        ids.map((id) =>
+          apiFetch<{ ok: boolean; unlocated: number }>(`/api/shelves/${id}`, { method: "DELETE" })
+        )
+      ),
+    onSuccess: (results) => {
+      const totalUnlocated = results.reduce((n, r) => n + r.unlocated, 0);
+      const msg = totalUnlocated > 0
+        ? t("bulkDeletedWithUnlocated", { count: results.length, books: totalUnlocated })
+        : t("bulkDeleted", { count: results.length });
+      message.success(msg);
+      setSelectedIds([]);
       qc.invalidateQueries({ queryKey: ["shelves"] });
     },
     onError: (e: Error) => message.error(e.message),
@@ -306,21 +330,14 @@ export function ShelvesTab() {
           <Popconfirm
             title={
               r._count.books > 0
-                ? t("deleteHasBooks", { count: r._count.books })
+                ? t("deleteWillUnlocate", { count: r._count.books })
                 : t("deleteConfirm")
             }
-            onConfirm={() => r._count.books === 0 && deleteMutation.mutate(r.id)}
+            onConfirm={() => deleteMutation.mutate(r.id)}
             okText={tc("delete")}
             cancelText={tc("cancel")}
-            disabled={r._count.books > 0}
           >
-            <Button
-              type="text"
-              size="small"
-              danger
-              icon={<DeleteOutlined />}
-              disabled={r._count.books > 0}
-            />
+            <Button type="text" size="small" danger icon={<DeleteOutlined />} />
           </Popconfirm>
         </div>
       ),
@@ -332,11 +349,35 @@ export function ShelvesTab() {
     ? [frontLabel.trim() || "L", rearLabel.trim() || "R"]
     : [null];
 
+  const selectedShelves = shelves.filter((s) => selectedIds.includes(s.id));
+  const selectedBookCount = selectedShelves.reduce((n, s) => n + s._count.books, 0);
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <p className="text-sm text-slate-500">{t("total", { count: shelves.length })}</p>
         <div className="flex gap-2">
+          {selectedIds.length > 0 && (
+            <Popconfirm
+              title={
+                selectedBookCount > 0
+                  ? t("bulkDeleteWillUnlocate", { shelves: selectedIds.length, books: selectedBookCount })
+                  : t("bulkDeleteConfirm", { count: selectedIds.length })
+              }
+              onConfirm={() => bulkDeleteMutation.mutate(selectedIds)}
+              okText={tc("delete")}
+              cancelText={tc("cancel")}
+              okButtonProps={{ danger: true }}
+            >
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                loading={bulkDeleteMutation.isPending}
+              >
+                {t("deleteSelected", { count: selectedIds.length })}
+              </Button>
+            </Popconfirm>
+          )}
           <Button icon={<AppstoreAddOutlined />} onClick={() => setBuilderOpen(true)}>
             {t("cabinetBuilder")}
           </Button>
@@ -359,6 +400,10 @@ export function ShelvesTab() {
           pagination={{ pageSize: 15, showSizeChanger: false, hideOnSinglePage: true }}
           locale={{ emptyText: t("empty") }}
           scroll={{ x: "max-content", y: scrollY }}
+          rowSelection={{
+            selectedRowKeys: selectedIds,
+            onChange: (keys) => setSelectedIds(keys as string[]),
+          }}
         />
       </div>
 
