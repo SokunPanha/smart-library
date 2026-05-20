@@ -2,7 +2,7 @@
 
 > Goal: A working system a single library can use on day one.
 
-**Status:** In Progress
+**Status:** Complete
 
 ---
 
@@ -10,15 +10,15 @@
 
 ### Catalog Management
 - [x] Add / edit / delete books
-- [ ] ISBN barcode lookup (auto-fill metadata)
+- [x] ISBN barcode lookup (auto-fill metadata)
 - [x] Basic search by title, author, ISBN
-- [ ] Book cover image upload
+- [x] Book cover image upload
 - [x] Dewey Decimal classification
 
 ### Member Management
 - [x] Member registration (name, ID, contact, type)
 - [x] Member types: student, teacher, public, researcher
-- [ ] Borrowing history per member (API done, UI pending)
+- [x] Borrowing history per member
 
 ### Circulation
 - [x] Check-out (with auto due date by member type)
@@ -43,9 +43,9 @@
 ---
 
 ## Remaining MVP Tasks
-- [ ] ISBN barcode lookup (Open Library API)
-- [ ] Book cover image upload
-- [ ] Member borrowing history view (detail drawer)
+- [x] ISBN barcode lookup (Open Library API)
+- [x] Book cover image upload
+- [x] Member borrowing history view (detail drawer)
 
 ---
 
