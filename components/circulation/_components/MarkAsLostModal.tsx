@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Modal, Button, InputNumber, Input, Avatar } from "antd";
+import { Modal, Button, InputNumber, Input, Avatar, Space } from "antd";
 import { StopOutlined, BookOutlined } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
 import type { Loan } from "../helper/useFetchLoans";
@@ -86,17 +86,19 @@ export function MarkAsLostModal({ loan, onConfirm, onClose }: Props) {
           <label className="text-xs font-medium text-slate-600 block mb-1">
             {t("lostFineAmount")} <span className="text-slate-400 font-normal">({t("lostFineOptional")})</span>
           </label>
-          <InputNumber
-            value={fineAmount}
-            onChange={(v) => setFineAmount(v)}
-            min={0}
-            step={1000}
-            className="w-full"
-            placeholder="0"
-            addonAfter="៛"
-            formatter={(v) => (v ? Number(v).toLocaleString() : "")}
-            parser={(v) => Number((v ?? "").replace(/,/g, "")) as 0}
-          />
+          <Space.Compact className="w-full">
+            <InputNumber
+              value={fineAmount}
+              onChange={(v) => setFineAmount(v)}
+              min={0}
+              step={1000}
+              className="w-full"
+              placeholder="0"
+              formatter={(v) => (v ? Number(v).toLocaleString() : "")}
+              parser={(v) => Number((v ?? "").replace(/,/g, "")) as 0}
+            />
+            <Button disabled className="!cursor-default">៛</Button>
+          </Space.Compact>
         </div>
 
         {/* Note */}
