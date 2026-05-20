@@ -314,16 +314,6 @@
       "deleteOk": "លុប",
       "deleteCancel": "បោះបង់"
     },
-    "logs": {
-      "title": "កំណត់ហេតុសកម្មភាព",
-      "colTime": "ពេលវេលា",
-      "colUser": "អ្នកប្រើ",
-      "colAction": "សកម្មភាព",
-      "colDescription": "ការពិពណ៌នា",
-      "searchPlaceholder": "ស្វែងរកតាមអ្នកប្រើ សកម្មភាព ការពិពណ៌នា…",
-      "total": "សរុប {total} កំណត់ត្រា",
-      "empty": "មិនទាន់មានសកម្មភាពណាមួយ។"
-    },
     "categories": {
       "addCategory": "បន្ថែមប្រភេទ",
       "editCategory": "កែប្រែប្រភេទ",
@@ -683,5 +673,15 @@
     "payFineTooltip": "បង់ពិន័យ: {amount} ៛",
     "finePaySuccess": "ពិន័យ {amount} ៛ ត្រូវបានកត់ត្រាថាបានបង់។",
     "finePaid": "បានបង់"
+  },
+  "logs": {
+    "title": "កំណត់ហេតុសកម្មភាព",
+    "colTime": "ពេលវេលា",
+    "colUser": "អ្នកប្រើ",
+    "colAction": "សកម្មភាព",
+    "colDescription": "ការពិពណ៌នា",
+    "searchPlaceholder": "ស្វែងរកតាមអ្នកប្រើ សកម្មភាព ការពិពណ៌នា…",
+    "total": "សរុប {total} កំណត់ត្រា",
+    "empty": "មិនទាន់មានសកម្មភាពណាមួយ។"
   }
 }

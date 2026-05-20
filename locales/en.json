@@ -314,16 +314,6 @@
       "deleteOk": "Delete",
       "deleteCancel": "Cancel"
     },
-    "logs": {
-      "title": "Activity Log",
-      "colTime": "Time",
-      "colUser": "User",
-      "colAction": "Action",
-      "colDescription": "Description",
-      "searchPlaceholder": "Search by user, action, description…",
-      "total": "Total {total} records",
-      "empty": "No activity yet."
-    },
     "categories": {
       "addCategory": "Add Category",
       "editCategory": "Edit Category",
@@ -683,5 +673,15 @@
     "payFineTooltip": "Pay fine: {amount} ៛",
     "finePaySuccess": "Fine of {amount} ៛ recorded as paid.",
     "finePaid": "Paid"
+  },
+  "logs": {
+    "title": "Activity Log",
+    "colTime": "Time",
+    "colUser": "User",
+    "colAction": "Action",
+    "colDescription": "Description",
+    "searchPlaceholder": "Search by user, action, description…",
+    "total": "Total {total} records",
+    "empty": "No activity yet."
   }
 }
