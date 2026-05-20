@@ -56,8 +56,8 @@ function PhotoUpload() {
     }
   }
 
-  async function handleUpload({ file }: UploadRequestOption) {
-    await processFile(file as File);
+  function handleUpload({ file }: UploadRequestOption) {
+    processFile(file as File);
   }
 
   function handleCameraChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -82,7 +82,6 @@ function PhotoUpload() {
       <Form.Item name="photo" noStyle><Input type="hidden" /></Form.Item>
       <Form.Item label={t("photo")}>
         <div className="flex items-center gap-4">
-          {/* Avatar preview */}
           <div className="relative flex-shrink-0">
             {displayUrl ? (
               <>
@@ -107,7 +106,6 @@ function PhotoUpload() {
             )}
           </div>
 
-          {/* Upload buttons */}
           <div className="flex flex-col gap-2 flex-1">
             <Upload accept="image/*" showUploadList={false} customRequest={handleUpload}>
               <Button icon={<UploadOutlined />} loading={uploading} size="small" block>
@@ -147,7 +145,6 @@ function MemberFields() {
     queryFn: () => apiFetch<ClassItem[]>("/api/classes"),
   });
 
-  // Group classes by grade for the select
   const classOptions = Object.entries(
     classes.reduce<Record<string, ClassItem[]>>((acc, c) => {
       const key = c.grade ?? t("classOther");

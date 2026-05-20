@@ -4,8 +4,8 @@ import { auth } from "@/auth";
 import { logActivity } from "@/lib/activityLog";
 
 const DEFAULTS: Record<string, string> = {
-  libraryName: "Cambodia Public Library",
-  libraryNameKh: "បណ្ណាល័យសាធារណៈកម្ពុជា",
+  libraryName: "បណ្ណាល័យ វិ.ហ.ស.ខ្ច",
+  libraryNameKh: "បណ្ណាល័យ វិ.ហ.ស.ខ្ច",
   address: "",
   phone: "",
   email: "",

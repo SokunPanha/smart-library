@@ -27,7 +27,25 @@ export async function GET(
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const book = await prisma.book.findUnique({ where: { id } });
+  const book = await prisma.book.findUnique({
+    where: { id },
+    include: {
+      shelf: { select: { code: true, label: true, section: true, cabinet: true } },
+      loans: {
+        include: {
+          member: { select: { id: true, memberId: true, nameKh: true, nameEn: true, type: true, photo: true } },
+        },
+        orderBy: { borrowedAt: "desc" },
+        take: 100,
+      },
+      reservations: {
+        include: {
+          member: { select: { id: true, memberId: true, nameKh: true, nameEn: true } },
+        },
+        orderBy: { reservedAt: "asc" },
+      },
+    },
+  });
   if (!book) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   return NextResponse.json(book);

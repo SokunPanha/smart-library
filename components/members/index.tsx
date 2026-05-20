@@ -1,20 +1,22 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Table, Button, Input, Space } from "antd";
+import { Table, Button, Input, Space, Modal } from "antd";
 import { PlusOutlined, SearchOutlined, PrinterOutlined, ImportOutlined } from "@ant-design/icons";
 import { QRCodeSVG } from "qrcode.react";
 import { useTranslations } from "next-intl";
+import { useQuery } from "@tanstack/react-query";
 import { MembersProvider, useMembersContext } from "./helper/hooks";
 import { useFetchMembers } from "./helper/useFetchMembers";
 import { useMembers } from "./helper/useMembers";
 import { buildMemberColumns } from "./_components/Columns";
 import { CreateMemberDrawer, EditMemberDrawer } from "./_components/MemberDrawerForm";
-import { MemberQRModal } from "./_components/MemberQRModal";
+import { MemberQRModal, buildMemberCardHtml, CARD_PRINT_CSS } from "./_components/MemberQRModal";
 import { MemberProfileDrawer } from "./_components/MemberProfileDrawer";
 import { MemberBulkImportModal } from "./_components/BulkImportModal";
 import type { Member } from "./helper/useFetchMembers";
 import { useDebounce, useTableScroll } from "@/lib/hooks";
+import { apiFetch } from "@/lib/request";
 
 function MembersPageInner() {
   const ctx = useMembersContext();
@@ -34,24 +36,25 @@ function MembersPageInner() {
   const selectedMembers = members.filter((m) => selectedRowKeys.includes(m.id));
   const columns = buildMemberColumns({ ctx, actions, t, onQR: setQrMember });
   const { ref: tableRef, scrollY } = useTableScroll();
+  const { data: settings } = useQuery<Record<string, string>>({
+    queryKey: ["settings"],
+    queryFn: () => apiFetch<Record<string, string>>("/api/settings"),
+  });
+  const libraryName = settings?.libraryNameKh ?? settings?.libraryNameEn ?? "បណ្ណាល័យ វិ.ហ.ស.ខ្ច";
 
-  function handleBulkPrint() {
-    if (selectedMembers.length === 0) return;
+  function doPrint(title: string) {
     const svgEls = bulkQRRef.current?.querySelectorAll("[data-qr] svg");
     if (!svgEls) return;
 
-    const escape = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
     const cards = selectedMembers.map((member, i) => {
       const svgEl = svgEls[i];
-      const svgContent = svgEl ? new XMLSerializer().serializeToString(svgEl) : "";
-      const displayName = member.nameKh ?? member.nameEn ?? member.memberId;
-      return `<div class="card"><div class="qr">${svgContent}</div><p class="name">${escape(displayName)}</p><p class="mid">${escape(member.memberId)}</p></div>`;
+      const qrSvg = svgEl ? new XMLSerializer().serializeToString(svgEl) : "";
+      return buildMemberCardHtml(member, qrSvg, title);
     });
 
     const pages: string[] = [];
-    for (let i = 0; i < cards.length; i += 15) {
-      const chunk = cards.slice(i, i + 15).join("");
+    for (let i = 0; i < cards.length; i += 8) {
+      const chunk = cards.slice(i, i + 8).join("");
       pages.push(`<div class="page"><div class="grid">${chunk}</div></div>`);
     }
 
@@ -60,18 +63,10 @@ function MembersPageInner() {
     win.document.write(`<!DOCTYPE html>
 <html>
   <head>
-    <title>QR Labels</title>
+    <title>Member Cards</title>
     <style>
       @page { size: A4 portrait; margin: 10mm; }
-      * { box-sizing: border-box; margin: 0; padding: 0; }
-      body { font-family: Arial, sans-serif; background: white; }
-      .page { width: 190mm; height: 277mm; page-break-after: always; break-after: page; }
-      .page:last-child { page-break-after: avoid; break-after: avoid; }
-      .grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(5, 1fr); gap: 4mm; width: 190mm; height: 277mm; }
-      .card { border: 1.5px dashed #aaa; padding: 3mm; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2mm; }
-      .qr svg { display: block; width: 28mm !important; height: 28mm !important; }
-      .name { font-size: 7pt; font-weight: 700; text-align: center; line-height: 1.35; max-width: 55mm; word-break: break-word; }
-      .mid { font-size: 6pt; color: #555; }
+      ${CARD_PRINT_CSS}
     </style>
   </head>
   <body>
@@ -80,6 +75,26 @@ function MembersPageInner() {
   </body>
 </html>`);
     win.document.close();
+  }
+
+  function handleBulkPrint() {
+    if (selectedMembers.length === 0) return;
+    let title = libraryName;
+    Modal.confirm({
+      title: t("members.cardTitle"),
+      content: (
+        <Input
+          defaultValue={libraryName}
+          onChange={(e) => { title = e.target.value; }}
+          placeholder={libraryName}
+          className="mt-2"
+          autoFocus
+        />
+      ),
+      okText: t("common.confirm"),
+      cancelText: t("common.cancel"),
+      onOk: () => doPrint(title || libraryName),
+    });
   }
 
   return (

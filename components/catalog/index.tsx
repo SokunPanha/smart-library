@@ -11,6 +11,7 @@ import { useBooks } from "./helper/useBooks";
 import { buildBookColumns } from "./_components/Columns";
 import { CreateBookDrawer, EditBookDrawer } from "./_components/BookDrawerForm";
 import { BookQRModal } from "./_components/BookQRModal";
+import { BookDetailDrawer } from "./_components/BookDetailDrawer";
 import { BulkImportModal } from "./_components/BulkImportModal";
 import type { Book } from "./helper/useFetchBooks";
 import { useDebounce, useTableScroll } from "@/lib/hooks";
@@ -22,6 +23,7 @@ function CatalogPageInner() {
   const [inputVal, setInputVal] = useState("");
   const search = useDebounce(inputVal, 400);
   const [qrBook, setQrBook] = useState<Book | null>(null);
+  const [detailBookId, setDetailBookId] = useState<string | null>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [importOpen, setImportOpen] = useState(false);
   const bulkQRRef = useRef<HTMLDivElement>(null);
@@ -142,6 +144,14 @@ function CatalogPageInner() {
             loading={isLoading}
             size="small"
             scroll={{ x: "max-content", y: scrollY }}
+            onRow={(row) => ({
+              onClick: (e) => {
+                const target = e.target as HTMLElement;
+                if (target.closest("button,a,[role=button],.ant-image,.ant-checkbox-wrapper")) return;
+                setDetailBookId(row.id);
+              },
+              className: "cursor-pointer",
+            })}
             {...ctx.table.props}
             pagination={{ ...ctx.table.props.pagination, total: data?.total ?? 0 }}
             locale={{ emptyText: t("catalog.empty") }}
@@ -165,6 +175,7 @@ function CatalogPageInner() {
       <CreateBookDrawer />
       <EditBookDrawer />
       <BookQRModal book={qrBook} onClose={() => setQrBook(null)} />
+      <BookDetailDrawer bookId={detailBookId} onClose={() => setDetailBookId(null)} />
       <BulkImportModal
         open={importOpen}
         onClose={() => setImportOpen(false)}
