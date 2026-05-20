@@ -119,7 +119,7 @@ export function MemberQRModal({ member, onClose }: Props) {
       }
       width={380}
       centered
-      destroyOnClose
+      destroyOnHidden
     >
       {member && (
         <div className="flex flex-col items-center gap-4 py-3">
