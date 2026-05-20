@@ -26,6 +26,7 @@
     "visitorLog": "Visitor Log",
     "map": "Library Map",
     "reports": "Reports",
+    "logs": "Activity Log",
     "settings": "Settings"
   },
   "auth": {
@@ -275,6 +276,7 @@
       "deleteCancel": "Cancel"
     },
     "logs": {
+      "title": "Activity Log",
       "colTime": "Time",
       "colUser": "User",
       "colAction": "Action",

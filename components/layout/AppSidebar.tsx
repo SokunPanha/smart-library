@@ -11,6 +11,7 @@ import {
   CloseOutlined,
   FieldTimeOutlined,
   HeatMapOutlined,
+  AuditOutlined,
 } from "@ant-design/icons";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -35,6 +36,7 @@ export function SidebarContent({ onClose }: SidebarContentProps) {
     { key: "visitor-log", icon: <FieldTimeOutlined />, label: t("visitorLog") },
     { key: "map", icon: <HeatMapOutlined />, label: t("map") },
     { key: "reports", icon: <BarChartOutlined />, label: t("reports") },
+    { key: "logs", icon: <AuditOutlined />, label: t("logs") },
     { key: "settings", icon: <SettingOutlined />, label: t("settings") },
   ];
 
