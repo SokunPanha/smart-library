@@ -150,12 +150,13 @@ model Category {
 
 model Shelf {
   id        String   @id @default(cuid())
-  code      String   @unique  // e.g. "10A1", "10A2", "10B1"
-  section   String?           // named zone, e.g. "Science"
-  cabinet   String?           // cabinet number/code, e.g. "10"
-  level     Int?              // row within cabinet, 1=top (displayed as A, B, C…)
-  block     Int?              // block within level, 1, 2, 3…
-  label     String?           // optional description
+  code      String   @unique  // e.g. "A-F-2-3" or "A-2-3"
+  cabinet   String            // Cabinet identifier: "A", "B", "C"
+  side      String?           // Optional face: "F" (front) or "R" (rear)
+  shelfNo   Int               // Shelf row from top: 1, 2, 3
+  sectionNo Int               // Section slot from left: 1, 2, 3
+  zone      String?           // Subject zone: "Science", "History"
+  label     String?           // Optional description
   createdAt DateTime @default(now())
   books     Book[]
 }

@@ -100,16 +100,40 @@ async function main() {
   const classMap = Object.fromEntries(classes.map((c) => [c.name, c.id]));
   console.log(`✓ ${classes.length} classes seeded`);
 
-  // ── 6. SHELVES (Khmer section labels) ────────────────────────────────────
+  // ── 6. SHELVES (Cabinet → Side → Shelf → Section hierarchy) ────────────
   const shelfData = [
-    { code: "01A1", section: "រឿងប្រឌិត និង អក្សរសិល្ប៍",         cabinet: "01", level: 1, block: 1 },
-    { code: "01A2", section: "រឿងប្រឌិត និង អក្សរសិល្ប៍",         cabinet: "01", level: 1, block: 2 },
-    { code: "02A1", section: "ប្រវត្តិសាស្ត្រ និង សង្គមវិទ្យា",   cabinet: "02", level: 1, block: 1 },
-    { code: "02B1", section: "ប្រវត្តិសាស្ត្រ និង សង្គមវិទ្យា",   cabinet: "02", level: 2, block: 1 },
-    { code: "03A1", section: "វិទ្យាសាស្ត្រ និង បច្ចេកវិទ្យា",    cabinet: "03", level: 1, block: 1 },
-    { code: "04A1", section: "សាសនា និង ទស្សនវិជ្ជា",             cabinet: "04", level: 1, block: 1 },
-    { code: "05A1", section: "អប់រំ និង ភាសា",                    cabinet: "05", level: 1, block: 1 },
-    { code: "06A1", section: "សុខភាព ច្បាប់ និង សេដ្ឋកិច្ច",     cabinet: "06", level: 1, block: 1 },
+    // Cabinet A — Literature & Fiction (double-sided)
+    { code: "A-L-1-1", cabinet: "A", side: "L", shelfNo: 1, sectionNo: 1, zone: "រឿងប្រឌិត និង អក្សរសិល្ប៍" },
+    { code: "A-L-1-2", cabinet: "A", side: "L", shelfNo: 1, sectionNo: 2, zone: "រឿងប្រឌិត និង អក្សរសិល្ប៍" },
+    { code: "A-L-2-1", cabinet: "A", side: "L", shelfNo: 2, sectionNo: 1, zone: "រឿងប្រឌិត និង អក្សរសិល្ប៍" },
+    { code: "A-L-2-2", cabinet: "A", side: "L", shelfNo: 2, sectionNo: 2, zone: "រឿងប្រឌិត និង អក្សរសិល្ប៍" },
+    { code: "A-R-1-1", cabinet: "A", side: "R", shelfNo: 1, sectionNo: 1, zone: "អក្សរសិល្ប៍ខ្មែរ" },
+    { code: "A-R-1-2", cabinet: "A", side: "R", shelfNo: 1, sectionNo: 2, zone: "អក្សរសិល្ប៍ខ្មែរ" },
+    // Cabinet B — History & Social Studies (double-sided)
+    { code: "B-L-1-1", cabinet: "B", side: "L", shelfNo: 1, sectionNo: 1, zone: "ប្រវត្តិសាស្ត្រ និង សង្គមវិទ្យា" },
+    { code: "B-L-1-2", cabinet: "B", side: "L", shelfNo: 1, sectionNo: 2, zone: "ប្រវត្តិសាស្ត្រ និង សង្គមវិទ្យា" },
+    { code: "B-L-2-1", cabinet: "B", side: "L", shelfNo: 2, sectionNo: 1, zone: "ប្រវត្តិសាស្ត្រ និង សង្គមវិទ្យា" },
+    { code: "B-R-1-1", cabinet: "B", side: "R", shelfNo: 1, sectionNo: 1, zone: "ភូមិវិទ្យា និង ដែនដី" },
+    { code: "B-R-1-2", cabinet: "B", side: "R", shelfNo: 1, sectionNo: 2, zone: "ភូមិវិទ្យា និង ដែនដី" },
+    // Cabinet C — Science & Technology (single-sided, wall cabinet)
+    { code: "C-1-1", cabinet: "C", shelfNo: 1, sectionNo: 1, zone: "វិទ្យាសាស្ត្រ និង បច្ចេកវិទ្យា" },
+    { code: "C-1-2", cabinet: "C", shelfNo: 1, sectionNo: 2, zone: "វិទ្យាសាស្ត្រ និង បច្ចេកវិទ្យា" },
+    { code: "C-1-3", cabinet: "C", shelfNo: 1, sectionNo: 3, zone: "វិទ្យាសាស្ត្រ និង បច្ចេកវិទ្យា" },
+    { code: "C-2-1", cabinet: "C", shelfNo: 2, sectionNo: 1, zone: "គណិតវិទ្យា" },
+    { code: "C-2-2", cabinet: "C", shelfNo: 2, sectionNo: 2, zone: "គណិតវិទ្យា" },
+    // Cabinet D — Religion & Philosophy (single-sided)
+    { code: "D-1-1", cabinet: "D", shelfNo: 1, sectionNo: 1, zone: "សាសនា និង ទស្សនវិជ្ជា" },
+    { code: "D-1-2", cabinet: "D", shelfNo: 1, sectionNo: 2, zone: "សាសនា និង ទស្សនវិជ្ជា" },
+    // Cabinet E — Education & Language (double-sided)
+    { code: "E-L-1-1", cabinet: "E", side: "L", shelfNo: 1, sectionNo: 1, zone: "អប់រំ" },
+    { code: "E-L-1-2", cabinet: "E", side: "L", shelfNo: 1, sectionNo: 2, zone: "អប់រំ" },
+    { code: "E-L-2-1", cabinet: "E", side: "L", shelfNo: 2, sectionNo: 1, zone: "អប់រំ" },
+    { code: "E-R-1-1", cabinet: "E", side: "R", shelfNo: 1, sectionNo: 1, zone: "ភាសា និង ភាសាសាស្ត្រ" },
+    { code: "E-R-1-2", cabinet: "E", side: "R", shelfNo: 1, sectionNo: 2, zone: "ភាសា និង ភាសាសាស្ត្រ" },
+    // Cabinet F — Health, Law & Economics (single-sided)
+    { code: "F-1-1", cabinet: "F", shelfNo: 1, sectionNo: 1, zone: "សុខភាព ច្បាប់ និង សេដ្ឋកិច្ច" },
+    { code: "F-1-2", cabinet: "F", shelfNo: 1, sectionNo: 2, zone: "សុខភាព ច្បាប់ និង សេដ្ឋកិច្ច" },
+    { code: "F-2-1", cabinet: "F", shelfNo: 2, sectionNo: 1, zone: "សុខភាព ច្បាប់ និង សេដ្ឋកិច្ច" },
   ];
   const shelves = await Promise.all(shelfData.map((s) => prisma.shelf.create({ data: s })));
   const shelfMap = Object.fromEntries(shelves.map((s) => [s.code, s.id]));
@@ -121,26 +145,26 @@ async function main() {
 
   // ── 8. BOOKS ──────────────────────────────────────────────────────────────
   const bookData = [
-    { isbn: "978-9924-9065-0-1", titleEn: "The History of Cambodia",              titleKh: "ប្រវត្តិសាស្ត្រកម្ពុជា",            author: "David Chandler",    publisher: "Silkworm Books",         publishYear: 2018, category: "ប្រវត្តិសាស្ត្រ", deweyCode: "959.6",    totalCopies: 4, tags: ["history","cambodia","khmer"],        shelfCode: "02A1" },
-    { isbn: "978-9924-9065-1-8", titleEn: "Angkor and the Khmer Civilization",    titleKh: "អង្គរ និងអារ្យធម៌ខ្មែរ",            author: "Michael Coe",       publisher: "Thames & Hudson",        publishYear: 2015, category: "ប្រវត្តិសាស្ត្រ", deweyCode: "959.6",    totalCopies: 3, tags: ["angkor","khmer","archaeology"],       shelfCode: "02A1" },
-    { isbn: "978-9924-9065-2-5", titleEn: "Buddhism in Cambodia",                  titleKh: "ព្រះពុទ្ធសាសនានៅកម្ពុជា",         author: "Ian Harris",        publisher: "Univ. of Hawaii Press",  publishYear: 2005, category: "សាសនា",           deweyCode: "294.3",    totalCopies: 2, tags: ["buddhism","religion","cambodia"],     shelfCode: "04A1" },
-    { isbn: "978-9924-9065-3-2", titleEn: "Khmer Rouge and the Genocide",          titleKh: "ខ្មែរក្រហម និងរបបប្រល័យពូជ",       author: "Ben Kiernan",       publisher: "Yale University Press",  publishYear: 2008, category: "ប្រវត្តិសាស្ត្រ", deweyCode: "959.604",  totalCopies: 3, tags: ["genocide","history","politics"],       shelfCode: "02B1" },
-    { isbn: "978-9924-9065-4-9", titleEn: "Introduction to Computer Science",      titleKh: "មូលដ្ឋានគ្រឹះវិទ្យាសាស្ត្រកុំព្យូទ័រ",author: "John Brookshear",  publisher: "Pearson",                publishYear: 2019, category: "បច្ចេកវិទ្យា",   deweyCode: "004",      totalCopies: 5, tags: ["computer","programming","science"],   shelfCode: "03A1" },
-    { isbn: "978-9924-9065-5-6", titleEn: "Khmer Language and Linguistics",        titleKh: "ភាសា និងភាសាសាស្ត្រខ្មែរ",         author: "Judith Jacob",      publisher: "SOAS",                   publishYear: 1996, category: "ភាសា",            deweyCode: "495.9",    totalCopies: 2, tags: ["khmer","linguistics","language"],      shelfCode: "05A1" },
-    { isbn: "978-9924-9065-6-3", titleEn: "Rice Farming in Southeast Asia",        titleKh: "ការដាំស្រូវនៅអាស៊ីអាគ្នេយ៍",       author: "Nguyen Van Luat",   publisher: "IRRI",                   publishYear: 2012, category: "កសិកម្ម",         deweyCode: "633.18",   totalCopies: 3, tags: ["agriculture","rice","farming"],       shelfCode: "06A1" },
-    { isbn: "978-9924-9065-7-0", titleEn: "Cambodian Law and Governance",          titleKh: "ច្បាប់ និងរដ្ឋាភិបាលកម្ពុជា",      author: "John Ciorciari",    publisher: "Cornell",                publishYear: 2014, category: "ច្បាប់",           deweyCode: "349.596",  totalCopies: 2, tags: ["law","governance","cambodia"],        shelfCode: "06A1" },
-    { isbn: "978-9924-9065-8-7", titleEn: "Traditional Khmer Music",               titleKh: "តន្ត្រីបុរាណខ្មែរ",                author: "Sam-Ang Sam",       publisher: "Kent State University",  publishYear: 2002, category: "សិល្បៈ",          deweyCode: "781.62",   totalCopies: 2, tags: ["music","arts","khmer","culture"],     shelfCode: "01A2" },
-    { isbn: "978-9924-9065-9-4", titleEn: "Health and Medicine in Cambodia",       titleKh: "សុខភាព និងវេជ្ជសាស្ត្រនៅកម្ពុជា", author: "Margaret Hardiman", publisher: "WHO",                    publishYear: 2010, category: "សុខភាព",          deweyCode: "610",      totalCopies: 3, tags: ["health","medicine","public health"],  shelfCode: "06A1" },
-    { isbn: "978-9924-9066-0-0", titleEn: "Economic Development of Cambodia",      titleKh: "ការអភិវឌ្ឍន៍សេដ្ឋកិច្ចកម្ពុជា",  author: "Sophal Ear",        publisher: "Stanford Univ. Press",   publishYear: 2012, category: "សេដ្ឋកិច្ច",     deweyCode: "330.9596", totalCopies: 2, tags: ["economics","development","cambodia"], shelfCode: "06A1" },
-    { isbn: "978-9924-9066-1-7", titleEn: "Cambodian Fiction: Stories of the Land",titleKh: "រឿងប្រឌិតខ្មែរ",                   author: "Teri Yamada",       publisher: "Ling",                   publishYear: 2005, category: "រឿងប្រឌិត",      deweyCode: "895.932",  totalCopies: 4, tags: ["fiction","short stories","literature"],shelfCode: "01A1" },
-    { isbn: "978-9924-9066-2-4", titleEn: "Environmental Science",                 titleKh: "វិទ្យាសាស្ត្របរិស្ថាន",            author: "Richard Wright",    publisher: "Pearson",                publishYear: 2020, category: "វិទ្យាសាស្ត្រ",  deweyCode: "363.7",    totalCopies: 3, tags: ["environment","science","ecology"],    shelfCode: "03A1" },
-    { isbn: "978-9924-9066-3-1", titleEn: "Philosophy of the Mind",                titleKh: "ទស្សនវិជ្ជានៃចិត្ត",              author: "Jaegwon Kim",       publisher: "Blackwell",              publishYear: 2011, category: "ទស្សនវិជ្ជា",    deweyCode: "128.2",    totalCopies: 2, tags: ["philosophy","mind","consciousness"],  shelfCode: "04A1" },
-    { isbn: "978-9924-9066-4-8", titleEn: "Primary Education Methods",             titleKh: "វិធីសាស្ត្របង្រៀនថ្នាក់បឋម",      author: "Lim Vuthy",         publisher: "MoEYS Cambodia",         publishYear: 2017, category: "អប់រំ",            deweyCode: "372.1",    totalCopies: 5, tags: ["education","teaching","primary"],     shelfCode: "05A1" },
-    { isbn: "978-9924-9066-5-5", titleEn: "Khmer Poetry and Classical Literature", titleKh: "កំណាព្យ និងអក្សរសិល្ប៍ខ្មែរ",    author: "Khing Hoc Dy",      publisher: "EFEO",                   publishYear: 1990, category: "អក្សរសិល្ប៍",     deweyCode: "895.9",    totalCopies: 3, tags: ["poetry","literature","khmer"],        shelfCode: "01A1" },
-    { isbn: "978-9924-9066-6-2", titleEn: "Mathematics for Secondary School",      titleKh: "គណិតវិទ្យាសម្រាប់វិទ្យាល័យ",     author: "Chea Sothea",       publisher: "MoEYS Cambodia",         publishYear: 2021, category: "អប់រំ",            deweyCode: "510",      totalCopies: 6, tags: ["mathematics","textbook","secondary"], shelfCode: "05A1" },
-    { isbn: "978-9924-9066-7-9", titleEn: "Biology: Living Systems",               titleKh: "ជីវវិទ្យា: ប្រព័ន្ធជីវិត",        author: "Kenneth Miller",    publisher: "Glencoe",                publishYear: 2018, category: "វិទ្យាសាស្ត្រ",  deweyCode: "570",      totalCopies: 4, tags: ["biology","science","textbook"],       shelfCode: "03A1" },
-    { isbn: "978-9924-9066-8-6", titleEn: "World Geography",                       titleKh: "ភូមិវិទ្យាពិភពលោក",               author: "Jackson Spielvogel",publisher: "National Geographic",    publishYear: 2019, category: "ក្រៅប្រឌិត",     deweyCode: "910",      totalCopies: 3, tags: ["geography","world","textbook"],       shelfCode: "02B1" },
-    { isbn: "978-9924-9066-9-3", titleEn: "Introduction to Physics",               titleKh: "មូលដ្ឋានគ្រឹះរូបវិទ្យា",          author: "Paul Tipler",       publisher: "W. H. Freeman",          publishYear: 2020, category: "វិទ្យាសាស្ត្រ",  deweyCode: "530",      totalCopies: 4, tags: ["physics","science","textbook"],       shelfCode: "03A1" },
+    { isbn: "978-9924-9065-0-1", titleEn: "The History of Cambodia",              titleKh: "ប្រវត្តិសាស្ត្រកម្ពុជា",            author: "David Chandler",    publisher: "Silkworm Books",         publishYear: 2018, category: "ប្រវត្តិសាស្ត្រ", deweyCode: "959.6",    totalCopies: 4, tags: ["history","cambodia","khmer"],        shelfCode: "B-L-1-1" },
+    { isbn: "978-9924-9065-1-8", titleEn: "Angkor and the Khmer Civilization",    titleKh: "អង្គរ និងអារ្យធម៌ខ្មែរ",            author: "Michael Coe",       publisher: "Thames & Hudson",        publishYear: 2015, category: "ប្រវត្តិសាស្ត្រ", deweyCode: "959.6",    totalCopies: 3, tags: ["angkor","khmer","archaeology"],       shelfCode: "B-L-1-1" },
+    { isbn: "978-9924-9065-2-5", titleEn: "Buddhism in Cambodia",                  titleKh: "ព្រះពុទ្ធសាសនានៅកម្ពុជា",         author: "Ian Harris",        publisher: "Univ. of Hawaii Press",  publishYear: 2005, category: "សាសនា",           deweyCode: "294.3",    totalCopies: 2, tags: ["buddhism","religion","cambodia"],     shelfCode: "D-1-1" },
+    { isbn: "978-9924-9065-3-2", titleEn: "Khmer Rouge and the Genocide",          titleKh: "ខ្មែរក្រហម និងរបបប្រល័យពូជ",       author: "Ben Kiernan",       publisher: "Yale University Press",  publishYear: 2008, category: "ប្រវត្តិសាស្ត្រ", deweyCode: "959.604",  totalCopies: 3, tags: ["genocide","history","politics"],       shelfCode: "B-L-2-1" },
+    { isbn: "978-9924-9065-4-9", titleEn: "Introduction to Computer Science",      titleKh: "មូលដ្ឋានគ្រឹះវិទ្យាសាស្ត្រកុំព្យូទ័រ",author: "John Brookshear",  publisher: "Pearson",                publishYear: 2019, category: "បច្ចេកវិទ្យា",   deweyCode: "004",      totalCopies: 5, tags: ["computer","programming","science"],   shelfCode: "C-1-1" },
+    { isbn: "978-9924-9065-5-6", titleEn: "Khmer Language and Linguistics",        titleKh: "ភាសា និងភាសាសាស្ត្រខ្មែរ",         author: "Judith Jacob",      publisher: "SOAS",                   publishYear: 1996, category: "ភាសា",            deweyCode: "495.9",    totalCopies: 2, tags: ["khmer","linguistics","language"],      shelfCode: "E-R-1-1" },
+    { isbn: "978-9924-9065-6-3", titleEn: "Rice Farming in Southeast Asia",        titleKh: "ការដាំស្រូវនៅអាស៊ីអាគ្នេយ៍",       author: "Nguyen Van Luat",   publisher: "IRRI",                   publishYear: 2012, category: "កសិកម្ម",         deweyCode: "633.18",   totalCopies: 3, tags: ["agriculture","rice","farming"],       shelfCode: "F-1-1" },
+    { isbn: "978-9924-9065-7-0", titleEn: "Cambodian Law and Governance",          titleKh: "ច្បាប់ និងរដ្ឋាភិបាលកម្ពុជា",      author: "John Ciorciari",    publisher: "Cornell",                publishYear: 2014, category: "ច្បាប់",           deweyCode: "349.596",  totalCopies: 2, tags: ["law","governance","cambodia"],        shelfCode: "F-1-1" },
+    { isbn: "978-9924-9065-8-7", titleEn: "Traditional Khmer Music",               titleKh: "តន្ត្រីបុរាណខ្មែរ",                author: "Sam-Ang Sam",       publisher: "Kent State University",  publishYear: 2002, category: "សិល្បៈ",          deweyCode: "781.62",   totalCopies: 2, tags: ["music","arts","khmer","culture"],     shelfCode: "A-L-1-2" },
+    { isbn: "978-9924-9065-9-4", titleEn: "Health and Medicine in Cambodia",       titleKh: "សុខភាព និងវេជ្ជសាស្ត្រនៅកម្ពុជា", author: "Margaret Hardiman", publisher: "WHO",                    publishYear: 2010, category: "សុខភាព",          deweyCode: "610",      totalCopies: 3, tags: ["health","medicine","public health"],  shelfCode: "F-1-1" },
+    { isbn: "978-9924-9066-0-0", titleEn: "Economic Development of Cambodia",      titleKh: "ការអភិវឌ្ឍន៍សេដ្ឋកិច្ចកម្ពុជា",  author: "Sophal Ear",        publisher: "Stanford Univ. Press",   publishYear: 2012, category: "សេដ្ឋកិច្ច",     deweyCode: "330.9596", totalCopies: 2, tags: ["economics","development","cambodia"], shelfCode: "F-1-1" },
+    { isbn: "978-9924-9066-1-7", titleEn: "Cambodian Fiction: Stories of the Land",titleKh: "រឿងប្រឌិតខ្មែរ",                   author: "Teri Yamada",       publisher: "Ling",                   publishYear: 2005, category: "រឿងប្រឌិត",      deweyCode: "895.932",  totalCopies: 4, tags: ["fiction","short stories","literature"],shelfCode: "A-L-1-1" },
+    { isbn: "978-9924-9066-2-4", titleEn: "Environmental Science",                 titleKh: "វិទ្យាសាស្ត្របរិស្ថាន",            author: "Richard Wright",    publisher: "Pearson",                publishYear: 2020, category: "វិទ្យាសាស្ត្រ",  deweyCode: "363.7",    totalCopies: 3, tags: ["environment","science","ecology"],    shelfCode: "C-1-1" },
+    { isbn: "978-9924-9066-3-1", titleEn: "Philosophy of the Mind",                titleKh: "ទស្សនវិជ្ជានៃចិត្ត",              author: "Jaegwon Kim",       publisher: "Blackwell",              publishYear: 2011, category: "ទស្សនវិជ្ជា",    deweyCode: "128.2",    totalCopies: 2, tags: ["philosophy","mind","consciousness"],  shelfCode: "D-1-1" },
+    { isbn: "978-9924-9066-4-8", titleEn: "Primary Education Methods",             titleKh: "វិធីសាស្ត្របង្រៀនថ្នាក់បឋម",      author: "Lim Vuthy",         publisher: "MoEYS Cambodia",         publishYear: 2017, category: "អប់រំ",            deweyCode: "372.1",    totalCopies: 5, tags: ["education","teaching","primary"],     shelfCode: "E-L-1-1" },
+    { isbn: "978-9924-9066-5-5", titleEn: "Khmer Poetry and Classical Literature", titleKh: "កំណាព្យ និងអក្សរសិល្ប៍ខ្មែរ",    author: "Khing Hoc Dy",      publisher: "EFEO",                   publishYear: 1990, category: "អក្សរសិល្ប៍",     deweyCode: "895.9",    totalCopies: 3, tags: ["poetry","literature","khmer"],        shelfCode: "A-R-1-1" },
+    { isbn: "978-9924-9066-6-2", titleEn: "Mathematics for Secondary School",      titleKh: "គណិតវិទ្យាសម្រាប់វិទ្យាល័យ",     author: "Chea Sothea",       publisher: "MoEYS Cambodia",         publishYear: 2021, category: "អប់រំ",            deweyCode: "510",      totalCopies: 6, tags: ["mathematics","textbook","secondary"], shelfCode: "E-L-1-1" },
+    { isbn: "978-9924-9066-7-9", titleEn: "Biology: Living Systems",               titleKh: "ជីវវិទ្យា: ប្រព័ន្ធជីវិត",        author: "Kenneth Miller",    publisher: "Glencoe",                publishYear: 2018, category: "វិទ្យាសាស្ត្រ",  deweyCode: "570",      totalCopies: 4, tags: ["biology","science","textbook"],       shelfCode: "C-1-1" },
+    { isbn: "978-9924-9066-8-6", titleEn: "World Geography",                       titleKh: "ភូមិវិទ្យាពិភពលោក",               author: "Jackson Spielvogel",publisher: "National Geographic",    publishYear: 2019, category: "ក្រៅប្រឌិត",     deweyCode: "910",      totalCopies: 3, tags: ["geography","world","textbook"],       shelfCode: "B-R-1-1" },
+    { isbn: "978-9924-9066-9-3", titleEn: "Introduction to Physics",               titleKh: "មូលដ្ឋានគ្រឹះរូបវិទ្យា",          author: "Paul Tipler",       publisher: "W. H. Freeman",          publishYear: 2020, category: "វិទ្យាសាស្ត្រ",  deweyCode: "530",      totalCopies: 4, tags: ["physics","science","textbook"],       shelfCode: "C-1-1" },
   ];
 
   const books = await Promise.all(

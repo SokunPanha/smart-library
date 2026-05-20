@@ -30,7 +30,7 @@ export async function GET(
   const book = await prisma.book.findUnique({
     where: { id },
     include: {
-      shelf: { select: { code: true, label: true, section: true, cabinet: true } },
+      shelf: { select: { code: true, label: true, zone: true, cabinet: true, side: true, shelfNo: true, sectionNo: true } },
       loans: {
         include: {
           member: { select: { id: true, memberId: true, nameKh: true, nameEn: true, type: true, photo: true } },

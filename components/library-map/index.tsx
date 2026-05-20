@@ -14,10 +14,11 @@ interface ShelfRecord {
   id: string;
   code: string;
   label: string | null;
-  section: string | null;
-  cabinet: string | null;
-  level: number | null;
-  block: number | null;
+  zone: string | null;
+  cabinet: string;
+  side: string | null;
+  shelfNo: number;
+  sectionNo: number;
   _count: { books: number };
 }
 
@@ -45,10 +46,6 @@ function safeGetStyle(type: string) {
   return CELL_STYLE[type as CellType] ?? CELL_STYLE.EMPTY;
 }
 
-function levelLetter(level: number | null): string {
-  if (!level || level < 1) return "";
-  return String.fromCharCode(64 + level);
-}
 
 export default function LibraryMapPage() {
   const t = useTranslations("map");
@@ -195,23 +192,25 @@ export default function LibraryMapPage() {
           ) : cabinetShelves.length === 0 ? (
             <Empty description={t("noShelves")} />
           ) : (() => {
-            // Group shelves by level
-            const levelMap = new Map<number | null, ShelfRecord[]>();
+            // Group shelves by side then shelfNo
+            const sideMap = new Map<string, ShelfRecord[]>();
             for (const shelf of cabinetShelves) {
-              const key = shelf.level ?? null;
-              if (!levelMap.has(key)) levelMap.set(key, []);
-              levelMap.get(key)!.push(shelf);
+              const key = shelf.side ?? "—";
+              if (!sideMap.has(key)) sideMap.set(key, []);
+              sideMap.get(key)!.push(shelf);
             }
-            return Array.from(levelMap.entries()).map(([lvl, shelves]) => (
-              <div key={lvl ?? "none"} className="space-y-2">
-                {/* Level header */}
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-violet-600 bg-violet-50 border border-violet-200 rounded px-2 py-0.5">
-                    {lvl ? t("levelTag", { level: lvl, letter: levelLetter(lvl) }) : "—"}
-                  </span>
-                  <div className="flex-1 border-t border-slate-100" />
-                </div>
-                {/* Blocks in this level */}
+            return Array.from(sideMap.entries()).map(([side, shelves]) => (
+              <div key={side} className="space-y-2">
+                {/* Side header */}
+                {side !== "—" && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-violet-600 bg-violet-50 border border-violet-200 rounded px-2 py-0.5">
+                      {side}
+                    </span>
+                    <div className="flex-1 border-t border-slate-100" />
+                  </div>
+                )}
+                {/* Shelf items */}
                 {shelves.map((shelf) => (
                   <div
                     key={shelf.id}
@@ -228,9 +227,9 @@ export default function LibraryMapPage() {
                     <div className="flex items-center justify-between px-3 py-2">
                       <div className="flex items-center gap-2">
                         <span className="font-mono font-semibold text-blue-600 text-sm">{shelf.code}</span>
-                        {shelf.block && (
-                          <Tag className="border-0 bg-blue-50 text-blue-600 text-xs">
-                            {t("blockTag", { block: shelf.block })}
+                        {shelf.zone && (
+                          <Tag className="border-0 bg-indigo-50 text-indigo-600 text-xs">
+                            {shelf.zone}
                           </Tag>
                         )}
                         {shelf.label && <span className="text-xs text-slate-500">{shelf.label}</span>}
@@ -291,8 +290,8 @@ export default function LibraryMapPage() {
         placement="right"
       >
         <div className="space-y-3">
-          {selectedShelf?.section && (
-            <Tag className="border-0 bg-indigo-50 text-indigo-600">{selectedShelf.section}</Tag>
+          {selectedShelf?.zone && (
+            <Tag className="border-0 bg-indigo-50 text-indigo-600">{selectedShelf.zone}</Tag>
           )}
           <Input
             prefix={<SearchOutlined className="text-slate-300" />}

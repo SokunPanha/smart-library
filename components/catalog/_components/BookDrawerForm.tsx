@@ -210,43 +210,155 @@ function BookFields({ autoFocusIsbn }: { autoFocusIsbn?: boolean }) {
   );
 }
 
+interface ShelfRecord {
+  id: string;
+  code: string;
+  label: string | null;
+  zone: string | null;
+  cabinet: string;
+  side: string | null;
+  shelfNo: number;
+  sectionNo: number;
+}
+
 function ShelfSelect({ value, onChange }: { value?: string | null; onChange?: (v: string | null) => void }) {
   const ts = useTranslations("settings.shelves");
-  const { data: shelves = [] } = useQuery<{
-    id: string;
-    code: string;
-    label: string | null;
-    section: string | null;
-    cabinet: string | null;
-    level: number | null;
-    block: number | null;
-  }[]>({
+  const [browseMode, setBrowseMode] = useState(true);
+  const [selCabinet, setSelCabinet] = useState<string | null>(null);
+  const [selSide, setSelSide] = useState<string | null>(null);
+  const [selShelfNo, setSelShelfNo] = useState<number | null>(null);
+
+  const { data: shelves = [] } = useQuery<ShelfRecord[]>({
     queryKey: ["shelves"],
     queryFn: () => apiFetch("/api/shelves"),
   });
+
+  // Derived distinct values for cascading selects
+  const cabinets = Array.from(new Set(shelves.map((s) => s.cabinet))).sort();
+
+  const sidesForCabinet = selCabinet
+    ? Array.from(new Set(shelves.filter((s) => s.cabinet === selCabinet && s.side !== null).map((s) => s.side as string))).sort()
+    : [];
+
+  const hasSides = sidesForCabinet.length > 0;
+
+  const shelfNosForFilter = shelves
+    .filter((s) => {
+      if (s.cabinet !== selCabinet) return false;
+      if (hasSides && selSide && s.side !== selSide) return false;
+      return true;
+    })
+    .map((s) => s.shelfNo);
+  const shelfNos = Array.from(new Set(shelfNosForFilter)).sort((a, b) => a - b);
+
+  const matchingSections = shelves.filter((s) => {
+    if (s.cabinet !== selCabinet) return false;
+    if (hasSides && selSide && s.side !== selSide) return false;
+    if (selShelfNo !== null && s.shelfNo !== selShelfNo) return false;
+    return true;
+  });
+
+  function handleCabinetChange(v: string) {
+    setSelCabinet(v);
+    setSelSide(null);
+    setSelShelfNo(null);
+    onChange?.(null);
+  }
+
+  function handleSideChange(v: string) {
+    setSelSide(v);
+    setSelShelfNo(null);
+    onChange?.(null);
+  }
+
+  function handleShelfNoChange(v: number) {
+    setSelShelfNo(v);
+    onChange?.(null);
+  }
+
+  function shelfOptionLabel(s: ShelfRecord): string {
+    return `${s.code}${s.zone ? `  ·  ${s.zone}` : ""}${s.label ? `  ·  ${s.label}` : ""}`;
+  }
+
+  if (!browseMode) {
+    // Search-by-code mode
+    return (
+      <div className="space-y-1.5">
+        <Select
+          allowClear
+          showSearch
+          placeholder={ts("shelfPlaceholder")}
+          optionFilterProp="label"
+          value={value ?? undefined}
+          onChange={(v) => onChange?.(v ?? null)}
+          options={shelves.map((s) => ({ value: s.id, label: shelfOptionLabel(s) }))}
+          className="w-full"
+        />
+        <button
+          type="button"
+          className="text-xs text-blue-500 hover:underline"
+          onClick={() => setBrowseMode(true)}
+        >
+          {ts("browseMode")}
+        </button>
+      </div>
+    );
+  }
+
+  // Browse-by-location mode (cascading)
   return (
-    <Select
-      allowClear
-      showSearch
-      placeholder={ts("shelfPlaceholder")}
-      optionFilterProp="label"
-      value={value ?? undefined}
-      onChange={(v) => onChange?.(v ?? null)}
-      options={shelves.map((s) => {
-        const levelLetter = s.level ? String.fromCharCode(64 + s.level) : null;
-        let locationPrefix = "";
-        if (s.cabinet) {
-          locationPrefix = `${ts("colCabinet")} ${s.cabinet}`;
-          if (levelLetter) locationPrefix += `, ${ts("colLevel")} ${levelLetter}`;
-          if (s.block) locationPrefix += `, ${ts("colBlock")} ${s.block}`;
-          locationPrefix += " — ";
-        }
-        return {
-          value: s.id,
-          label: `${locationPrefix}${s.code}${s.label ? ` (${s.label})` : ""}`,
-        };
-      })}
-    />
+    <div className="space-y-2">
+      <div className="flex gap-2 flex-wrap">
+        <Select
+          placeholder={ts("colCabinet")}
+          value={selCabinet ?? undefined}
+          onChange={handleCabinetChange}
+          allowClear
+          onClear={() => { setSelCabinet(null); setSelSide(null); setSelShelfNo(null); onChange?.(null); }}
+          options={cabinets.map((c) => ({ value: c, label: c }))}
+          className="w-24"
+        />
+        {hasSides && (
+          <Select
+            placeholder={ts("colSide")}
+            value={selSide ?? undefined}
+            onChange={handleSideChange}
+            allowClear
+            onClear={() => { setSelSide(null); setSelShelfNo(null); onChange?.(null); }}
+            options={sidesForCabinet.map((s) => ({ value: s, label: s }))}
+            className="w-24"
+          />
+        )}
+        {selCabinet && (
+          <Select
+            placeholder={ts("shelfNoLabel")}
+            value={selShelfNo ?? undefined}
+            onChange={handleShelfNoChange}
+            allowClear
+            onClear={() => { setSelShelfNo(null); onChange?.(null); }}
+            options={shelfNos.map((n) => ({ value: n, label: String(n) }))}
+            className="w-24"
+          />
+        )}
+      </div>
+      {matchingSections.length > 0 && (
+        <Select
+          allowClear
+          placeholder={ts("shelfPlaceholder")}
+          value={value ?? undefined}
+          onChange={(v) => onChange?.(v ?? null)}
+          options={matchingSections.map((s) => ({ value: s.id, label: shelfOptionLabel(s) }))}
+          className="w-full"
+        />
+      )}
+      <button
+        type="button"
+        className="text-xs text-blue-500 hover:underline"
+        onClick={() => setBrowseMode(false)}
+      >
+        {ts("searchMode")}
+      </button>
+    </div>
   );
 }
 

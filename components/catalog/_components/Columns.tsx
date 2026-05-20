@@ -81,15 +81,10 @@ export function buildBookColumns({ ctx, actions, t, ts, onQR }: ColumnArgs): Col
       render: (_, row) => {
         const s = row.shelf;
         if (!s) return <span className="text-slate-300">—</span>;
-        const levelLetter = s.level ? String.fromCharCode(64 + s.level) : null;
         return (
           <div className="text-xs leading-snug">
             <span className="font-mono font-semibold text-blue-600">{s.code}</span>
-            {s.cabinet && (
-              <p className="text-slate-400">
-                {ts("colCabinet")}&nbsp;{s.cabinet}{levelLetter ? `, ${ts("colLevel")} ${levelLetter}` : ""}{s.block ? `, ${ts("colBlock")} ${s.block}` : ""}
-              </p>
-            )}
+            {s.zone && <p className="text-slate-400 truncate max-w-[120px]">{s.zone}</p>}
           </div>
         );
       },

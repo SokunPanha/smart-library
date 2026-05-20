@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Table, Button, Modal, Form, Input, InputNumber, Popconfirm, App, Tag, Divider } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined, AppstoreAddOutlined } from "@ant-design/icons";
+import { Table, Button, Modal, Form, Input, InputNumber, Checkbox, Popconfirm, App, Tag } from "antd";
+import { PlusOutlined, EditOutlined, DeleteOutlined, AppstoreAddOutlined, PrinterOutlined } from "@ant-design/icons";
+import { PrintShelvesModal } from "./PrintShelvesModal";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/request";
@@ -13,16 +14,24 @@ interface ShelfRecord {
   id: string;
   code: string;
   label: string | null;
-  section: string | null;
-  cabinet: string | null;
-  level: number | null;
-  block: number | null;
+  zone: string | null;
+  cabinet: string;
+  side: string | null;
+  shelfNo: number;
+  sectionNo: number;
   _count: { books: number };
 }
 
-function levelLetter(level: number | null): string {
-  if (!level || level < 1) return "—";
-  return String.fromCharCode(64 + level);
+function buildCode(
+  cabinet: string,
+  side: string | null | undefined,
+  shelfNo: number,
+  sectionNo: number
+): string {
+  const parts: string[] = [cabinet.trim().toUpperCase()];
+  if (side?.trim()) parts.push(side.trim().toUpperCase());
+  parts.push(String(shelfNo), String(sectionNo));
+  return parts.join("-");
 }
 
 export function ShelvesTab() {
@@ -33,10 +42,24 @@ export function ShelvesTab() {
   const [form] = Form.useForm();
   const [editing, setEditing] = useState<ShelfRecord | null>(null);
   const [open, setOpen] = useState(false);
+  const [printOpen, setPrintOpen] = useState(false);
+  const [builderOpen, setBuilderOpen] = useState(false);
 
-  const [cabinetCode, setCabinetCode] = useState("");
-  const [levelCount, setLevelCount] = useState(3);
-  const [blockCount, setBlockCount] = useState(4);
+  // Cabinet Builder state
+  const [cabinetName, setCabinetName] = useState("");
+  const [doubleSided, setDoubleSided] = useState(false);
+  const [frontLabel, setFrontLabel] = useState("L");
+  const [rearLabel, setRearLabel] = useState("R");
+  const [shelfCount, setShelfCount] = useState(3);
+  const [sectionsPerShelf, setSectionsPerShelf] = useState(3);
+  const [builderZone, setBuilderZone] = useState("");
+
+  // Add/Edit modal — watch fields to compute code preview
+  const [editCabinet, setEditCabinet] = useState("");
+  const [editSide, setEditSide] = useState("");
+  const [editShelfNo, setEditShelfNo] = useState(1);
+  const [editSectionNo, setEditSectionNo] = useState(1);
+
   const { ref: tableRef, scrollY } = useTableScroll();
 
   const { data: shelves = [], isLoading } = useQuery<ShelfRecord[]>({
@@ -44,23 +67,26 @@ export function ShelvesTab() {
     queryFn: () => apiFetch<ShelfRecord[]>("/api/shelves"),
   });
 
-  // Generate preview codes: cabinetCode + levelLetter + blockNumber
-  // e.g. cabinet="10", levels=2, blocks=3 → 10A1, 10A2, 10A3, 10B1, 10B2, 10B3
-  const previewCodes = useMemo(() => {
-    const trimmed = cabinetCode.trim();
-    if (!trimmed || levelCount < 1 || blockCount < 1) return [];
-    const codes: string[] = [];
-    for (let l = 1; l <= levelCount; l++) {
-      const letter = String.fromCharCode(64 + l);
-      for (let b = 1; b <= blockCount; b++) {
-        codes.push(`${trimmed}${letter}${b}`);
+  const existingCodes = useMemo(() => new Set(shelves.map((s) => s.code)), [shelves]);
+
+  // Generate preview codes for the cabinet builder
+  const previewEntries = useMemo(() => {
+    const trimmed = cabinetName.trim().toUpperCase();
+    if (!trimmed || shelfCount < 1 || sectionsPerShelf < 1) return [];
+    const sides = doubleSided ? [frontLabel.trim() || "F", rearLabel.trim() || "R"] : [null];
+    const entries: { code: string; cabinet: string; side: string | null; shelfNo: number; sectionNo: number }[] = [];
+    for (const side of sides) {
+      for (let sh = 1; sh <= shelfCount; sh++) {
+        for (let sec = 1; sec <= sectionsPerShelf; sec++) {
+          const code = buildCode(trimmed, side, sh, sec);
+          entries.push({ code, cabinet: trimmed, side: side ?? null, shelfNo: sh, sectionNo: sec });
+        }
       }
     }
-    return codes;
-  }, [cabinetCode, levelCount, blockCount]);
+    return entries;
+  }, [cabinetName, doubleSided, frontLabel, rearLabel, shelfCount, sectionsPerShelf]);
 
-  const existingCodes = useMemo(() => new Set(shelves.map((s) => s.code)), [shelves]);
-  const newCodes = previewCodes.filter((c) => !existingCodes.has(c));
+  const newEntries = previewEntries.filter((e) => !existingCodes.has(e.code));
 
   const bulkMutation = useMutation({
     mutationFn: (data: object) =>
@@ -74,16 +100,28 @@ export function ShelvesTab() {
       const suffix = data.skipped ? t("addedSkippedSuffix", { count: data.skipped }) : "";
       message.success(base + suffix);
       qc.invalidateQueries({ queryKey: ["shelves"] });
-      setCabinetCode("");
+      setCabinetName("");
+      setBuilderOpen(false);
     },
     onError: (e: Error) => message.error(e.message),
   });
 
   const saveMutation = useMutation({
-    mutationFn: (values: { code: string; label?: string; section?: string; cabinet?: string; level?: number; block?: number }) =>
+    mutationFn: (values: {
+      code: string; cabinet: string; side?: string | null;
+      shelfNo: number; sectionNo: number; zone?: string | null; label?: string | null;
+    }) =>
       editing
-        ? apiFetch(`/api/shelves/${editing.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(values) })
-        : apiFetch("/api/shelves", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(values) }),
+        ? apiFetch(`/api/shelves/${editing.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(values),
+          })
+        : apiFetch("/api/shelves", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(values),
+          }),
     onSuccess: () => {
       message.success(editing ? t("updatedSuccess") : t("addedSingleSuccess"));
       qc.invalidateQueries({ queryKey: ["shelves"] });
@@ -96,30 +134,77 @@ export function ShelvesTab() {
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => apiFetch(`/api/shelves/${id}`, { method: "DELETE" }),
-    onSuccess: () => { message.success(t("deletedSuccess")); qc.invalidateQueries({ queryKey: ["shelves"] }); },
+    onSuccess: () => {
+      message.success(t("deletedSuccess"));
+      qc.invalidateQueries({ queryKey: ["shelves"] });
+    },
     onError: (e: Error) => message.error(e.message),
   });
 
-  function openAdd() { setEditing(null); form.resetFields(); setOpen(true); }
+  function openAdd() {
+    setEditing(null);
+    setEditCabinet("");
+    setEditSide("");
+    setEditShelfNo(1);
+    setEditSectionNo(1);
+    setOpen(true);
+  }
+
   function openEdit(s: ShelfRecord) {
     setEditing(s);
-    form.setFieldsValue({ code: s.code, label: s.label, section: s.section, cabinet: s.cabinet, level: s.level, block: s.block });
+    setEditCabinet(s.cabinet);
+    setEditSide(s.side ?? "");
+    setEditShelfNo(s.shelfNo);
+    setEditSectionNo(s.sectionNo);
+    form.setFieldsValue({
+      cabinet: s.cabinet,
+      side: s.side ?? "",
+      shelfNo: s.shelfNo,
+      sectionNo: s.sectionNo,
+      zone: s.zone,
+      label: s.label,
+    });
     setOpen(true);
   }
 
   function handleBulkAdd() {
-    if (newCodes.length === 0) { message.info(t("allCodesExist")); return; }
-    const cabinetTrimmed = cabinetCode.trim();
-    const toCreate: { code: string; cabinet: string; level: number; block: number }[] = [];
-    for (let l = 1; l <= levelCount; l++) {
-      const letter = String.fromCharCode(64 + l);
-      for (let b = 1; b <= blockCount; b++) {
-        const code = `${cabinetTrimmed}${letter}${b}`;
-        toCreate.push({ code, cabinet: cabinetTrimmed, level: l, block: b });
-      }
+    if (newEntries.length === 0) {
+      message.info(t("allCodesExist"));
+      return;
     }
+    const zone = builderZone.trim() || undefined;
+    const toCreate = newEntries.map((e) => ({ ...e, zone: zone ?? null }));
     bulkMutation.mutate({ shelves: toCreate });
   }
+
+  function handleFormFinish(values: {
+    cabinet: string; side?: string; shelfNo: number; sectionNo: number;
+    zone?: string; label?: string;
+  }) {
+    const code = buildCode(
+      values.cabinet,
+      values.side ?? null,
+      values.shelfNo,
+      values.sectionNo
+    );
+    saveMutation.mutate({
+      code,
+      cabinet: values.cabinet.trim().toUpperCase(),
+      side: values.side?.trim().toUpperCase() || null,
+      shelfNo: values.shelfNo,
+      sectionNo: values.sectionNo,
+      zone: values.zone || null,
+      label: values.label || null,
+    });
+  }
+
+  // Computed code preview for the modal
+  const modalPreviewCode = buildCode(
+    editCabinet || "?",
+    editSide || null,
+    editShelfNo || 1,
+    editSectionNo || 1
+  );
 
   const columns: ColumnsType<ShelfRecord> = [
     {
@@ -132,36 +217,48 @@ export function ShelvesTab() {
       title: t("colCabinet"),
       dataIndex: "cabinet",
       key: "cabinet",
-      render: (v) => v ? <Tag className="border-0 bg-violet-50 text-violet-600">{v}</Tag> : <span className="text-slate-300">—</span>,
+      render: (v) => <Tag className="border-0 bg-violet-50 text-violet-600">{v}</Tag>,
     },
     {
-      title: t("colLevel"),
-      dataIndex: "level",
-      key: "level",
-      render: (v: number | null) => v
-        ? <span className="text-slate-600">{t("levelDisplay", { level: v, letter: levelLetter(v) })}</span>
-        : <span className="text-slate-300">—</span>,
+      title: t("colSide"),
+      dataIndex: "side",
+      key: "side",
+      render: (v: string | null) =>
+        v ? (
+          <Tag className="border-0 bg-slate-100 text-slate-600">{v}</Tag>
+        ) : (
+          <span className="text-slate-300">—</span>
+        ),
     },
     {
-      title: t("colBlock"),
-      dataIndex: "block",
-      key: "block",
-      render: (v: number | null) => v
-        ? <span className="font-mono text-slate-600">{v}</span>
-        : <span className="text-slate-300">—</span>,
+      title: t("colShelf"),
+      dataIndex: "shelfNo",
+      key: "shelfNo",
+      render: (v: number) => <span className="font-mono text-slate-600">{v}</span>,
+    },
+    {
+      title: t("colSection"),
+      dataIndex: "sectionNo",
+      key: "sectionNo",
+      render: (v: number) => <span className="font-mono text-slate-600">{v}</span>,
+    },
+    {
+      title: t("colZone"),
+      dataIndex: "zone",
+      key: "zone",
+      responsive: ["xl"],
+      render: (v) =>
+        v ? (
+          <Tag className="border-0 bg-indigo-50 text-indigo-600">{v}</Tag>
+        ) : (
+          <span className="text-slate-300">—</span>
+        ),
     },
     {
       title: t("colLabel"),
       dataIndex: "label",
       key: "label",
       render: (v) => v ?? <span className="text-slate-300">—</span>,
-    },
-    {
-      title: t("colSection"),
-      dataIndex: "section",
-      key: "section",
-      responsive: ["xl"],
-      render: (v) => v ? <Tag className="border-0 bg-indigo-50 text-indigo-600">{v}</Tag> : <span className="text-slate-300">—</span>,
     },
     {
       title: t("colBooks"),
@@ -176,92 +273,49 @@ export function ShelvesTab() {
         <div className="flex gap-1">
           <Button type="text" size="small" icon={<EditOutlined />} onClick={() => openEdit(r)} />
           <Popconfirm
-            title={r._count.books > 0
-              ? t("deleteHasBooks", { count: r._count.books })
-              : t("deleteConfirm")}
+            title={
+              r._count.books > 0
+                ? t("deleteHasBooks", { count: r._count.books })
+                : t("deleteConfirm")
+            }
             onConfirm={() => r._count.books === 0 && deleteMutation.mutate(r.id)}
-            okText={tc("delete")} cancelText={tc("cancel")}
+            okText={tc("delete")}
+            cancelText={tc("cancel")}
             disabled={r._count.books > 0}
           >
-            <Button type="text" size="small" danger icon={<DeleteOutlined />} disabled={r._count.books > 0} />
+            <Button
+              type="text"
+              size="small"
+              danger
+              icon={<DeleteOutlined />}
+              disabled={r._count.books > 0}
+            />
           </Popconfirm>
         </div>
       ),
     },
   ];
 
+  // Group preview entries by side for visual display
+  const previewSides = doubleSided
+    ? [frontLabel.trim() || "L", rearLabel.trim() || "R"]
+    : [null];
+
   return (
-    <div className="space-y-5">
-      {/* Cabinet Builder */}
-      <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-3">
-        <div className="flex items-center gap-2">
-          <AppstoreAddOutlined className="text-violet-500" />
-          <span className="font-medium text-slate-700 text-sm">{t("cabinetBuilder")}</span>
-        </div>
-        <p className="text-xs text-slate-400">{t("cabinetBuilderHint")}</p>
-
-        <div className="flex flex-wrap items-end gap-3">
-          <div>
-            <label className="block text-xs text-slate-500 mb-1">{t("cabinetCode")}</label>
-            <Input
-              placeholder="e.g. 10"
-              value={cabinetCode}
-              onChange={(e) => setCabinetCode(e.target.value)}
-              className="w-28 font-mono"
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-slate-500 mb-1">{t("levels")}</label>
-            <InputNumber min={1} max={26} value={levelCount} onChange={(v) => v && setLevelCount(v)} className="w-20" />
-          </div>
-          <div>
-            <label className="block text-xs text-slate-500 mb-1">{t("blocksPerLevel")}</label>
-            <InputNumber min={1} max={20} value={blockCount} onChange={(v) => v && setBlockCount(v)} className="w-20" />
-          </div>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            disabled={newCodes.length === 0}
-            loading={bulkMutation.isPending}
-            onClick={handleBulkAdd}
-          >
-            {t("addCabinet", { count: newCodes.length })}
-          </Button>
-        </div>
-
-        {/* Preview — grouped by level */}
-        {previewCodes.length > 0 && (
-          <div className="space-y-1.5">
-            {Array.from({ length: levelCount }, (_, li) => {
-              const letter = String.fromCharCode(65 + li);
-              const levelCodes = Array.from({ length: blockCount }, (_, bi) => `${cabinetCode.trim()}${letter}${bi + 1}`);
-              return (
-                <div key={letter} className="flex flex-wrap items-center gap-1.5">
-                  <span className="text-xs text-slate-400 w-6 text-right">{letter}</span>
-                  {levelCodes.map((code) => (
-                    <span
-                      key={code}
-                      className={`px-2 py-0.5 rounded text-xs font-mono font-medium border ${
-                        existingCodes.has(code)
-                          ? "bg-slate-100 border-slate-200 text-slate-400 line-through"
-                          : "bg-violet-50 border-violet-200 text-violet-700"
-                      }`}
-                    >
-                      {code}
-                    </span>
-                  ))}
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      <Divider className="my-0" />
-
+    <div className="space-y-4">
       <div className="flex justify-between items-center">
         <p className="text-sm text-slate-500">{t("total", { count: shelves.length })}</p>
-        <Button icon={<PlusOutlined />} onClick={openAdd}>{t("addSingle")}</Button>
+        <div className="flex gap-2">
+          <Button icon={<AppstoreAddOutlined />} onClick={() => setBuilderOpen(true)}>
+            {t("cabinetBuilder")}
+          </Button>
+          <Button icon={<PrinterOutlined />} onClick={() => setPrintOpen(true)} disabled={shelves.length === 0}>
+            {t("printBtn")}
+          </Button>
+          <Button icon={<PlusOutlined />} onClick={openAdd}>
+            {t("addSingle")}
+          </Button>
+        </div>
       </div>
 
       <div ref={tableRef}>
@@ -277,35 +331,234 @@ export function ShelvesTab() {
         />
       </div>
 
+      <PrintShelvesModal open={printOpen} onClose={() => setPrintOpen(false)} shelves={shelves} />
+
+      {/* Cabinet Builder modal */}
+      <Modal
+        open={builderOpen}
+        title={
+          <span className="flex items-center gap-2">
+            <AppstoreAddOutlined className="text-violet-500" />
+            {t("cabinetBuilder")}
+          </span>
+        }
+        onCancel={() => setBuilderOpen(false)}
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button onClick={() => setBuilderOpen(false)}>{tc("cancel")}</Button>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              disabled={newEntries.length === 0}
+              loading={bulkMutation.isPending}
+              onClick={handleBulkAdd}
+            >
+              {t("addCabinet", { count: newEntries.length })}
+            </Button>
+          </div>
+        }
+        width={560}
+        destroyOnHidden
+      >
+        <div className="space-y-4 py-2">
+          {/* Hint + code anatomy */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <p className="text-xs text-slate-400 shrink-0">{t("cabinetBuilderHint")}</p>
+            <div className="flex flex-wrap items-center gap-x-1 gap-y-2">
+              {(
+                [
+                  { seg: "A",   label: t("colCabinet"), sub: "A, B, C…"              },
+                  { seg: "L/R", label: t("colSide"),    sub: t("codeFormatOptional") },
+                  { seg: "2",   label: t("colShelf"),   sub: t("shelfNoExtra")       },
+                  { seg: "3",   label: t("colSection"), sub: t("sectionNoExtra")     },
+                ] as const
+              ).map(({ seg, label, sub }, i, arr) => (
+                <div key={seg} className="flex items-center gap-x-1">
+                  <div className="flex flex-col items-center gap-0.5 text-center">
+                    <span className="px-2 py-0.5 rounded bg-violet-50 border border-violet-200 text-violet-700 font-mono font-semibold text-xs">{seg}</span>
+                    <span className="text-[10px] font-medium text-slate-600 leading-tight">{label}</span>
+                    <span className="text-[10px] text-slate-400 leading-tight">{sub}</span>
+                  </div>
+                  {i < arr.length - 1 && <span className="text-slate-300 text-sm mb-5">–</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Fields */}
+          <div className="flex flex-wrap items-end gap-3">
+            <div>
+              <label className="block text-xs text-slate-500 mb-1">{t("cabinetName")}</label>
+              <Input
+                placeholder="e.g. A"
+                value={cabinetName}
+                onChange={(e) => setCabinetName(e.target.value)}
+                className="w-20 font-mono"
+              />
+            </div>
+            <div className="flex items-center gap-2 pb-1">
+              <Checkbox checked={doubleSided} onChange={(e) => setDoubleSided(e.target.checked)}>
+                <span className="text-xs text-slate-600">{t("doubleSided")}</span>
+              </Checkbox>
+            </div>
+            {doubleSided && (
+              <>
+                <div>
+                  <label className="block text-xs text-slate-500 mb-1">{t("frontLabel")}</label>
+                  <Input value={frontLabel} onChange={(e) => setFrontLabel(e.target.value)} className="w-16 font-mono" />
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-500 mb-1">{t("rearLabel")}</label>
+                  <Input value={rearLabel} onChange={(e) => setRearLabel(e.target.value)} className="w-16 font-mono" />
+                </div>
+              </>
+            )}
+            <div>
+              <label className="block text-xs text-slate-500 mb-1">{t("shelves")}</label>
+              <InputNumber min={1} max={20} value={shelfCount} onChange={(v) => v && setShelfCount(v)} className="w-20" />
+            </div>
+            <div>
+              <label className="block text-xs text-slate-500 mb-1">{t("sectionsPerShelf")}</label>
+              <InputNumber min={1} max={20} value={sectionsPerShelf} onChange={(v) => v && setSectionsPerShelf(v)} className="w-20" />
+            </div>
+            <div className="flex-1 min-w-35">
+              <label className="block text-xs text-slate-500 mb-1">{t("zone")}</label>
+              <Input placeholder="e.g. Science" value={builderZone} onChange={(e) => setBuilderZone(e.target.value)} className="w-full" />
+            </div>
+          </div>
+
+          {/* Visual preview */}
+          {previewEntries.length > 0 && cabinetName.trim() && (
+            <div className="flex flex-wrap gap-6 pt-1 border-t border-slate-100">
+              {previewSides.map((side) => {
+                const sideEntries = previewEntries.filter((e) =>
+                  side ? e.side === side : e.side === null
+                );
+                return (
+                  <div key={side ?? "single"} className="space-y-1">
+                    {side && (
+                      <p className="text-xs font-medium text-slate-500 mb-1">
+                        {side === (frontLabel.trim() || "L") ? t("frontLabel") : t("rearLabel")}:{" "}
+                        <span className="font-mono">{side}</span>
+                      </p>
+                    )}
+                    {Array.from({ length: shelfCount }, (_, si) => {
+                      const rowEntries = sideEntries.filter((e) => e.shelfNo === si + 1);
+                      return (
+                        <div key={si} className="flex items-center gap-1.5">
+                          <span className="text-xs text-slate-400 w-4 text-right">{si + 1}</span>
+                          {rowEntries.map((e) => (
+                            <span
+                              key={e.code}
+                              className={`px-2 py-0.5 rounded text-xs font-mono font-medium border ${
+                                existingCodes.has(e.code)
+                                  ? "bg-slate-100 border-slate-200 text-slate-400 line-through"
+                                  : "bg-violet-50 border-violet-200 text-violet-700"
+                              }`}
+                            >
+                              {e.code}
+                            </span>
+                          ))}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </Modal>
+
       {/* Add / Edit modal */}
       <Modal
         open={open}
         title={editing ? t("editTitle") : t("addTitle")}
-        onCancel={() => { setOpen(false); setEditing(null); form.resetFields(); }}
+        onCancel={() => {
+          setOpen(false);
+          setEditing(null);
+          form.resetFields();
+        }}
         onOk={() => form.submit()}
         okText={tc("save")}
         cancelText={tc("cancel")}
         destroyOnHidden
       >
-        <Form form={form} layout="vertical" onFinish={saveMutation.mutate} className="mt-4">
-          <Form.Item name="code" label={t("codeLabel")} rules={[{ required: true }]} extra={t("codeExtra")}>
-            <Input placeholder="10A1" className="font-mono" />
+        <Form form={form} layout="vertical" onFinish={handleFormFinish} className="mt-4">
+          {/* Code preview (read-only) */}
+          <Form.Item label={t("codeLabel")} extra={t("codeExtra")}>
+            <Input
+              value={modalPreviewCode}
+              readOnly
+              className="font-mono bg-slate-50 text-slate-600"
+            />
           </Form.Item>
+
           <div className="flex gap-3">
-            <Form.Item name="cabinet" label={t("colCabinet")} className="flex-1" extra={t("cabinetExtra")}>
-              <Input placeholder="10" className="font-mono" />
+            <Form.Item
+              name="cabinet"
+              label={t("colCabinet")}
+              className="flex-1"
+              rules={[{ required: true }]}
+            >
+              <Input
+                placeholder="A"
+                className="font-mono"
+                onChange={(e) => setEditCabinet(e.target.value)}
+              />
             </Form.Item>
-            <Form.Item name="level" label={t("colLevel")} className="flex-1" extra={t("levelExtra")}>
-              <InputNumber className="w-full" min={1} max={26} placeholder="1" />
-            </Form.Item>
-            <Form.Item name="block" label={t("colBlock")} className="flex-1" extra={t("blockExtra")}>
-              <InputNumber className="w-full" min={1} max={20} placeholder="1" />
+            <Form.Item
+              name="side"
+              label={t("colSide")}
+              className="flex-1"
+              extra={t("sideExtra")}
+            >
+              <Input
+                placeholder="L / R"
+                className="font-mono"
+                onChange={(e) => setEditSide(e.target.value)}
+              />
             </Form.Item>
           </div>
-          <Form.Item name="label" label={t("labelLabel")} extra={t("labelExtra")}>
+
+          <div className="flex gap-3">
+            <Form.Item
+              name="shelfNo"
+              label={t("shelfNoLabel")}
+              className="flex-1"
+              rules={[{ required: true }]}
+              extra={t("shelfNoExtra")}
+              initialValue={1}
+            >
+              <InputNumber
+                className="w-full"
+                min={1}
+                max={99}
+                onChange={(v) => v && setEditShelfNo(v)}
+              />
+            </Form.Item>
+            <Form.Item
+              name="sectionNo"
+              label={t("sectionNoLabel")}
+              className="flex-1"
+              rules={[{ required: true }]}
+              extra={t("sectionNoExtra")}
+              initialValue={1}
+            >
+              <InputNumber
+                className="w-full"
+                min={1}
+                max={99}
+                onChange={(v) => v && setEditSectionNo(v)}
+              />
+            </Form.Item>
+          </div>
+
+          <Form.Item name="zone" label={t("zoneLabel")}>
             <Input />
           </Form.Item>
-          <Form.Item name="section" label={t("sectionLabel")} extra={t("sectionExtra")}>
+
+          <Form.Item name="label" label={t("labelLabel")}>
             <Input />
           </Form.Item>
         </Form>

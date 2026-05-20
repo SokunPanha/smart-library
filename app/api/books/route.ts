@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
       skip: (page - 1) * limit,
       take: limit,
       orderBy: { createdAt: "desc" },
-      include: { shelf: { select: { id: true, code: true, label: true, section: true, cabinet: true, level: true, block: true } } },
+      include: { shelf: { select: { id: true, code: true, label: true, zone: true, cabinet: true, side: true, shelfNo: true, sectionNo: true } } },
     }),
     prisma.book.count({ where }),
   ]);

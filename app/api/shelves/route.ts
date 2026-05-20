@@ -5,11 +5,12 @@ import { z } from "zod";
 
 const shelfSchema = z.object({
   code: z.string().min(1),
+  cabinet: z.string().min(1),
+  side: z.string().optional().nullable(),
+  shelfNo: z.number().int().min(1),
+  sectionNo: z.number().int().min(1),
+  zone: z.string().optional().nullable(),
   label: z.string().optional().nullable(),
-  section: z.string().optional().nullable(),
-  cabinet: z.string().optional().nullable(),
-  level: z.number().int().optional().nullable(),
-  block: z.number().int().optional().nullable(),
 });
 
 export async function GET(req: NextRequest) {
@@ -21,7 +22,7 @@ export async function GET(req: NextRequest) {
 
   const shelves = await prisma.shelf.findMany({
     where: cabinet ? { cabinet } : undefined,
-    orderBy: [{ cabinet: "asc" }, { level: "asc" }, { block: "asc" }, { code: "asc" }],
+    orderBy: [{ cabinet: "asc" }, { side: "asc" }, { shelfNo: "asc" }, { sectionNo: "asc" }],
     include: { _count: { select: { books: true } } },
   });
   return NextResponse.json(shelves);

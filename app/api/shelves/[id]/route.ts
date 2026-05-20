@@ -5,11 +5,12 @@ import { z } from "zod";
 
 const shelfSchema = z.object({
   code: z.string().min(1),
+  cabinet: z.string().min(1),
+  side: z.string().optional().nullable(),
+  shelfNo: z.number().int().min(1),
+  sectionNo: z.number().int().min(1),
+  zone: z.string().optional().nullable(),
   label: z.string().optional().nullable(),
-  section: z.string().optional().nullable(),
-  cabinet: z.string().optional().nullable(),
-  level: z.number().int().optional().nullable(),
-  block: z.number().int().optional().nullable(),
 });
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

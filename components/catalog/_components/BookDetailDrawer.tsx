@@ -28,7 +28,7 @@ interface BookDetail {
   publisher: string | null; publishYear: number | null; isbn: string | null;
   deweyCode: string | null; category: string | null; tags: string[];
   coverImage: string | null; totalCopies: number; availableCopies: number;
-  shelf: { code: string; label: string | null; section: string | null; cabinet: string | null } | null;
+  shelf: { code: string; label: string | null; zone: string | null; cabinet: string; side: string | null; shelfNo: number; sectionNo: number } | null;
   loans: Loan[];
   reservations: Reservation[];
 }
@@ -109,7 +109,14 @@ export function BookDetailDrawer({ bookId, onClose }: Props) {
               </div>
               {book.shelf && (
                 <p className="text-xs text-slate-400 mt-1.5">
-                  📚 {[book.shelf.cabinet && `Cabinet ${book.shelf.cabinet}`, book.shelf.code, book.shelf.label, book.shelf.section].filter(Boolean).join(" · ")}
+                  📍 {[
+                    `Cabinet ${book.shelf.cabinet}`,
+                    book.shelf.side && `Side ${book.shelf.side}`,
+                    `Shelf ${book.shelf.shelfNo}`,
+                    `Section ${book.shelf.sectionNo}`,
+                    book.shelf.label,
+                  ].filter(Boolean).join(" · ")}
+                  <span className="font-mono ml-1">({book.shelf.code})</span>
                 </p>
               )}
               {(book.publisher || book.publishYear) && (

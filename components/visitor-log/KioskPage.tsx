@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
@@ -47,46 +47,6 @@ type ScanState =
   | { status: "checkin";  member: Member }
   | { status: "checkout"; member: Member; durationMin: number }
   | { status: "error";    message: string };
-
-// Shows items statically when they fit; switches to a seamless CSS loop when they overflow.
-// Content is doubled so translateY(-50%) advances exactly one full list height.
-function AutoScrollList({ children, itemCount }: { children: ReactNode; itemCount: number }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const measureRef   = useRef<HTMLDivElement>(null);
-  const [isOverflowing, setIsOverflowing] = useState(false);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    const measure   = measureRef.current;
-    if (!container || !measure) return;
-    const check = () => setIsOverflowing(measure.offsetHeight > container.clientHeight);
-    const ro = new ResizeObserver(check);
-    ro.observe(container);
-    ro.observe(measure);
-    check();
-    return () => ro.disconnect();
-  }, [itemCount]);
-
-  // ~2 s per item, clamped 10–40 s
-  const duration = `${Math.min(40, Math.max(10, itemCount * 2))}s`;
-
-  return (
-    <div ref={containerRef} className="flex-1 overflow-hidden relative">
-      {/* Hidden single copy used only for measuring */}
-      <div ref={measureRef} className="absolute invisible pointer-events-none w-full" aria-hidden="true">
-        {children}
-      </div>
-      {isOverflowing ? (
-        <div style={{ animation: `kiosk-scroll-up ${duration} linear infinite` }}>
-          <div>{children}</div>
-          <div>{children}</div>
-        </div>
-      ) : (
-        <div>{children}</div>
-      )}
-    </div>
-  );
-}
 
 // Static class map — avoids dynamic Tailwind purging
 const PURPOSE_BTN: Record<string, string> = {
@@ -204,7 +164,7 @@ export function KioskPage() {
     scanner
       .start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 400, height: 300 } },
+        { fps: 10, qrbox: { width: 350, height: 200 } },
         (text) => handleScan(text),
         () => {}
       )
@@ -262,33 +222,31 @@ export function KioskPage() {
             <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1 lg:mb-2 shrink-0">
               🏆 {t("kiosk.topReaders")}
             </p>
-            <AutoScrollList itemCount={(leaderboard?.topReaders ?? []).length}>
-              <div className="space-y-0.5 lg:space-y-1">
-                {(leaderboard?.topReaders ?? []).length === 0 ? (
-                  <p className="text-slate-600 text-sm">{t("kiosk.noData")}</p>
-                ) : (leaderboard?.topReaders ?? []).map((r) => (
-                  <div
-                    key={r.id}
-                    className={`flex items-center gap-2 px-2 py-1.5 rounded-lg ${r.rank <= 3 ? RANK_BG[r.rank - 1] : "bg-slate-800/60"}`}
-                  >
-                    <span className={`text-xs font-bold w-5 text-center shrink-0 ${r.rank <= 3 ? RANK_STYLES[r.rank - 1] : "text-slate-500"}`}>
-                      {r.rank <= 3 ? ["🥇","🥈","🥉"][r.rank - 1] : r.rank}
-                    </span>
-                    {r.photo ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={r.photo} alt="" className="w-10 h-10 lg:w-12 lg:h-12 rounded-full object-cover shrink-0 ring-2 ring-slate-600" />
-                    ) : (
-                      <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-slate-700 flex items-center justify-center text-base shrink-0">👤</div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-white truncate leading-tight">{r.nameKh ?? r.nameEn}</p>
-                      {r.class && <p className="hidden md:block text-xs text-slate-500 truncate leading-tight">{r.class.name}</p>}
-                    </div>
-                    <span className="text-xs text-slate-400 shrink-0">{t("kiosk.visits", { count: r.visitCount })}</span>
+            <div className="flex-1 overflow-y-auto space-y-0.5 lg:space-y-1">
+              {(leaderboard?.topReaders ?? []).length === 0 ? (
+                <p className="text-slate-600 text-sm">{t("kiosk.noData")}</p>
+              ) : (leaderboard?.topReaders ?? []).map((r) => (
+                <div
+                  key={r.id}
+                  className={`flex items-center gap-1.5 px-1.5 py-1 rounded-lg ${r.rank <= 3 ? RANK_BG[r.rank - 1] : "bg-slate-800/60"}`}
+                >
+                  <span className={`text-xs font-bold w-5 text-center shrink-0 ${r.rank <= 3 ? RANK_STYLES[r.rank - 1] : "text-slate-500"}`}>
+                    {r.rank <= 3 ? ["🥇","🥈","🥉"][r.rank - 1] : r.rank}
+                  </span>
+                  {r.photo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={r.photo} alt="" className="w-6 h-6 lg:w-7 lg:h-7 rounded-full object-cover shrink-0" />
+                  ) : (
+                    <div className="w-6 h-6 lg:w-7 lg:h-7 rounded-full bg-slate-700 flex items-center justify-center text-xs shrink-0">👤</div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-white truncate leading-tight">{r.nameKh ?? r.nameEn}</p>
+                    {r.class && <p className="hidden md:block text-xs text-slate-500 truncate leading-tight">{r.class.name}</p>}
                   </div>
-                ))}
-              </div>
-            </AutoScrollList>
+                  <span className="text-xs text-slate-400 shrink-0">{t("kiosk.visits", { count: r.visitCount })}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Divider (desktop only) */}
@@ -299,33 +257,31 @@ export function KioskPage() {
             <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1 lg:mb-2 shrink-0">
               📚 {t("kiosk.topBooks")}
             </p>
-            <AutoScrollList itemCount={(leaderboard?.topBooks ?? []).length}>
-              <div className="space-y-0.5 lg:space-y-1">
-                {(leaderboard?.topBooks ?? []).length === 0 ? (
-                  <p className="text-slate-600 text-sm">{t("kiosk.noData")}</p>
-                ) : (leaderboard?.topBooks ?? []).map((b) => (
-                  <div
-                    key={b.id}
-                    className={`flex items-center gap-2 px-2 py-1.5 rounded-lg ${b.rank <= 3 ? RANK_BG[b.rank - 1] : "bg-slate-800/60"}`}
-                  >
-                    <span className={`text-xs font-bold w-5 text-center shrink-0 ${b.rank <= 3 ? RANK_STYLES[b.rank - 1] : "text-slate-500"}`}>
-                      {b.rank <= 3 ? ["🥇","🥈","🥉"][b.rank - 1] : b.rank}
-                    </span>
-                    {b.coverImage ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={b.coverImage} alt="" className="w-8 h-12 lg:w-10 lg:h-14 object-cover rounded shadow shrink-0" />
-                    ) : (
-                      <div className="w-8 h-12 lg:w-10 lg:h-14 rounded bg-slate-700 shrink-0" />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-white truncate leading-tight">{b.titleKh ?? b.titleEn}</p>
-                      {b.author && <p className="hidden md:block text-xs text-slate-500 truncate leading-tight">{b.author}</p>}
-                    </div>
-                    <span className="text-xs text-slate-400 shrink-0">{t("kiosk.borrows", { count: b.borrowCount })}</span>
+            <div className="flex-1 overflow-y-auto space-y-0.5 lg:space-y-1">
+              {(leaderboard?.topBooks ?? []).length === 0 ? (
+                <p className="text-slate-600 text-sm">{t("kiosk.noData")}</p>
+              ) : (leaderboard?.topBooks ?? []).map((b) => (
+                <div
+                  key={b.id}
+                  className={`flex items-center gap-1.5 px-1.5 py-1 rounded-lg ${b.rank <= 3 ? RANK_BG[b.rank - 1] : "bg-slate-800/60"}`}
+                >
+                  <span className={`text-xs font-bold w-5 text-center shrink-0 ${b.rank <= 3 ? RANK_STYLES[b.rank - 1] : "text-slate-500"}`}>
+                    {b.rank <= 3 ? ["🥇","🥈","🥉"][b.rank - 1] : b.rank}
+                  </span>
+                  {b.coverImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={b.coverImage} alt="" className="w-5 h-8 lg:w-7 lg:h-10 object-cover rounded shrink-0" />
+                  ) : (
+                    <div className="w-5 h-8 lg:w-7 lg:h-10 rounded bg-slate-700 shrink-0" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-white truncate leading-tight">{b.titleKh ?? b.titleEn}</p>
+                    {b.author && <p className="hidden md:block text-xs text-slate-500 truncate leading-tight">{b.author}</p>}
                   </div>
-                ))}
-              </div>
-            </AutoScrollList>
+                  <span className="text-xs text-slate-400 shrink-0">{t("kiosk.borrows", { count: b.borrowCount })}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
