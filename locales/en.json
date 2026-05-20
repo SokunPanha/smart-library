@@ -122,6 +122,18 @@
     "deleteTitle": "Delete Book?",
     "deleteContent": "\"{title}\" will be permanently removed.",
     "uploadError": "Failed to upload image.",
+    "isbnScan": {
+      "title": "Scan ISBN Barcode",
+      "hint": "Point camera at the ISBN barcode on the book's back cover",
+      "lookingUp": "Looking up book info…",
+      "notFound": "Book not found in Open Library. You can still use the ISBN.",
+      "error": "Scan failed. Please try again.",
+      "cameraUnavailable": "Camera not available. Please allow camera access.",
+      "scanAgain": "Scan Again",
+      "use": "Use This",
+      "useIsbnOnly": "Use ISBN Only",
+      "scanBarcode": "Scan Barcode"
+    },
     "bulkImport": {
       "title": "Bulk Import Books",
       "instructions": "Download the template, fill in your book data, then upload the file.",

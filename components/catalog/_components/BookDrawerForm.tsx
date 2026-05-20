@@ -1,14 +1,15 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Drawer, Form, Input, InputNumber, Select, Button, Space, Upload, App, Image } from "antd";
-import { UploadOutlined, DeleteOutlined, CameraOutlined } from "@ant-design/icons";
+import { Drawer, Form, Input, InputNumber, Select, Button, Space, Upload, App, Tooltip } from "antd";
+import { UploadOutlined, DeleteOutlined, CameraOutlined, BarcodeOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import type { UploadRequestOption } from "@rc-component/upload/lib/interface";
 import { apiFetch } from "@/lib/request";
 import { useCatalogContext } from "../helper/hooks";
 import { useBooks } from "../helper/useBooks";
+import { IsbnScanModal, type IsbnBookData } from "./IsbnScanModal";
 
 function CoverUpload() {
   const t = useTranslations("catalog");
@@ -138,16 +139,36 @@ function CoverUpload() {
 
 function BookFields({ autoFocusIsbn }: { autoFocusIsbn?: boolean }) {
   const t = useTranslations("catalog");
+  const form = Form.useFormInstance();
+  const [scanOpen, setScanOpen] = useState(false);
+
   const { data: categories = [] } = useQuery<{ id: string; name: string }[]>({
     queryKey: ["categories"],
     queryFn: () => apiFetch<{ id: string; name: string }[]>("/api/categories"),
   });
 
+  function handleScanned(data: IsbnBookData) {
+    form.setFieldsValue({
+      isbn: data.isbn,
+      titleEn: data.titleEn ?? undefined,
+      author: data.author ?? undefined,
+      publisher: data.publisher ?? undefined,
+      publishYear: data.publishYear ?? undefined,
+      coverImage: data.coverImage ?? undefined,
+    });
+  }
+
   return (
     <>
+      <IsbnScanModal open={scanOpen} onClose={() => setScanOpen(false)} onScanned={handleScanned} />
       <CoverUpload />
       <Form.Item label={t("isbn")} name="isbn">
-        <Input placeholder="978-xxx-xxx" autoFocus={autoFocusIsbn} />
+        <Space.Compact className="w-full">
+          <Input placeholder="978-xxx-xxx" autoFocus={autoFocusIsbn} />
+          <Tooltip title={t("isbnScan.scanBarcode")}>
+            <Button icon={<BarcodeOutlined />} onClick={() => setScanOpen(true)} />
+          </Tooltip>
+        </Space.Compact>
       </Form.Item>
       <Form.Item label={t("titleEn")} name="titleEn">
         <Input />
