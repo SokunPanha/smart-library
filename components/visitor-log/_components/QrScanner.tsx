@@ -9,15 +9,16 @@ interface Props {
   title: string;
   onScan: (value: string) => void;
   onClose: () => void;
+  /** Keep modal open after each scan and restart the camera for the next code. */
+  persistent?: boolean;
 }
 
-export function QrScanner({ title, onScan, onClose }: Props) {
+export function QrScanner({ title, onScan, onClose, persistent = false }: Props) {
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const hasScanned = useRef(false);
   const [cameraError, setCameraError] = useState(false);
   const [manualValue, setManualValue] = useState("");
 
-  // Called by React when the div enters the DOM (or null when it leaves)
   const containerRef = useCallback((el: HTMLDivElement | null) => {
     if (!el) {
       stopScanner();
@@ -34,11 +35,20 @@ export function QrScanner({ title, onScan, onClose }: Props) {
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 250, height: 250 } },
         (text) => {
-          if (hasScanned.current) return; // ignore duplicate frames
+          if (hasScanned.current) return;
           hasScanned.current = true;
-          stopScanner();
-          onClose();
-          onScan(text.trim());
+
+          if (persistent) {
+            onScan(text.trim());
+            // Brief cooldown then restart so the same code isn't fired twice
+            setTimeout(() => {
+              hasScanned.current = false;
+            }, 1500);
+          } else {
+            stopScanner();
+            onClose();
+            onScan(text.trim());
+          }
         },
         () => {}
       )
@@ -60,8 +70,13 @@ export function QrScanner({ title, onScan, onClose }: Props) {
   function handleManual() {
     const val = manualValue.trim();
     if (!val) return;
-    stopScanner();
-    onScan(val);
+    setManualValue("");
+    if (persistent) {
+      onScan(val);
+    } else {
+      stopScanner();
+      onScan(val);
+    }
   }
 
   return (

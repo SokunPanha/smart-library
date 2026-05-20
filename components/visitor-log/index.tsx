@@ -5,6 +5,7 @@ import { Button, Tabs } from "antd";
 import { QrcodeOutlined } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
 import { CheckInPanel } from "./_components/CheckInPanel";
+import { BulkCheckInModal } from "./_components/BulkCheckInModal";
 import { InsideNow } from "./_components/InsideNow";
 import { VisitorTable } from "./_components/VisitorTable";
 import { VisitorStats } from "./_components/VisitorStats";
@@ -15,6 +16,7 @@ export default function VisitorLogPage() {
   const qc = useQueryClient();
   const [activeTab, setActiveTab] = useState("today");
   const [checkInOpen, setCheckInOpen] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
 
   function onCheckedIn() {
     qc.invalidateQueries({ queryKey: ["visitor-log"] });
@@ -24,13 +26,21 @@ export default function VisitorLogPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold text-slate-800">{t("title")}</h1>
-        <Button
-          type="primary"
-          icon={<QrcodeOutlined />}
-          onClick={() => setCheckInOpen(true)}
-        >
-          {t("scanMember")}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            icon={<QrcodeOutlined />}
+            onClick={() => setBulkOpen(true)}
+          >
+            {t("bulk.button")}
+          </Button>
+          <Button
+            type="primary"
+            icon={<QrcodeOutlined />}
+            onClick={() => setCheckInOpen(true)}
+          >
+            {t("scanMember")}
+          </Button>
+        </div>
       </div>
 
       <VisitorStats />
@@ -38,6 +48,11 @@ export default function VisitorLogPage() {
       <CheckInPanel
         open={checkInOpen}
         onClose={() => setCheckInOpen(false)}
+        onCheckedIn={onCheckedIn}
+      />
+      <BulkCheckInModal
+        open={bulkOpen}
+        onClose={() => setBulkOpen(false)}
         onCheckedIn={onCheckedIn}
       />
 

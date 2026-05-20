@@ -470,6 +470,23 @@
       "insideNow": "នៅក្នុងឥឡូវ",
       "todayTotal": "អ្នកចូលថ្ងៃនេះ",
       "todayByPurpose": "ថ្ងៃនេះតាមគោលបំណង"
+    },
+    "bulk": {
+      "button": "ចូលជាក្រុម",
+      "title": "កត់ត្រាការចូលជាក្រុម",
+      "purposeMode": "គោលបំណង",
+      "sameForAll": "ដូចគ្នាទាំងអស់",
+      "individual": "រៀងនិមួយៗ",
+      "scanToAdd": "ស្កែនដើម្បីបន្ថែមសមាជិក",
+      "memberCount": "{count} នាក់",
+      "alreadyInside": "នៅក្នុងរួចហើយ — នឹងកត់ត្រាការចេញ",
+      "duplicate": "បានបន្ថែមរួចហើយ",
+      "submitAll": "កត់ត្រាការចូលទាំងអស់ ({count})",
+      "purposeRequired": "សូមជ្រើសរើសគោលបំណង",
+      "membersRequired": "សូមបន្ថែមសមាជិកយ៉ាងហោចណាស់មួយនាក់",
+      "individualPurposeRequired": "{name} ត្រូវការគោលបំណង",
+      "result": "បានកត់ត្រាការចូល {success} នាក់{failed}",
+      "resultFailed": " បានបរាជ័យ {count} នាក់"
     }
   },
   "reports": {

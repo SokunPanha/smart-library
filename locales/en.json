@@ -470,6 +470,23 @@
       "insideNow": "Inside Now",
       "todayTotal": "Today's Visitors",
       "todayByPurpose": "Today by Purpose"
+    },
+    "bulk": {
+      "button": "Bulk Check-In",
+      "title": "Bulk Check-In",
+      "purposeMode": "Purpose",
+      "sameForAll": "Same for all",
+      "individual": "Individual",
+      "scanToAdd": "Scan to add member",
+      "memberCount": "{count} member(s)",
+      "alreadyInside": "Already inside — will check out",
+      "duplicate": "Already added",
+      "submitAll": "Check In All ({count})",
+      "purposeRequired": "Please select a purpose",
+      "membersRequired": "Add at least one member",
+      "individualPurposeRequired": "{name} needs a purpose",
+      "result": "{success} checked in{failed}",
+      "resultFailed": ", {count} failed"
     }
   },
   "reports": {
