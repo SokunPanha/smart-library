@@ -107,6 +107,7 @@ export function LinkBookModal({ logId, memberName, currentBooks, onClose }: Prop
         onCancel={onClose}
         footer={null}
         width={440}
+        mask={{ closable: false }}
         destroyOnHidden
       >
         <div className="space-y-4 mt-2">

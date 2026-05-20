@@ -86,6 +86,7 @@ export function QrScanner({ title, onScan, onClose, persistent = false }: Props)
       onCancel={() => { stopScanner(); onClose(); }}
       footer={null}
       width={360}
+      mask={{ closable: false }}
       destroyOnHidden
     >
       <div className="space-y-3">

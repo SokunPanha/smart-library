@@ -147,6 +147,8 @@ export function CheckInPanel({ open, onClose, onCheckedIn }: Props) {
         title={t("scanMember")}
         width={480}
         destroyOnHidden
+        mask={{ closable: false }}
+        afterOpenChange={(visible) => { if (visible && !member) setScannerTarget("member"); }}
         footer={
           member ? (
             <Button
@@ -165,48 +167,57 @@ export function CheckInPanel({ open, onClose, onCheckedIn }: Props) {
         }
       >
         <div className="space-y-4 py-2">
-          {/* Member scan */}
-          <div className="flex flex-wrap gap-2 items-start">
-            <Button
-              icon={<QrcodeOutlined />}
-              onClick={() => setScannerTarget("member")}
-              type={member ? "default" : "primary"}
-            >
-              {t("scanMember")}
-            </Button>
+          {/* Resolving spinner while looking up member */}
+          {resolving && (
+            <div className="flex items-center gap-2 text-slate-400 text-sm">
+              <Spin size="small" />
+              <span>…</span>
+            </div>
+          )}
 
-            {resolving && <Spin className="mt-1" />}
-
-            {member && (
-              <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 flex-1 min-w-[200px]">
-                {member.photo ? (
-                  <Image
-                    src={member.photo}
-                    alt=""
-                    width={40}
-                    height={40}
-                    className="rounded-full object-cover flex-shrink-0"
-                    style={{ borderRadius: "50%" }}
-                    preview={{ mask: false }}
-                  />
-                ) : (
-                  <Avatar size={40} icon={<UserOutlined />} className="bg-slate-200 text-slate-500 flex-shrink-0" />
-                )}
-                <div className="flex-1">
-                  <p className="font-medium text-slate-800 leading-snug">{member.nameKh ?? member.nameEn}</p>
-                  {member.nameKh && member.nameEn && <p className="text-xs text-slate-400">{member.nameEn}</p>}
-                  <div className="flex gap-1 mt-1 flex-wrap">
-                    <Tag className="border-0 text-xs bg-slate-100 text-slate-500">{member.memberId}</Tag>
-                    {member.class && (
-                      <Tag className="border-0 text-xs bg-indigo-50 text-indigo-600">{member.class.name}</Tag>
-                    )}
-                    {isCheckout && <Tag color="orange" className="border-0 text-xs">{t("open")}</Tag>}
-                  </div>
+          {/* Member card — shown after scan */}
+          {member && (
+            <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
+              {member.photo ? (
+                <Image
+                  src={member.photo}
+                  alt=""
+                  width={40}
+                  height={40}
+                  className="rounded-full object-cover shrink-0"
+                  style={{ borderRadius: "50%" }}
+                  preview={{ mask: false }}
+                />
+              ) : (
+                <Avatar size={40} icon={<UserOutlined />} className="bg-slate-200 text-slate-500 shrink-0" />
+              )}
+              <div className="flex-1">
+                <p className="font-medium text-slate-800 leading-snug">{member.nameKh ?? member.nameEn}</p>
+                {member.nameKh && member.nameEn && <p className="text-xs text-slate-400">{member.nameEn}</p>}
+                <div className="flex gap-1 mt-1 flex-wrap">
+                  <Tag className="border-0 text-xs bg-slate-100 text-slate-500">{member.memberId}</Tag>
+                  {member.class && (
+                    <Tag className="border-0 text-xs bg-indigo-50 text-indigo-600">{member.class.name}</Tag>
+                  )}
+                  {isCheckout && <Tag color="orange" className="border-0 text-xs">{t("open")}</Tag>}
                 </div>
-                <Button type="text" size="small" icon={<CloseOutlined />} onClick={reset} />
               </div>
-            )}
-          </div>
+              {/* Re-scan: clears member and reopens scanner */}
+              <Button
+                type="text"
+                size="small"
+                icon={<QrcodeOutlined />}
+                className="text-slate-400 shrink-0"
+                onClick={() => { reset(); setScannerTarget("member"); }}
+              />
+              <Button type="text" size="small" icon={<CloseOutlined />} onClick={reset} className="shrink-0" />
+            </div>
+          )}
+
+          {/* Prompt to scan when no member yet */}
+          {!member && !resolving && (
+            <p className="text-sm text-slate-400 text-center py-4">{t("scanMember")}…</p>
+          )}
 
           {/* Purpose + books only for check-in */}
           {member && !isCheckout && (

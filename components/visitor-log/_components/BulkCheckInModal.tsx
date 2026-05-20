@@ -146,6 +146,7 @@ export function BulkCheckInModal({ open, onClose, onCheckedIn }: Props) {
         title={t("bulk.title")}
         width={560}
         destroyOnHidden
+        mask={{ closable: false }}
         footer={
           <Button
             type="primary"

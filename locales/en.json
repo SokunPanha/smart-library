@@ -468,8 +468,12 @@
     "insideNowTab": "Inside Now",
     "stats": {
       "insideNow": "Inside Now",
-      "todayTotal": "Today's Visitors",
-      "todayByPurpose": "Today by Purpose"
+      "periodTotal": "Visitors",
+      "byPurpose": "By Purpose",
+      "today": "Today",
+      "week": "This Week",
+      "month": "This Month",
+      "custom": "Custom"
     },
     "bulk": {
       "button": "Bulk Check-In",

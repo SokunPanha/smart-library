@@ -468,8 +468,12 @@
     "insideNowTab": "នៅក្នុងឥឡូវ",
     "stats": {
       "insideNow": "នៅក្នុងឥឡូវ",
-      "todayTotal": "អ្នកចូលថ្ងៃនេះ",
-      "todayByPurpose": "ថ្ងៃនេះតាមគោលបំណង"
+      "periodTotal": "អ្នកទស្សនា",
+      "byPurpose": "តាមគោលបំណង",
+      "today": "ថ្ងៃនេះ",
+      "week": "សប្តាហ៍នេះ",
+      "month": "ខែនេះ",
+      "custom": "កំណត់ខ្លួនឯង"
     },
     "bulk": {
       "button": "ចូលជាក្រុម",

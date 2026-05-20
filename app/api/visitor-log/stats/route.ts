@@ -1,21 +1,28 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import dayjs from "dayjs";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const todayStart = dayjs().startOf("day").toDate();
-  const todayEnd = dayjs().endOf("day").toDate();
+  const { searchParams } = new URL(req.url);
+  const dateFrom = searchParams.get("dateFrom");
+  const dateTo = searchParams.get("dateTo");
 
-  const [insideNow, todayTotal, purposeGroups] = await Promise.all([
+  // Default to today when no range supplied
+  const rangeStart = dateFrom ? new Date(dateFrom) : dayjs().startOf("day").toDate();
+  const rangeEnd = dateTo ? new Date(dateTo) : dayjs().endOf("day").toDate();
+
+  const rangeFilter = { gte: rangeStart, lte: rangeEnd };
+
+  const [insideNow, periodTotal, purposeGroups] = await Promise.all([
     prisma.visitorLog.count({ where: { leftAt: null } }),
-    prisma.visitorLog.count({ where: { arrivedAt: { gte: todayStart, lte: todayEnd } } }),
+    prisma.visitorLog.count({ where: { arrivedAt: rangeFilter } }),
     prisma.visitorLog.groupBy({
       by: ["purpose"],
-      where: { arrivedAt: { gte: todayStart, lte: todayEnd } },
+      where: { arrivedAt: rangeFilter },
       _count: { id: true },
     }),
   ]);
@@ -25,5 +32,5 @@ export async function GET() {
     purposeBreakdown[g.purpose] = g._count.id;
   }
 
-  return NextResponse.json({ insideNow, todayTotal, purposeBreakdown });
+  return NextResponse.json({ insideNow, periodTotal, purposeBreakdown });
 }
