@@ -1,6 +1,6 @@
-# Cambodia Library Management System
+# LibraCore
 
-A full-featured library management system built for Cambodian libraries — supporting Khmer language, local payment methods, and offline-capable operations.
+A full-featured library management system built for Cambodian school libraries — supporting Khmer language and bilingual operations.
 
 ## Project Phases
 

@@ -40,7 +40,7 @@
     "emailPlaceholder": "Enter your email",
     "passwordPlaceholder": "Enter your password",
     "loginButton": "Sign In",
-    "loginTitle": "Library Management System",
+    "loginTitle": "LibraCore",
     "loginSubtitle": "Sign in to your account"
   },
   "dashboard": {

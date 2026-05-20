@@ -46,12 +46,8 @@ export function SidebarContent({ onClose }: SidebarContentProps) {
     <div className="flex flex-col h-full bg-white">
       <div className="flex items-center justify-between px-5 py-5 border-b border-slate-100">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-blue-600 rounded-md flex items-center justify-center flex-shrink-0">
-            <BookOutlined style={{ color: "#fff", fontSize: 14 }} />
-          </div>
-          <span className="font-semibold text-slate-800 text-sm leading-tight">
-            បណ្ណាល័យ
-          </span>
+          <img src="/LibraCore.png" alt="LibraCore" className="w-7 h-7 object-contain flex-shrink-0" />
+          <span className="font-semibold text-slate-800 text-sm leading-tight">LibraCore</span>
         </div>
         {onClose && (
           <Button type="text" size="small" icon={<CloseOutlined />} onClick={onClose} />

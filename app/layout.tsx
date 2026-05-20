@@ -15,8 +15,8 @@ const notoSansKhmer = Noto_Sans_Khmer({
 });
 
 export const metadata: Metadata = {
-  title: "Cambodia Library Management System",
-  description: "ប្រព័ន្ធគ្រប់គ្រងបណ្ណាល័យ",
+  title: { default: "LibraCore", template: "%s | LibraCore" },
+  description: "LibraCore — ប្រព័ន្ធគ្រប់គ្រងបណ្ណាល័យ | Library Management System",
 };
 
 export default function RootLayout({

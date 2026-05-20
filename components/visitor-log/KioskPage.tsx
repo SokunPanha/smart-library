@@ -155,11 +155,7 @@ export function KioskPage() {
       {/* ── Top bar ───────────────────────────────────────────────── */}
       <div className="flex items-center justify-between px-6 py-3 bg-slate-800 border-b border-slate-700 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" className="w-5 h-5">
-              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-            </svg>
-          </div>
+          <img src="/LibraCore.png" alt="LibraCore" className="w-8 h-8 object-contain" />
           <div>
             <p className="text-sm font-semibold leading-tight">{t("kiosk.schoolName")}</p>
             <p className="text-xs text-slate-400 leading-tight">{t("kiosk.libraryName")}</p>

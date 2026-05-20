@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Form, Input, Button, Alert, Typography } from "antd";
-import { BookOutlined } from "@ant-design/icons";
 import { signIn } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -37,9 +36,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4">
-            <BookOutlined style={{ color: "#fff", fontSize: 22 }} />
-          </div>
+          <img src="/LibraCore.png" alt="LibraCore" className="w-16 h-16 object-contain mb-2" />
           <Title level={4} className="!mb-1 !text-slate-800">
             {t("loginTitle")}
           </Title>
