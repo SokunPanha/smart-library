@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import cloudinary from "@/lib/cloudinary";
+import { logActivity } from "@/lib/activityLog";
 
 const ALLOWED_FOLDERS = ["library/books", "library/members"] as const;
 type UploadFolder = (typeof ALLOWED_FOLDERS)[number];
@@ -44,6 +45,7 @@ export async function POST(req: NextRequest) {
       .end(buffer);
   });
 
+  await logActivity(session, "FILE_UPLOADED", `Uploaded image to ${folder}`);
   return NextResponse.json({ url: result.secure_url, publicId: result.public_id });
 }
 
@@ -56,5 +58,6 @@ export async function DELETE(req: NextRequest) {
   if (!publicId) return NextResponse.json({ error: "Missing publicId" }, { status: 400 });
 
   await cloudinary.uploader.destroy(publicId);
+  await logActivity(session, "FILE_DELETED", `Deleted image: ${publicId}`);
   return NextResponse.json({ success: true });
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { z } from "zod";
+import { logActivity } from "@/lib/activityLog";
 
 const bulkSchema = z.object({
   shelves: z.array(z.object({
@@ -30,6 +31,10 @@ export async function POST(req: NextRequest) {
 
   if (toCreate.length > 0) {
     await prisma.shelf.createMany({ data: toCreate });
+    const cabinet = toCreate[0].cabinet;
+    const desc = `Bulk created ${toCreate.length} shelf(ves) for cabinet ${cabinet}` +
+      (existingCodes.size > 0 ? ` (${existingCodes.size} skipped)` : "");
+    await logActivity(session, "SHELF_BULK_CREATED", desc);
   }
 
   return NextResponse.json({ created: toCreate.length, skipped: existingCodes.size });

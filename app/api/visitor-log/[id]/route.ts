@@ -67,6 +67,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const bookId = typeof body.bookId === "string" ? body.bookId : null;
     if (!bookId) return NextResponse.json({ error: "bookId required." }, { status: 422 });
 
+    const removedBook = await prisma.book.findUnique({ where: { id: bookId }, select: { titleKh: true, titleEn: true } });
     await prisma.visitorLogBook.deleteMany({ where: { visitorLogId: id, bookId } });
 
     const updated = await prisma.visitorLog.findUnique({
@@ -76,6 +77,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         ...bookInclude,
       },
     });
+    const removedTitle = removedBook ? (removedBook.titleKh ?? removedBook.titleEn ?? "") : "";
+    await logActivity(session, "VISITOR_BOOK_UNLINKED", `${log.member.nameKh ?? log.member.nameEn} — book removed: ${removedTitle}`);
     return NextResponse.json(updated);
   }
 

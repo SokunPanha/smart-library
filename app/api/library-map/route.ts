@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { logActivity } from "@/lib/activityLog";
 
 export async function GET() {
   const session = await auth();
@@ -29,5 +30,6 @@ export async function PUT(req: NextRequest) {
       data: { rows: body.rows ?? map.rows, cols: body.cols ?? map.cols, cells: body.cells ?? map.cells },
     });
   }
+  await logActivity(session, "LIBRARY_MAP_UPDATED", `Library map updated (${map.rows}×${map.cols})`, map.id);
   return NextResponse.json(map);
 }
