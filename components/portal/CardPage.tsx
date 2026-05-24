@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { useQuery } from "@tanstack/react-query";
+import { usePortalQuery, portalFetch } from "./usePortalQuery";
 import { QRCodeSVG } from "qrcode.react";
 import dayjs from "dayjs";
 import "dayjs/locale/km";
@@ -47,13 +47,13 @@ export default function PortalCardPage() {
   const locale = useLocale();
   const [fullscreen, setFullscreen] = useState(false);
 
-  const { data: member, isLoading } = useQuery<Member>({
+  const { data: member, isLoading, isError } = usePortalQuery<Member>({
     queryKey: ["portal-me"],
-    queryFn: () => fetch("/api/portal/me").then((r) => r.json()),
+    queryFn: () => portalFetch("/api/portal/me") as Promise<Member>,
   });
 
   if (isLoading) return <Spinner className="py-16" />;
-  if (!member) return null;
+  if (isError || !member) return null;
 
   return (
     <div className="p-4 flex flex-col items-center">

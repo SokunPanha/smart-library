@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { usePortalQuery, portalFetch } from "./usePortalQuery";
 import { useTranslations, useLocale } from "next-intl";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
@@ -118,9 +118,9 @@ export default function PortalVisitsPage() {
     return map[purpose] ?? purpose;
   }
 
-  const { data, isLoading } = useQuery<VisitsData>({
+  const { data, isLoading } = usePortalQuery<VisitsData>({
     queryKey: ["portal-visits"],
-    queryFn: () => fetch("/api/portal/visits").then((r) => r.json()),
+    queryFn: () => portalFetch("/api/portal/visits") as Promise<VisitsData>,
   });
 
   const years = Object.keys(data?.byYear ?? {}).sort((a, b) => Number(b) - Number(a));

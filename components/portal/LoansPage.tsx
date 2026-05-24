@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { useQuery } from "@tanstack/react-query";
+import { usePortalQuery, portalFetch } from "./usePortalQuery";
 import dayjs from "dayjs";
 import { Spinner, Badge, Tabs, EmptyState } from "./ui";
 
@@ -130,14 +130,14 @@ export default function PortalLoansPage() {
   const t = useTranslations("portal.loans");
   const [tab, setTab] = useState("active");
 
-  const { data: activeData, isLoading: activeLoading } = useQuery<{ loans: Loan[] }>({
+  const { data: activeData, isLoading: activeLoading } = usePortalQuery<{ loans: Loan[] }>({
     queryKey: ["portal-loans", "active"],
-    queryFn: () => fetch("/api/portal/loans?status=ACTIVE").then((r) => r.json()),
+    queryFn: () => portalFetch("/api/portal/loans?status=ACTIVE") as Promise<{ loans: Loan[] }>,
   });
 
-  const { data: historyData, isLoading: historyLoading } = useQuery<{ loans: Loan[] }>({
+  const { data: historyData, isLoading: historyLoading } = usePortalQuery<{ loans: Loan[] }>({
     queryKey: ["portal-loans", "history"],
-    queryFn: () => fetch("/api/portal/loans").then((r) => r.json()),
+    queryFn: () => portalFetch("/api/portal/loans") as Promise<{ loans: Loan[] }>,
     enabled: tab === "history",
   });
 

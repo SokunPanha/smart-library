@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import "dayjs/locale/km";
-import { useQuery } from "@tanstack/react-query";
+import { usePortalQuery, portalFetch } from "./usePortalQuery";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import dayjs from "dayjs";
@@ -114,19 +114,19 @@ export default function PortalDashboardPage() {
   const tl = useTranslations("portal.loans");
   const locale = useLocale();
 
-  const { data: member, isLoading: memberLoading } = useQuery<Member>({
+  const { data: member, isLoading: memberLoading } = usePortalQuery<Member>({
     queryKey: ["portal-me"],
-    queryFn: () => fetch("/api/portal/me").then((r) => r.json()),
+    queryFn: () => portalFetch("/api/portal/me") as Promise<Member>,
   });
 
-  const { data: loansData, isLoading: loansLoading } = useQuery<{ loans: Loan[] }>({
+  const { data: loansData, isLoading: loansLoading } = usePortalQuery<{ loans: Loan[] }>({
     queryKey: ["portal-loans-active"],
-    queryFn: () => fetch("/api/portal/loans?status=ACTIVE").then((r) => r.json()),
+    queryFn: () => portalFetch("/api/portal/loans?status=ACTIVE") as Promise<{ loans: Loan[] }>,
   });
 
-  const { data: visitsData } = useQuery<{ total: number; thisYear: number }>({
+  const { data: visitsData } = usePortalQuery<{ total: number; thisYear: number }>({
     queryKey: ["portal-visits-summary"],
-    queryFn: () => fetch("/api/portal/visits").then((r) => r.json()),
+    queryFn: () => portalFetch("/api/portal/visits") as Promise<{ total: number; thisYear: number }>,
   });
 
   const activeLoans  = loansData?.loans ?? [];

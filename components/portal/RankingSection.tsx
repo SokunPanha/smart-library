@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { usePortalQuery, portalFetch } from "./usePortalQuery";
 import { useTranslations, useLocale } from "next-intl";
 import dayjs from "dayjs";
 import "dayjs/locale/km";
@@ -49,9 +49,9 @@ export default function RankingSection() {
   const [month, setMonth]  = useState(() => dayjs().format("YYYY-MM"));
   const monthOptions       = buildMonthOptions(locale);
 
-  const { data, isLoading } = useQuery<RankingData>({
+  const { data, isLoading } = usePortalQuery<RankingData>({
     queryKey: ["portal-ranking", month],
-    queryFn: () => fetch(`/api/portal/ranking?month=${month}`).then((r) => r.json()),
+    queryFn: () => portalFetch(`/api/portal/ranking?month=${month}`) as Promise<RankingData>,
   });
 
   const topList = data?.top ?? [];

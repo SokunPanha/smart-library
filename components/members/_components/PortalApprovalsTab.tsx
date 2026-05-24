@@ -123,11 +123,10 @@ export function PortalApprovalsTab() {
 
   // Single reject (delete) mutation
   const rejectMutation = useMutation({
-    mutationFn: (id: string) =>
-      fetch(`/api/members/${id}`, { method: "DELETE" }).then(async (r) => {
-        if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error ?? "Request failed");
-        return r.json();
-      }),
+    mutationFn: async (id: string) => {
+      const r = await fetch(`/api/members/${id}`, { method: "DELETE" });
+      if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error ?? "Request failed");
+    },
     onSuccess: () => {
       message.success(tp("rejectMsg"));
       qc.invalidateQueries({ queryKey: ["portal-approvals"] });
