@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
-
+import { requirePortalApi } from "@/lib/portalAuth";
 
 export async function GET(req: NextRequest) {
-  const session = await auth();
-  const user = session?.user as { id?: string; userType?: string } | undefined;
-  if (!session || user?.userType !== "MEMBER") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const portalAuth = await requirePortalApi();
+  if (portalAuth.response) return portalAuth.response;
+  const { user } = portalAuth;
 
   const { searchParams } = new URL(req.url);
   const monthParam = searchParams.get("month"); // "YYYY-MM"

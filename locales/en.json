@@ -885,7 +885,9 @@
       "confirmPassword": "Confirm Password",
       "passwordMismatch": "Passwords do not match.",
       "backToLogin": "Back to Login",
-      "error": "Registration failed. Please try again."
+      "error": "Registration failed. Please try again.",
+      "errorPhoneExists": "This phone number is already registered. Please sign in or use a different number.",
+      "errorEmailExists": "This email address is already registered. Please sign in or use a different email."
     },
     "nav": {
       "home": "Home",

@@ -1,17 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { requirePortalApi } from "@/lib/portalAuth";
 
 export async function GET() {
-  const session = await auth();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const user = session?.user as any;
-  if (!session || user?.userType !== "MEMBER") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const portalAuth = await requirePortalApi();
+  if (portalAuth.response) return portalAuth.response;
+  const { user } = portalAuth;
 
   const member = await prisma.member.findUnique({
-    where: { id: user.id as string },
+    where: { id: user.id },
     select: {
       id: true,
       memberId: true,

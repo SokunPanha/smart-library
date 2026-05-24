@@ -60,17 +60,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const normalizedPhone = normalizePhone(parsed.data.phone);
 
-        const candidates = await prisma.member.findMany({
-          where: { portalApproved: true, portalPassword: { not: null } },
+        const member = await prisma.member.findFirst({
+          where: { phone: normalizedPhone, portalApproved: true, portalPassword: { not: null } },
           select: {
             id: true, memberId: true, nameKh: true, nameEn: true,
-            email: true, phone: true, portalPassword: true,
+            email: true, portalPassword: true,
           },
         });
-
-        const member = candidates.find(
-          (m) => normalizePhone(m.phone ?? "") === normalizedPhone
-        );
 
         if (!member?.portalPassword) return null;
 

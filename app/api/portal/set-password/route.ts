@@ -18,22 +18,19 @@ export async function POST(req: NextRequest) {
 
   const normalizedPhone = normalizePhone(parsed.data.phone);
 
-  const candidates = await prisma.member.findMany({
-    where: { phone: { not: null }, portalApproved: true },
-    select: { id: true, phone: true, portalPassword: true },
+  const member = await prisma.member.findFirst({
+    where: { phone: normalizedPhone, portalApproved: true },
+    select: { id: true, portalPassword: true },
   });
 
-  const member = candidates.find(
-    (m) => normalizePhone(m.phone ?? "") === normalizedPhone
-  );
-
+  // Use a generic error to avoid leaking whether the phone is registered
   if (!member) {
-    return NextResponse.json({ error: "Member not found" }, { status: 404 });
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 
   // Only allow setting password if not yet set (first login)
   if (member.portalPassword) {
-    return NextResponse.json({ error: "Password already set" }, { status: 409 });
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 
   const hashed = await bcrypt.hash(parsed.data.password, 12);

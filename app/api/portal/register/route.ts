@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { normalizePhone } from "@/lib/phone";
 
 const registerSchema = z.object({
   nameKh: z.string().min(1),
@@ -30,6 +31,25 @@ export async function POST(req: NextRequest) {
   }
 
   const { email, classId, password, ...rest } = parsed.data;
+
+  // Normalize phone before saving and before duplicate check
+  const normalizedPhone = normalizePhone(rest.phone);
+  rest.phone = normalizedPhone;
+
+  // Duplicate phone check (against normalized value)
+  const phoneExists = await prisma.member.findFirst({ where: { phone: normalizedPhone } });
+  if (phoneExists) {
+    return NextResponse.json({ error: "PHONE_EXISTS" }, { status: 409 });
+  }
+
+  // Duplicate email check
+  if (email) {
+    const emailExists = await prisma.member.findFirst({ where: { email } });
+    if (emailExists) {
+      return NextResponse.json({ error: "EMAIL_EXISTS" }, { status: 409 });
+    }
+  }
+
   const memberId = await generateMemberId();
   const hashedPassword = await bcrypt.hash(password, 12);
 

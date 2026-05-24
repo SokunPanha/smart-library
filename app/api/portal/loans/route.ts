@@ -1,18 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { requirePortalApi } from "@/lib/portalAuth";
+
+const VALID_STATUSES = new Set(["ACTIVE", "RETURNED", "OVERDUE", "LOST"]);
 
 export async function GET(req: NextRequest) {
-  const session = await auth();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const user = session?.user as any;
-  if (!session || user?.userType !== "MEMBER") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const portalAuth = await requirePortalApi();
+  if (portalAuth.response) return portalAuth.response;
+  const { user } = portalAuth;
 
-  const memberId = user.id as string;
+  const memberId = user.id;
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status");
+
+  if (status && !VALID_STATUSES.has(status)) {
+    return NextResponse.json({ error: "Invalid status" }, { status: 400 });
+  }
 
   const where: Record<string, unknown> = { memberId };
   if (status) {

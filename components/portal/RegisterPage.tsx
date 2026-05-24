@@ -56,7 +56,14 @@ export default function PortalRegisterPage() {
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
-        setError(t("error"));
+        const data = await res.json().catch(() => ({}));
+        if (data.error === "PHONE_EXISTS") {
+          setError(t("errorPhoneExists"));
+        } else if (data.error === "EMAIL_EXISTS") {
+          setError(t("errorEmailExists"));
+        } else {
+          setError(t("error"));
+        }
         return;
       }
       setSubmitted(true);
