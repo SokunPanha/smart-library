@@ -39,26 +39,32 @@ export default function AdminLandingPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const deferredPrompt = useRef<any>(null);
 
+  // Standalone check + platform detection (one-time on mount)
   useEffect(() => {
     if (isStandalone()) {
       window.location.replace(`/${locale}/admin/login`);
       return;
     }
+    setPlatform(detectPlatform()); // eslint-disable-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    setPlatform(detectPlatform());
-
+  // PWA install prompt listeners
+  useEffect(() => {
     const handler = (e: Event) => {
       e.preventDefault();
       deferredPrompt.current = e;
     };
+    const installed = () => setInstallState("installed");
 
     window.addEventListener("beforeinstallprompt", handler);
-    window.addEventListener("appinstalled", () => setInstallState("installed"));
+    window.addEventListener("appinstalled", installed);
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handler);
+      window.removeEventListener("appinstalled", installed);
     };
-  }, [locale]);
+  }, []);
 
   async function handleInstall() {
     if (!deferredPrompt.current) return;
@@ -69,12 +75,13 @@ export default function AdminLandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 flex flex-col items-center justify-between px-6 py-12 text-white">
+    <div className="min-h-screen bg-linear-to-br from-slate-800 via-slate-700 to-slate-900 flex flex-col items-center justify-between px-6 py-12 text-white">
 
       {/* Branding */}
       <div className="flex flex-col items-center gap-3 mt-6">
         <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center shadow-xl">
-          <img src="/LibraCore.png" alt="LibraCore" className="w-13 h-13 object-contain" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/LibraCore.png" alt="LibraCore" className="w-14 h-14 object-contain" />
         </div>
         <div className="text-center">
           <h1 className="text-2xl font-bold tracking-tight">LibraCore</h1>
@@ -88,7 +95,7 @@ export default function AdminLandingPage() {
       {/* Feature pills */}
       <div className="w-full max-w-xs space-y-3 my-10">
         {FEATURES.map(({ icon, label }) => (
-          <div key={label} className="flex items-center gap-3 bg-white/8 rounded-xl px-4 py-3 border border-white/10">
+          <div key={label} className="flex items-center gap-3 bg-white/10 rounded-xl px-4 py-3 border border-white/10">
             <span className="text-xl">{icon}</span>
             <span className="text-sm text-slate-200">{label}</span>
           </div>

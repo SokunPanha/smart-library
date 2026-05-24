@@ -11,7 +11,6 @@ function detectPlatform(): Platform {
   const ua = navigator.userAgent;
   if (/iPad|iPhone|iPod/.test(ua)) return "ios";
   if (/android/i.test(ua)) return "android";
-  // Broad mobile check — catches other mobile browsers
   if (/Mobi|BlackBerry|IEMobile|Opera Mini/i.test(ua)) return "android";
   return "desktop";
 }
@@ -34,27 +33,32 @@ export default function LandingPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const deferredPrompt = useRef<any>(null);
 
+  // Standalone check + platform detection (one-time on mount)
   useEffect(() => {
-    // If already installed (standalone), go straight to login
     if (isStandalone()) {
       window.location.replace(`/${locale}/login`);
       return;
     }
+    setPlatform(detectPlatform()); // eslint-disable-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    setPlatform(detectPlatform());
-
+  // PWA install prompt listeners
+  useEffect(() => {
     const handler = (e: Event) => {
       e.preventDefault();
       deferredPrompt.current = e;
     };
+    const installed = () => setInstallState("installed");
 
     window.addEventListener("beforeinstallprompt", handler);
-    window.addEventListener("appinstalled", () => setInstallState("installed"));
+    window.addEventListener("appinstalled", installed);
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handler);
+      window.removeEventListener("appinstalled", installed);
     };
-  }, [locale]);
+  }, []);
 
   async function handleInstall() {
     if (!deferredPrompt.current) return;
@@ -65,12 +69,13 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 flex flex-col items-center justify-between px-6 py-12 text-white">
+    <div className="min-h-screen bg-linear-to-br from-blue-700 via-blue-600 to-indigo-700 flex flex-col items-center justify-between px-6 py-12 text-white">
 
       {/* Top branding */}
       <div className="flex flex-col items-center gap-3 mt-8">
         <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center shadow-lg">
-          <img src="/LibraCore.png" alt="LibraCore" className="w-13 h-13 object-contain" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/LibraCore.png" alt="LibraCore" className="w-14 h-14 object-contain" />
         </div>
         <div className="text-center">
           <h1 className="text-2xl font-bold tracking-tight">LibraCore</h1>
