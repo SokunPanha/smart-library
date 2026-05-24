@@ -274,7 +274,15 @@
       "bulkApprovedMsg": "បានផ្តល់សិទ្ធចូល Portal ដល់សមាជិក {count} នាក់។",
       "bulkRevokedMsg": "បានលុបចោលសិទ្ធចូល Portal ពីសមាជិក {count} នាក់។",
       "revokeTitle": "លុបចោលការចូល Portal?",
-      "revokeContent": "លុបចោលការចូល Portal សម្រាប់ {name}?"
+      "revokeContent": "លុបចោលការចូល Portal សម្រាប់ {name}?",
+      "reject": "បដិសេធ",
+      "rejectMsg": "ការចុះឈ្មោះត្រូវបានបដិសេធ ហើយលុបចេញ។",
+      "rejectTitle": "បដិសេធការចុះឈ្មោះ?",
+      "rejectContent": "លុបការចុះឈ្មោះ Portal របស់ {name} ជាអចិន្ត្រៃយ៍?",
+      "bulkReject": "បដិសេធដែលបានជ្រើស",
+      "bulkRejectTitle": "បដិសេធការចុះឈ្មោះ?",
+      "bulkRejectContent": "លុបការចុះឈ្មោះ {count} ចំនួន?",
+      "bulkRejectedMsg": "ការចុះឈ្មោះ {count} ចំនួនត្រូវបានបដិសេធ ហើយលុបចេញ។"
     }
   },
   "settings": {

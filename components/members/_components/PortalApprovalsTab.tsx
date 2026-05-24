@@ -110,7 +110,7 @@ export function PortalApprovalsTab() {
     return res.json();
   }
 
-  // Single-item mutation
+  // Single approve/revoke mutation
   const singleMutation = useMutation({
     mutationFn: ({ id, approved }: { id: string; approved: boolean }) => patchPortal(id, approved),
     onSuccess: (_, { approved }) => {
@@ -121,7 +121,22 @@ export function PortalApprovalsTab() {
     onError: (err: Error) => message.error(err.message),
   });
 
-  // Bulk mutation
+  // Single reject (delete) mutation
+  const rejectMutation = useMutation({
+    mutationFn: (id: string) =>
+      fetch(`/api/members/${id}`, { method: "DELETE" }).then(async (r) => {
+        if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error ?? "Request failed");
+        return r.json();
+      }),
+    onSuccess: () => {
+      message.success(tp("rejectMsg"));
+      qc.invalidateQueries({ queryKey: ["portal-approvals"] });
+      qc.invalidateQueries({ queryKey: ["members"] });
+    },
+    onError: (err: Error) => message.error(err.message),
+  });
+
+  // Bulk approve/revoke mutation
   const bulkMutation = useMutation({
     mutationFn: ({ ids, approved }: { ids: string[]; approved: boolean }) => patchPortalBulk(ids, approved),
     onSuccess: (data, { approved }) => {
@@ -130,6 +145,25 @@ export function PortalApprovalsTab() {
           ? tp("bulkApprovedMsg", { count: data.count })
           : tp("bulkRevokedMsg", { count: data.count })
       );
+      setSelected(new Set());
+      qc.invalidateQueries({ queryKey: ["portal-approvals"] });
+      qc.invalidateQueries({ queryKey: ["members"] });
+    },
+    onError: (err: Error) => message.error(err.message),
+  });
+
+  // Bulk reject (delete) mutation
+  const bulkRejectMutation = useMutation({
+    mutationFn: (ids: string[]) =>
+      Promise.all(
+        ids.map((id) =>
+          fetch(`/api/members/${id}`, { method: "DELETE" }).then(async (r) => {
+            if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error ?? "Request failed");
+          })
+        )
+      ),
+    onSuccess: (_, ids) => {
+      message.success(tp("bulkRejectedMsg", { count: ids.length }));
       setSelected(new Set());
       qc.invalidateQueries({ queryKey: ["portal-approvals"] });
       qc.invalidateQueries({ queryKey: ["members"] });
@@ -147,6 +181,16 @@ export function PortalApprovalsTab() {
     });
   }
 
+  function confirmSingleReject(id: string, name: string) {
+    modal.confirm({
+      title: tp("rejectTitle"),
+      content: tp("rejectContent", { name }),
+      okText: tp("reject"),
+      okButtonProps: { danger: true },
+      onOk: () => rejectMutation.mutateAsync(id),
+    });
+  }
+
   function confirmBulk(approved: boolean) {
     const ids = [...selected];
     const count = ids.length;
@@ -159,6 +203,18 @@ export function PortalApprovalsTab() {
       okButtonProps: { danger: !approved },
       cancelText: t("common") ? undefined : "Cancel",
       onOk: () => bulkMutation.mutateAsync({ ids, approved }),
+    });
+  }
+
+  function confirmBulkReject() {
+    const ids = [...selected];
+    const count = ids.length;
+    modal.confirm({
+      title: tp("bulkRejectTitle"),
+      content: tp("bulkRejectContent", { count }),
+      okText: tp("bulkReject"),
+      okButtonProps: { danger: true },
+      onOk: () => bulkRejectMutation.mutateAsync(ids),
     });
   }
 
@@ -191,15 +247,26 @@ export function PortalApprovalsTab() {
             {selected.size} {tp("selected")}
           </span>
           {filter === "pending" ? (
-            <Button
-              type="primary"
-              size="small"
-              icon={<CheckOutlined />}
-              loading={bulkMutation.isPending}
-              onClick={() => confirmBulk(true)}
-            >
-              {tp("bulkApprove")}
-            </Button>
+            <>
+              <Button
+                type="primary"
+                size="small"
+                icon={<CheckOutlined />}
+                loading={bulkMutation.isPending}
+                onClick={() => confirmBulk(true)}
+              >
+                {tp("bulkApprove")}
+              </Button>
+              <Button
+                danger
+                size="small"
+                icon={<StopOutlined />}
+                loading={bulkRejectMutation.isPending}
+                onClick={() => confirmBulkReject()}
+              >
+                {tp("bulkReject")}
+              </Button>
+            </>
           ) : (
             <Button
               danger
@@ -293,14 +360,24 @@ export function PortalApprovalsTab() {
                     {filter === "pending" && <StopOutlined className="text-orange-400" />}
 
                     {filter === "pending" ? (
-                      <Button
-                        type="primary"
-                        size="small"
-                        loading={isRowPending}
-                        onClick={() => singleMutation.mutate({ id: m.id, approved: true })}
-                      >
-                        {tp("approve")}
-                      </Button>
+                      <>
+                        <Button
+                          type="primary"
+                          size="small"
+                          loading={isRowPending}
+                          onClick={() => singleMutation.mutate({ id: m.id, approved: true })}
+                        >
+                          {tp("approve")}
+                        </Button>
+                        <Button
+                          danger
+                          size="small"
+                          loading={rejectMutation.isPending && rejectMutation.variables === m.id}
+                          onClick={() => confirmSingleReject(m.id, m.nameKh ?? m.nameEn ?? m.memberId)}
+                        >
+                          {tp("reject")}
+                        </Button>
+                      </>
                     ) : (
                       <Button
                         danger

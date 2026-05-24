@@ -274,7 +274,15 @@
       "bulkApprovedMsg": "Portal access granted to {count} member(s).",
       "bulkRevokedMsg": "Portal access revoked from {count} member(s).",
       "revokeTitle": "Revoke portal access?",
-      "revokeContent": "Remove portal access for {name}?"
+      "revokeContent": "Remove portal access for {name}?",
+      "reject": "Reject",
+      "rejectMsg": "Registration rejected and removed.",
+      "rejectTitle": "Reject registration?",
+      "rejectContent": "Permanently remove {name}'s portal registration?",
+      "bulkReject": "Reject selected",
+      "bulkRejectTitle": "Reject registrations?",
+      "bulkRejectContent": "Permanently remove {count} pending registration(s)?",
+      "bulkRejectedMsg": "{count} registration(s) rejected and removed."
     }
   },
   "settings": {
