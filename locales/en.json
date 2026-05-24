@@ -222,6 +222,7 @@
     "memberAdded": "Member added successfully.",
     "memberUpdated": "Member updated.",
     "memberDeleted": "Member deleted.",
+    "deleteBlockedLoans": "Cannot delete: this member has active loans. Return all loans first.",
     "deleteTitle": "Delete Member?",
     "deleteContent": "\"{name}\" will be permanently removed.",
     "bulkImport": {

@@ -54,9 +54,14 @@ export function useMembers() {
       okButtonProps: { danger: true },
       cancelText: tc("cancel"),
       onOk: async () => {
-        await apiFetch(`/api/members/${member.id}`, { method: "DELETE" });
-        message.success(t("memberDeleted"));
-        ctx.table.reload();
+        try {
+          await apiFetch(`/api/members/${member.id}`, { method: "DELETE" });
+          message.success(t("memberDeleted"));
+          ctx.table.reload();
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "";
+          message.error(msg === "ACTIVE_LOANS" ? t("deleteBlockedLoans") : msg || "Request failed");
+        }
       },
     });
   };

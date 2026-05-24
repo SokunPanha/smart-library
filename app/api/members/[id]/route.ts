@@ -95,7 +95,7 @@ export async function DELETE(
   });
   if (activeLoans > 0) {
     return NextResponse.json(
-      { error: "Cannot delete a member with active loans." },
+      { error: "ACTIVE_LOANS" },
       { status: 409 }
     );
   }
