@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Table, Button, Input, Space, App } from "antd";
-import { PlusOutlined, SearchOutlined, PrinterOutlined, ImportOutlined } from "@ant-design/icons";
+import { Table, Button, Input, Space, App, Tabs } from "antd";
+import { PlusOutlined, SearchOutlined, PrinterOutlined, ImportOutlined, TeamOutlined, SafetyOutlined } from "@ant-design/icons";
 import { QRCodeSVG } from "qrcode.react";
 import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
@@ -14,6 +14,7 @@ import { CreateMemberDrawer, EditMemberDrawer } from "./_components/MemberDrawer
 import { MemberQRModal, buildMemberCardHtml, CARD_PRINT_CSS } from "./_components/MemberQRModal";
 import { MemberProfileDrawer } from "./_components/MemberProfileDrawer";
 import { MemberBulkImportModal } from "./_components/BulkImportModal";
+import { PortalApprovalsTab } from "./_components/PortalApprovalsTab";
 import type { Member } from "./helper/useFetchMembers";
 import { useDebounce, useTableScroll } from "@/lib/hooks";
 import { apiFetch } from "@/lib/request";
@@ -118,42 +119,57 @@ function MembersPageInner() {
         </Space>
       </div>
 
-      <div className="bg-white border border-slate-100 rounded-lg p-4">
-        <Input
-          prefix={<SearchOutlined className="text-slate-400" />}
-          placeholder={t("members.searchPlaceholder")}
-          value={inputVal}
-          onChange={(e) => { setInputVal(e.target.value); ctx.table.setPage(1); }}
-          className="max-w-sm mb-4"
-          allowClear
-        />
-        <div ref={tableRef}>
-          <Table
-            rowSelection={{
-              selectedRowKeys,
-              onChange: setSelectedRowKeys,
-              columnWidth: 40,
-            }}
-            columns={columns}
-            dataSource={members}
-            rowKey="id"
-            loading={isLoading}
-            size="small"
-            scroll={{ x: "max-content", y: scrollY }}
-            onRow={(row) => ({
-              onClick: (e) => {
-                const target = e.target as HTMLElement;
-                if (target.closest("button,a,[role=button],.ant-image")) return;
-                setProfileMemberId(row.id);
-              },
-              className: "cursor-pointer",
-            })}
-            {...ctx.table.props}
-            pagination={{ ...ctx.table.props.pagination, total: data?.total ?? 0 }}
-            locale={{ emptyText: t("members.empty") }}
-          />
-        </div>
-      </div>
+      <Tabs
+        items={[
+          {
+            key: "members",
+            label: <span className="flex items-center gap-1.5"><TeamOutlined />{t("members.tabs.allMembers")}</span>,
+            children: (
+              <div className="bg-white border border-slate-100 rounded-lg p-4">
+                <Input
+                  prefix={<SearchOutlined className="text-slate-400" />}
+                  placeholder={t("members.searchPlaceholder")}
+                  value={inputVal}
+                  onChange={(e) => { setInputVal(e.target.value); ctx.table.setPage(1); }}
+                  className="max-w-sm mb-4"
+                  allowClear
+                />
+                <div ref={tableRef}>
+                  <Table
+                    rowSelection={{
+                      selectedRowKeys,
+                      onChange: setSelectedRowKeys,
+                      columnWidth: 40,
+                    }}
+                    columns={columns}
+                    dataSource={members}
+                    rowKey="id"
+                    loading={isLoading}
+                    size="small"
+                    scroll={{ x: "max-content", y: scrollY }}
+                    onRow={(row) => ({
+                      onClick: (e) => {
+                        const target = e.target as HTMLElement;
+                        if (target.closest("button,a,[role=button],.ant-image")) return;
+                        setProfileMemberId(row.id);
+                      },
+                      className: "cursor-pointer",
+                    })}
+                    {...ctx.table.props}
+                    pagination={{ ...ctx.table.props.pagination, total: data?.total ?? 0 }}
+                    locale={{ emptyText: t("members.empty") }}
+                  />
+                </div>
+              </div>
+            ),
+          },
+          {
+            key: "portal",
+            label: <span className="flex items-center gap-1.5"><SafetyOutlined />{t("members.tabs.portalAccess")}</span>,
+            children: <PortalApprovalsTab />,
+          },
+        ]}
+      />
 
       {/* Off-screen QR codes for bulk print */}
       <div

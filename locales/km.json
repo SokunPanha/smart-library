@@ -247,6 +247,20 @@
       "created": "សមាជិកបានបន្ថែម",
       "skipped": "បានរំលង",
       "importMore": "នាំចូលបន្ថែម"
+    },
+    "tabs": {
+      "allMembers": "សមាជិកទាំងអស់",
+      "portalAccess": "ចូលប្រើប្រាស់ Portal"
+    },
+    "portal": {
+      "pending": "រង់ចាំអនុម័ត",
+      "approved": "បានអនុម័ត",
+      "approve": "អនុម័ត",
+      "revoke": "លុបចោល",
+      "noPending": "គ្មានសមាជិករង់ចាំអនុម័ត Portal។",
+      "noApproved": "គ្មានសមាជិកដែលមានសិទ្ធចូល Portal។",
+      "approvedMsg": "បានអនុម័តសិទ្ធចូល Portal។",
+      "revokedMsg": "បានលុបចោលសិទ្ធចូល Portal។"
     }
   },
   "settings": {
@@ -668,7 +682,7 @@
     "returnedAt": "ថ្ងៃប្រគល់",
     "status": "ស្ថានភាព",
     "fineAmount": "ចំនួនពិន័យ",
-    "finePaid": "បានបង់ពិន័យ",
+    "finePaid": "បានបង់",
     "colBook": "សៀវភៅ",
     "colMember": "សមាជិក",
     "colBorrowed": "ថ្ងៃខ្ចី",
@@ -780,7 +794,6 @@
     "payFineConfirm": "សម្គាល់ថាបានបង់",
     "payFineTooltip": "បង់ពិន័យ: {amount} ៛",
     "finePaySuccess": "ពិន័យ {amount} ៛ ត្រូវបានកត់ត្រាថាបានបង់។",
-    "finePaid": "បានបង់",
     "fineWaived": "បានលើក",
     "waiveFineTitle": "លើកលែងពិន័យ?",
     "waiveFineContent": "លើកលែងពិន័យ {amount} ៛ សម្រាប់ {name}? សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ។",

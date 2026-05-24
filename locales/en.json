@@ -247,6 +247,20 @@
       "created": "Members Added",
       "skipped": "Skipped",
       "importMore": "Import More"
+    },
+    "tabs": {
+      "allMembers": "All Members",
+      "portalAccess": "Portal Access"
+    },
+    "portal": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "approve": "Approve",
+      "revoke": "Revoke",
+      "noPending": "No members awaiting portal approval.",
+      "noApproved": "No members with portal access.",
+      "approvedMsg": "Portal access approved.",
+      "revokedMsg": "Portal access revoked."
     }
   },
   "settings": {
@@ -668,7 +682,7 @@
     "returnedAt": "Returned At",
     "status": "Status",
     "fineAmount": "Fine Amount",
-    "finePaid": "Fine Paid",
+    "finePaid": "Paid",
     "colBook": "Book",
     "colMember": "Member",
     "colBorrowed": "Borrowed",
@@ -780,7 +794,6 @@
     "payFineConfirm": "Mark as Paid",
     "payFineTooltip": "Pay fine: {amount} ៛",
     "finePaySuccess": "Fine of {amount} ៛ recorded as paid.",
-    "finePaid": "Paid",
     "fineWaived": "Waived",
     "waiveFineTitle": "Waive Fine?",
     "waiveFineContent": "Waive the {amount} ៛ fine for {name}? This cannot be undone.",

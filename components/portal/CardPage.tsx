@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
-import { Button, Spin, Tag } from "antd";
-import { PrinterOutlined, CloseOutlined, UserOutlined } from "@ant-design/icons";
+import { Spin, Tag } from "antd";
+import { CloseOutlined, UserOutlined } from "@ant-design/icons";
 import { QRCodeSVG } from "qrcode.react";
 import dayjs from "dayjs";
 
