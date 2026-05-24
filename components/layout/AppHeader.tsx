@@ -41,7 +41,7 @@ export default function AppHeader({ onMenuToggle, showMenuButton }: Props) {
       key: "logout",
       icon: <LogoutOutlined />,
       label: tc("signOut"),
-      onClick: () => signOut({ callbackUrl: `/${locale}/login` }),
+      onClick: () => signOut({ callbackUrl: `/${locale}/admin/login` }),
     },
   ];
 

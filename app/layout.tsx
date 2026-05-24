@@ -25,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html className={`${inter.variable} ${notoSansKhmer.variable} h-full`}>
+    <html className={`${inter.variable} ${notoSansKhmer.variable} h-full`} suppressHydrationWarning>
       <body className="min-h-full antialiased">{children}</body>
     </html>
   );

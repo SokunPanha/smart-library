@@ -1,8 +1,8 @@
 "use client";
 
-import { Drawer, Tag, Avatar, Image, Tabs, Spin, Badge } from "antd";
-import { UserOutlined } from "@ant-design/icons";
-import { useQuery } from "@tanstack/react-query";
+import { Drawer, Tag, Avatar, Image, Tabs, Spin, Badge, Button, App } from "antd";
+import { UserOutlined, CheckCircleOutlined, ClockCircleOutlined, StopOutlined } from "@ant-design/icons";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import dayjs from "dayjs";
 import { apiFetch } from "@/lib/request";
@@ -24,7 +24,7 @@ interface VisitorLog {
 interface MemberDetail {
   id: string; memberId: string; nameKh: string | null; nameEn: string | null;
   type: string; photo: string | null; email: string | null; phone: string | null;
-  expiresAt: string | null;
+  expiresAt: string | null; portalApproved: boolean; portalPassword: string | null;
   class: { name: string } | null;
   loans: Loan[];
   reservations: Reservation[];
@@ -52,11 +52,27 @@ interface Props { memberId: string | null; onClose: () => void }
 export function MemberProfileDrawer({ memberId, onClose }: Props) {
   const t = useTranslations("members");
   const tc = useTranslations("circulation");
+  const { message } = App.useApp();
+  const qc = useQueryClient();
 
   const { data: member, isLoading } = useQuery<MemberDetail>({
     queryKey: ["member-profile", memberId],
     queryFn: () => apiFetch<MemberDetail>(`/api/members/${memberId}`),
     enabled: !!memberId,
+  });
+
+  const approveMutation = useMutation({
+    mutationFn: (approved: boolean) =>
+      fetch(`/api/members/${memberId}/portal-approve`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ approved }),
+      }),
+    onSuccess: (_, approved) => {
+      message.success(approved ? "Portal access approved" : "Portal access revoked");
+      qc.invalidateQueries({ queryKey: ["member-profile", memberId] });
+      qc.invalidateQueries({ queryKey: ["portal-pending"] });
+    },
   });
 
   const activeLoans = member?.loans.filter((l) => l.status === "ACTIVE" || l.status === "OVERDUE") ?? [];
@@ -129,6 +145,43 @@ export function MemberProfileDrawer({ memberId, onClose }: Props) {
                 </p>
               )}
             </div>
+          </div>
+
+          {/* Portal access */}
+          <div className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2">
+            <div className="flex items-center gap-2">
+              {member.portalApproved ? (
+                member.portalPassword ? (
+                  <><CheckCircleOutlined className="text-green-500 text-sm" />
+                  <span className="text-xs text-slate-600">Portal: <span className="text-green-600 font-medium">Active</span></span></>
+                ) : (
+                  <><ClockCircleOutlined className="text-blue-500 text-sm" />
+                  <span className="text-xs text-slate-600">Portal: <span className="text-blue-600 font-medium">Approved (no password yet)</span></span></>
+                )
+              ) : (
+                <><StopOutlined className="text-orange-400 text-sm" />
+                <span className="text-xs text-slate-600">Portal: <span className="text-orange-500 font-medium">Pending approval</span></span></>
+              )}
+            </div>
+            {member.portalApproved ? (
+              <Button
+                size="small"
+                danger
+                loading={approveMutation.isPending}
+                onClick={() => approveMutation.mutate(false)}
+              >
+                Revoke
+              </Button>
+            ) : (
+              <Button
+                size="small"
+                type="primary"
+                loading={approveMutation.isPending}
+                onClick={() => approveMutation.mutate(true)}
+              >
+                Approve
+              </Button>
+            )}
           </div>
 
           {/* Stats */}

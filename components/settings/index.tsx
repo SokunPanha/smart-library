@@ -1,7 +1,7 @@
 "use client";
 
 import { Tabs } from "antd";
-import { SettingOutlined, TeamOutlined, BookOutlined, AppstoreOutlined, SolutionOutlined, ApartmentOutlined, HeatMapOutlined } from "@ant-design/icons";
+import { SettingOutlined, TeamOutlined, BookOutlined, AppstoreOutlined, SolutionOutlined, ApartmentOutlined, HeatMapOutlined, MobileOutlined } from "@ant-design/icons";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { SettingsProvider, useSettingsContext } from "./helper/hooks";
@@ -12,6 +12,7 @@ import { CategoriesTab } from "./_components/CategoriesTab";
 import { ClassesTab } from "./_components/ClassesTab";
 import { ShelvesTab } from "./_components/ShelvesTab";
 import { LibraryMapTab } from "./_components/LibraryMapTab";
+import { PortalApprovalsTab } from "./_components/PortalApprovalsTab";
 
 function SettingsPageInner() {
   const { activeTab, setActiveTab } = useSettingsContext();
@@ -67,6 +68,11 @@ function SettingsPageInner() {
               key: "libraryMap",
               label: <span className="flex items-center gap-1"><HeatMapOutlined />{t("tabs.libraryMap")}</span>,
               children: <LibraryMapTab />,
+            },
+            {
+              key: "portalApprovals",
+              label: <span className="flex items-center gap-1"><MobileOutlined />{t("tabs.portalApprovals")}</span>,
+              children: <PortalApprovalsTab />,
             },
           ]}
         />

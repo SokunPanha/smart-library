@@ -19,7 +19,7 @@ export default function LoginPage() {
   const onFinish = async (values: { email: string; password: string }) => {
     setLoading(true);
     setError(null);
-    const res = await signIn("credentials", {
+    const res = await signIn("admin-credentials", {
       email: values.email,
       password: values.password,
       redirect: false,
@@ -28,7 +28,7 @@ export default function LoginPage() {
     if (res?.error) {
       setError("Invalid email or password.");
     } else {
-      router.push(`/${locale}/dashboard`);
+      router.push(`/${locale}/admin/dashboard`);
     }
   };
 
@@ -46,7 +46,7 @@ export default function LoginPage() {
         <div className="bg-white rounded-xl border border-slate-200 p-6">
           {error && (
             <Alert
-              message={error}
+              title={error}
               type="error"
               showIcon
               className="mb-4"

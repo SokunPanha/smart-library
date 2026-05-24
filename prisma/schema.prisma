@@ -78,7 +78,9 @@ model Member {
   photo     String?
   type      MemberType @default(PUBLIC)
   expiresAt DateTime?
-  classId   String?
+  classId        String?
+  portalApproved Boolean    @default(true)
+  portalPassword String?
   createdBy String?
   updatedBy String?
   createdAt DateTime   @default(now())

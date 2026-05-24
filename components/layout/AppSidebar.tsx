@@ -40,7 +40,7 @@ export function SidebarContent({ onClose }: SidebarContentProps) {
     { key: "settings", icon: <SettingOutlined />, label: t("settings") },
   ];
 
-  const activeKey = pathname.split("/")[2] || "dashboard";
+  const activeKey = pathname.split("/")[3] || "dashboard";
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -60,7 +60,7 @@ export function SidebarContent({ onClose }: SidebarContentProps) {
         className="border-none pt-2 flex-1"
         style={{ borderRight: "none" }}
         onClick={({ key }) => {
-          router.push(`/${locale}/${key}`);
+          router.push(`/${locale}/admin/${key}`);
           onClose?.();
         }}
       />

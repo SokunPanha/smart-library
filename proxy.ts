@@ -12,14 +12,30 @@ export async function proxy(request: NextRequest) {
   // Let next-intl handle locale routing first
   const intlResponse = intlMiddleware(request);
 
-  // Check if this is a protected route (dashboard)
-  const isProtectedPath =
-    /^\/(en|km)\/(dashboard|catalog|members|circulation|reports|settings|visitor-log|logs|map)/.test(pathname);
+  const locale = pathname.split("/")[1] || "en";
 
-  if (isProtectedPath) {
+  // Protect admin routes — must be authenticated as ADMIN/LIBRARIAN/STAFF
+  const isAdminProtectedPath =
+    /^\/(en|km)\/admin\/(dashboard|catalog|members|circulation|reports|settings|visitor-log|logs|map)/.test(pathname);
+
+  if (isAdminProtectedPath) {
     const session = await auth();
-    if (!session) {
-      const locale = pathname.split("/")[1] || "en";
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const userType = (session?.user as any)?.userType;
+    if (!session || userType !== "ADMIN") {
+      return NextResponse.redirect(new URL(`/${locale}/admin/login`, request.url));
+    }
+  }
+
+  // Protect member portal routes — must be authenticated as MEMBER
+  const isMemberProtectedPath =
+    /^\/(en|km)\/(dashboard|loans|card|visits)/.test(pathname);
+
+  if (isMemberProtectedPath) {
+    const session = await auth();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const userType = (session?.user as any)?.userType;
+    if (!session || userType !== "MEMBER") {
       return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
     }
   }

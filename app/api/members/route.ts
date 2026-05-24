@@ -32,17 +32,20 @@ export async function GET(req: NextRequest) {
   const search = searchParams.get("search") ?? "";
   const page = Math.max(1, Number(searchParams.get("page") ?? 1));
   const limit = Math.min(100, Number(searchParams.get("limit") ?? 20));
+  const portalApprovedParam = searchParams.get("portalApproved");
 
-  const where = search
-    ? {
-        OR: [
-          { nameEn: { contains: search, mode: "insensitive" as const } },
-          { nameKh: { contains: search, mode: "insensitive" as const } },
-          { memberId: { contains: search, mode: "insensitive" as const } },
-          { phone: { contains: search, mode: "insensitive" as const } },
-        ],
-      }
-    : {};
+  const where: Record<string, unknown> = {};
+  if (search) {
+    where.OR = [
+      { nameEn: { contains: search, mode: "insensitive" as const } },
+      { nameKh: { contains: search, mode: "insensitive" as const } },
+      { memberId: { contains: search, mode: "insensitive" as const } },
+      { phone: { contains: search, mode: "insensitive" as const } },
+    ];
+  }
+  if (portalApprovedParam !== null) {
+    where.portalApproved = portalApprovedParam === "true";
+  }
 
   const [members, total] = await Promise.all([
     prisma.member.findMany({
