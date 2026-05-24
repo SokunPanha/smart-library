@@ -260,7 +260,21 @@
       "noPending": "គ្មានសមាជិករង់ចាំអនុម័ត Portal។",
       "noApproved": "គ្មានសមាជិកដែលមានសិទ្ធចូល Portal។",
       "approvedMsg": "បានអនុម័តសិទ្ធចូល Portal។",
-      "revokedMsg": "បានលុបចោលសិទ្ធចូល Portal។"
+      "revokedMsg": "បានលុបចោលសិទ្ធចូល Portal។",
+      "selected": "បានជ្រើស",
+      "selectAll": "ជ្រើសទាំងអស់",
+      "deselectAll": "លុបចោលការជ្រើស",
+      "clearSelection": "លុបចោល",
+      "bulkApprove": "អនុម័តដែលបានជ្រើស",
+      "bulkRevoke": "លុបចោលដែលបានជ្រើស",
+      "bulkApproveTitle": "អនុម័តការចូល Portal?",
+      "bulkRevokeTitle": "លុបចោលការចូល Portal?",
+      "bulkApproveContent": "ផ្តល់សិទ្ធចូល Portal ដល់សមាជិក {count} នាក់?",
+      "bulkRevokeContent": "លុបចោលសិទ្ធចូល Portal ពីសមាជិក {count} នាក់?",
+      "bulkApprovedMsg": "បានផ្តល់សិទ្ធចូល Portal ដល់សមាជិក {count} នាក់។",
+      "bulkRevokedMsg": "បានលុបចោលសិទ្ធចូល Portal ពីសមាជិក {count} នាក់។",
+      "revokeTitle": "លុបចោលការចូល Portal?",
+      "revokeContent": "លុបចោលការចូល Portal សម្រាប់ {name}?"
     }
   },
   "settings": {
@@ -880,7 +894,8 @@
       "yearTotal": "{count} ដង ក្នុងឆ្នាំ {year}",
       "visitLog": "ប្រវត្តិការចូល",
       "noVisits": "មិនទាន់មានការចូលបណ្ណាល័យណាមួយទេ។",
-      "noVisitsYear": "គ្មានការចូលក្នុងឆ្នាំ {year}។"
+      "noVisitsYear": "គ្មានការចូលក្នុងឆ្នាំ {year}។",
+      "monthNames": ["មក", "កុ", "មីន", "មេស", "ឧស", "មថ", "កក", "សហ", "កញ", "តល", "វច", "ធ"]
     },
     "dashboard": {
       "greeting": "សូមស្វាគមន៍ {name}",
@@ -894,7 +909,8 @@
       "browseBooks": "រកមើលសៀវភៅ",
       "noLoans": "អ្នកគ្មានការខ្ចីសកម្ម។",
       "libraryVisits": "ការចូលបណ្ណាល័យ",
-      "thisYear": "ឆ្នាំនេះ ({year})"
+      "thisYear": "ឆ្នាំនេះ ({year})",
+      "myCard": "កាតបណ្ណាល័យរបស់ខ្ញុំ"
     },
     "books": {
       "title": "បញ្ជីសៀវភៅ",
@@ -914,7 +930,8 @@
       "empty": "រកមិនឃើញសៀវភៅ។",
       "backToList": "ត្រឡប់បញ្ជី",
       "noShelf": "គ្មានធ្នើ",
-      "allLoaded": "សៀវភៅទាំងអស់ត្រូវបានផ្ទុក"
+      "allLoaded": "សៀវភៅទាំងអស់ត្រូវបានផ្ទុក",
+      "totalCount": "{count} ក្បាល"
     },
     "loans": {
       "title": "ការខ្ចីរបស់ខ្ញុំ",
@@ -943,6 +960,7 @@
     },
     "card": {
       "title": "កាតបណ្ណាល័យ",
+      "subtitle": "កាតសមាជិកបណ្ណាល័យ",
       "memberId": "លេខសមាជិក",
       "type": "ប្រភេទ",
       "expires": "ផុតកំណត់",
@@ -984,6 +1002,18 @@
       "iosStep3": "ចុច \"Add\" ដើម្បីបញ្ជាក់",
       "desktopHint": "សូមបើកទំព័រនេះនៅលើទូរស័ព្ទ ដើម្បីដំឡើងកម្មវិធី។",
       "continueWeb": "បន្តនៅក្នុង Browser"
+    },
+    "ranking": {
+      "title": "ចំណាត់ថ្នាក់ប្រចាំខែ",
+      "yourRank": "ចំណាត់ថ្នាក់របស់អ្នក",
+      "visits": "{count} ដង",
+      "of": "ក្នុងចំណោម {total} នាក់",
+      "noVisits": "គ្មានការចូលបណ្ណាល័យក្នុងខែនេះ។",
+      "notRanked": "ចូលបណ្ណាល័យដើម្បីទទួលបានចំណាត់ថ្នាក់!",
+      "leaderboard": "តារាងចំណាត់ថ្នាក់",
+      "you": "អ្នក",
+      "top": "កំពូល {n}",
+      "duration": "ពេលវេលា"
     }
   }
 }

@@ -1,17 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
-import { Spin, Tag } from "antd";
-import { CloseOutlined, UserOutlined } from "@ant-design/icons";
 import { QRCodeSVG } from "qrcode.react";
 import dayjs from "dayjs";
+import "dayjs/locale/km";
+import { Spinner, Badge } from "./ui";
 
 const TYPE_COLOR: Record<string, string> = {
-  STUDENT: "blue",
-  TEACHER: "purple",
-  PUBLIC: "green",
+  STUDENT:    "blue",
+  TEACHER:    "purple",
+  PUBLIC:     "green",
   RESEARCHER: "orange",
 };
 
@@ -26,9 +26,25 @@ interface Member {
   class: { name: string } | null;
 }
 
+function UserIcon() {
+  return (
+    <svg className="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0zM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+    </svg>
+  );
+}
+function CloseIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+      <path strokeLinecap="round" d="M18 6 6 18M6 6l12 12"/>
+    </svg>
+  );
+}
+
 export default function PortalCardPage() {
-  const t = useTranslations("portal.card");
-  const tm = useTranslations("members.types");
+  const t      = useTranslations("portal.card");
+  const tm     = useTranslations("members.types");
+  const locale = useLocale();
   const [fullscreen, setFullscreen] = useState(false);
 
   const { data: member, isLoading } = useQuery<Member>({
@@ -36,78 +52,66 @@ export default function PortalCardPage() {
     queryFn: () => fetch("/api/portal/me").then((r) => r.json()),
   });
 
-  if (isLoading) {
-    return <div className="flex justify-center py-16"><Spin /></div>;
-  }
-
+  if (isLoading) return <Spinner className="py-16" />;
   if (!member) return null;
 
   return (
     <div className="p-4 flex flex-col items-center">
-      {/* Toolbar */}
       <div className="w-full max-w-sm flex items-center justify-between mb-4 print:hidden">
-        <h2 className="text-lg font-semibold text-slate-800">{t("title")}</h2>
-        {/* <Button
-          icon={<PrinterOutlined />}
-          size="small"
-          onClick={() => window.print()}
-        >
-          {t("printCard")}
-        </Button> */}
+        <h2 className="text-lg font-bold text-slate-800 dark:text-white">{t("title")}</h2>
       </div>
 
-      {/* Card — full width on mobile, capped on larger screens */}
-      <div className="w-full max-w-sm rounded-2xl overflow-hidden shadow-lg border border-slate-100 print:shadow-none print:border-gray-300">
+      {/* Card */}
+      <div className="w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl shadow-slate-200/60 dark:shadow-slate-900/60 border border-slate-100 dark:border-slate-700 print:shadow-none">
 
         {/* Header band */}
-        <div className="bg-gradient-to-r from-blue-700 to-blue-500 px-5 pt-6 pb-10 relative">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-md bg-white flex items-center justify-center flex-shrink-0">
+        <div className="bg-linear-to-r from-indigo-700 to-blue-500 px-5 pt-6 pb-12 relative overflow-hidden">
+          <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/10 pointer-events-none" />
+          <div className="absolute top-10 -right-4  w-20 h-20 rounded-full bg-white/5 pointer-events-none" />
+          <div className="flex items-center gap-2 relative">
+            <div className="w-7 h-7 rounded-lg bg-white flex items-center justify-center flex-shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/LibraCore.png" alt="LibraCore" className="w-5 h-5 object-contain" />
             </div>
             <span className="text-white font-semibold text-sm tracking-wide">LibraCore</span>
           </div>
-          <p className="text-blue-200 text-xs mt-0.5">Library Member Card</p>
+          <p className="text-blue-200 text-xs mt-0.5 relative">{t("subtitle")}</p>
         </div>
 
-        {/* Avatar — overlaps header/body */}
+        {/* Avatar overlap */}
         <div className="relative px-5">
           <div className="absolute -top-10 left-5">
             {member.photo ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={member.photo}
                 alt=""
-                className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-md"
+                className="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-slate-800 shadow-lg"
               />
             ) : (
-              <div className="w-20 h-20 rounded-full bg-slate-200 border-4 border-white shadow-md flex items-center justify-center">
-                <UserOutlined className="text-2xl text-slate-400" />
+              <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-700 border-4 border-white dark:border-slate-800 shadow-lg flex items-center justify-center">
+                <UserIcon />
               </div>
             )}
           </div>
         </div>
 
         {/* Body */}
-        <div className="bg-white px-5 pt-14 pb-5">
-          {/* Name + type */}
+        <div className="bg-white dark:bg-slate-800 px-5 pt-14 pb-5">
+          {/* Name */}
           <div className="mb-4">
-            <div className="font-bold text-slate-800 text-base leading-snug">
+            <p className="font-bold text-slate-800 dark:text-white text-base leading-snug">
               {member.nameKh ?? member.nameEn}
-            </div>
+            </p>
             {member.nameKh && member.nameEn && (
-              <div className="text-sm text-slate-400">{member.nameEn}</div>
+              <p className="text-sm text-slate-400 dark:text-slate-500">{member.nameEn}</p>
             )}
             <div className="flex flex-wrap items-center gap-1.5 mt-2">
-              <Tag
-                color={TYPE_COLOR[member.type] ?? "default"}
-                className="text-xs m-0 border-0"
-              >
+              <Badge color={TYPE_COLOR[member.type] ?? "default"}>
                 {tm(member.type as "STUDENT")}
-              </Tag>
+              </Badge>
               {member.class && (
-                <Tag className="text-xs m-0 border-0 bg-indigo-50 text-indigo-600">
-                  {member.class.name}
-                </Tag>
+                <Badge color="purple">{member.class.name}</Badge>
               )}
             </div>
           </div>
@@ -115,49 +119,43 @@ export default function PortalCardPage() {
           {/* Info grid */}
           <div className="grid grid-cols-2 gap-y-3 mb-5 text-sm">
             <div>
-              <div className="text-xs text-slate-400 uppercase tracking-wide mb-0.5">
+              <p className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-0.5">
                 {t("memberId")}
-              </div>
-              <div className="font-mono font-semibold text-slate-800 text-xs">
+              </p>
+              <p className="font-mono font-semibold text-slate-800 dark:text-slate-100 text-xs">
                 {member.memberId}
-              </div>
+              </p>
             </div>
             <div>
-              <div className="text-xs text-slate-400 uppercase tracking-wide mb-0.5">
+              <p className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-0.5">
                 {t("memberSince")}
-              </div>
-              <div className="text-xs text-slate-700">
-                {dayjs(member.createdAt).format("MMM YYYY")}
-              </div>
+              </p>
+              <p className="text-xs text-slate-700 dark:text-slate-300">
+                {dayjs(member.createdAt).locale(locale).format("MMM YYYY")}
+              </p>
             </div>
             <div className="col-span-2">
-              <div className="text-xs text-slate-400 uppercase tracking-wide mb-0.5">
+              <p className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-0.5">
                 {t("expires")}
-              </div>
-              <div className="text-xs text-slate-700">
+              </p>
+              <p className="text-xs text-slate-700 dark:text-slate-300">
                 {member.expiresAt
-                  ? dayjs(member.expiresAt).format("DD MMM YYYY")
+                  ? dayjs(member.expiresAt).locale(locale).format("DD MMM YYYY")
                   : t("noExpiry")}
-              </div>
+              </p>
             </div>
           </div>
 
           {/* QR code */}
-          <div className="flex flex-col items-center border-t border-slate-50 pt-4">
+          <div className="flex flex-col items-center border-t border-slate-50 dark:border-slate-700 pt-4">
             <button
               onClick={() => setFullscreen(true)}
-              className="rounded-lg focus:outline-none active:opacity-70"
+              className="rounded-2xl focus:outline-none active:opacity-70 overflow-hidden"
               aria-label="Expand QR code"
             >
-              <QRCodeSVG
-                value={member.memberId}
-                size={140}
-                level="M"
-                includeMargin
-                className="rounded-lg"
-              />
+              <QRCodeSVG value={member.memberId} size={140} level="M" marginSize={2} className="rounded-xl" />
             </button>
-            <p className="text-xs text-slate-400 mt-1">{t("scanHint")}</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{t("scanHint")}</p>
           </div>
         </div>
       </div>
@@ -165,26 +163,26 @@ export default function PortalCardPage() {
       {/* Fullscreen QR overlay */}
       {fullscreen && (
         <div
-          className="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center print:hidden"
+          className="fixed inset-0 z-50 bg-white dark:bg-slate-900 flex flex-col items-center justify-center print:hidden"
           onClick={() => setFullscreen(false)}
         >
           <button
-            className="absolute top-4 right-4 p-2 rounded-full bg-slate-100 text-slate-600"
+            className="absolute top-4 right-4 p-2.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
             onClick={() => setFullscreen(false)}
             aria-label="Close"
           >
-            <CloseOutlined />
+            <CloseIcon />
           </button>
           <QRCodeSVG
             value={member.memberId}
             size={Math.min(window.innerWidth, window.innerHeight) - 80}
             level="H"
-            includeMargin
+            marginSize={2}
           />
           <div className="mt-6 text-center px-6">
-            <div className="font-mono font-bold text-slate-800 text-lg">{member.memberId}</div>
-            <div className="text-sm text-slate-500 mt-1">{member.nameKh ?? member.nameEn}</div>
-            <div className="text-xs text-slate-400 mt-3">{t("scanHint")}</div>
+            <p className="font-mono font-bold text-slate-800 dark:text-white text-lg">{member.memberId}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{member.nameKh ?? member.nameEn}</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-3">{t("scanHint")}</p>
           </div>
         </div>
       )}

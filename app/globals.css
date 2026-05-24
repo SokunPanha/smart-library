@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 :root {
   --font-sans: var(--font-inter), var(--font-noto-khmer), system-ui, sans-serif;
 }

@@ -260,7 +260,21 @@
       "noPending": "No members awaiting portal approval.",
       "noApproved": "No members with portal access.",
       "approvedMsg": "Portal access approved.",
-      "revokedMsg": "Portal access revoked."
+      "revokedMsg": "Portal access revoked.",
+      "selected": "selected",
+      "selectAll": "Select all",
+      "deselectAll": "Deselect all",
+      "clearSelection": "Clear",
+      "bulkApprove": "Approve selected",
+      "bulkRevoke": "Revoke selected",
+      "bulkApproveTitle": "Approve portal access?",
+      "bulkRevokeTitle": "Revoke portal access?",
+      "bulkApproveContent": "Grant portal access to {count} member(s)?",
+      "bulkRevokeContent": "Revoke portal access from {count} member(s)?",
+      "bulkApprovedMsg": "Portal access granted to {count} member(s).",
+      "bulkRevokedMsg": "Portal access revoked from {count} member(s).",
+      "revokeTitle": "Revoke portal access?",
+      "revokeContent": "Remove portal access for {name}?"
     }
   },
   "settings": {
@@ -880,7 +894,8 @@
       "yearTotal": "{count} visits in {year}",
       "visitLog": "Visit History",
       "noVisits": "No library visits recorded yet.",
-      "noVisitsYear": "No visits in {year}."
+      "noVisitsYear": "No visits in {year}.",
+      "monthNames": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     },
     "dashboard": {
       "greeting": "Welcome, {name}",
@@ -894,7 +909,8 @@
       "browseBooks": "Browse books",
       "noLoans": "You have no active loans.",
       "libraryVisits": "Library Visits",
-      "thisYear": "This year ({year})"
+      "thisYear": "This year ({year})",
+      "myCard": "My Library Card"
     },
     "books": {
       "title": "Book Catalog",
@@ -914,7 +930,8 @@
       "empty": "No books found.",
       "backToList": "Back to catalog",
       "noShelf": "No shelf assigned",
-      "allLoaded": "All books loaded"
+      "allLoaded": "All books loaded",
+      "totalCount": "{count} books"
     },
     "loans": {
       "title": "My Loans",
@@ -943,6 +960,7 @@
     },
     "card": {
       "title": "My Library Card",
+      "subtitle": "Library Member Card",
       "memberId": "Member ID",
       "type": "Type",
       "expires": "Valid Until",
@@ -984,6 +1002,18 @@
       "iosStep3": "Tap \"Add\" to confirm",
       "desktopHint": "Open this page on your mobile device to install the app.",
       "continueWeb": "Continue in browser"
+    },
+    "ranking": {
+      "title": "Monthly Ranking",
+      "yourRank": "Your rank",
+      "visits": "{count} visit(s)",
+      "of": "of {total} members",
+      "noVisits": "No visits recorded this month.",
+      "notRanked": "Visit the library to get ranked!",
+      "leaderboard": "Leaderboard",
+      "you": "You",
+      "top": "Top {n}",
+      "duration": "Time spent"
     }
   }
 }
