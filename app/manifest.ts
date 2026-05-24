@@ -2,13 +2,13 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "LibraCore Member Portal",
+    name: "LibraCore",
     short_name: "LibraCore",
-    description: "Library member portal — browse books, track loans, view your card",
-    start_url: "/km/login",
+    description: "LibraCore — Library Management System",
+    start_url: "/",
     scope: "/",
     display: "standalone",
-    orientation: "portrait",
+    orientation: "any",
     background_color: "#ffffff",
     theme_color: "#1d4ed8",
     icons: [
