@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { requireAdminApi } from "@/lib/portalAuth";
 
 export async function GET(req: Request) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminAuth = await requireAdminApi();
+  if (adminAuth.response) return adminAuth.response;
+  const { session } = adminAuth;
   const { searchParams } = new URL(req.url);
   const months = Number(searchParams.get("months") ?? 6);
 

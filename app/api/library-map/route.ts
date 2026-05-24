@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { requireAdminApi } from "@/lib/portalAuth";
 import { logActivity } from "@/lib/activityLog";
 
 export async function GET() {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminAuth = await requireAdminApi();
+  if (adminAuth.response) return adminAuth.response;
+  const { session } = adminAuth;
 
   let map = await prisma.libraryMap.findFirst();
   if (!map) {
@@ -15,8 +16,9 @@ export async function GET() {
 }
 
 export async function PUT(req: NextRequest) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminAuth = await requireAdminApi();
+  if (adminAuth.response) return adminAuth.response;
+  const { session } = adminAuth;
 
   const body = await req.json();
   let map = await prisma.libraryMap.findFirst();

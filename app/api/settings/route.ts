@@ -25,6 +25,9 @@ const NUMERIC_KEYS = new Set([
 ]);
 
 export async function GET() {
+  const session = await auth();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const rows = await prisma.setting.findMany();
   const map: Record<string, string> = { ...DEFAULTS };
   for (const row of rows) map[row.key] = row.value;

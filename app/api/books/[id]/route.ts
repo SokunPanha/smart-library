@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { requireAdminApi } from "@/lib/portalAuth";
 import { z } from "zod";
 import { logActivity } from "@/lib/activityLog";
 
@@ -23,8 +23,9 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminAuth = await requireAdminApi();
+  if (adminAuth.response) return adminAuth.response;
+  const { session } = adminAuth;
 
   const { id } = await params;
   const book = await prisma.book.findUnique({
@@ -55,8 +56,9 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminAuth = await requireAdminApi();
+  if (adminAuth.response) return adminAuth.response;
+  const { session } = adminAuth;
 
   const { id } = await params;
   const body = await req.json();
@@ -87,8 +89,9 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminAuth = await requireAdminApi();
+  if (adminAuth.response) return adminAuth.response;
+  const { session } = adminAuth;
 
   const { id } = await params;
   const activeLoans = await prisma.loan.count({

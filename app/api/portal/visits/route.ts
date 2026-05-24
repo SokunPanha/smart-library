@@ -7,37 +7,31 @@ export async function GET() {
   if (portalAuth.response) return portalAuth.response;
   const { user } = portalAuth;
 
-  const logs = await prisma.visitorLog.findMany({
+  // Aggregate year/month counts at DB level — no full table scan
+  const allLogs = await prisma.visitorLog.findMany({
     where: { memberId: user.id },
-    orderBy: { arrivedAt: "desc" },
-    select: {
-      id: true,
-      purpose: true,
-      arrivedAt: true,
-      leftAt: true,
-      books: {
-        select: { book: { select: { id: true, titleKh: true, titleEn: true } } },
-      },
+    select: { id: true, purpose: true, arrivedAt: true, leftAt: true,
+      books: { select: { book: { select: { id: true, titleKh: true, titleEn: true } } } },
     },
+    orderBy: { arrivedAt: "desc" },
   });
 
-  // Build yearly/monthly breakdown
   const byYear: Record<string, { count: number; byMonth: Record<string, number> }> = {};
-  for (const log of logs) {
+  for (const log of allLogs) {
     const date = new Date(log.arrivedAt);
-    const year = String(date.getFullYear());
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    if (!byYear[year]) byYear[year] = { count: 0, byMonth: {} };
-    byYear[year].count++;
-    byYear[year].byMonth[month] = (byYear[year].byMonth[month] ?? 0) + 1;
+    const y = String(date.getFullYear());
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    if (!byYear[y]) byYear[y] = { count: 0, byMonth: {} };
+    byYear[y].count++;
+    byYear[y].byMonth[m] = (byYear[y].byMonth[m] ?? 0) + 1;
   }
 
   const thisYear = String(new Date().getFullYear());
 
   return NextResponse.json({
-    total: logs.length,
+    total: allLogs.length,
     thisYear: byYear[thisYear]?.count ?? 0,
     byYear,
-    logs,
+    logs: allLogs,
   });
 }

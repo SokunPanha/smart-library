@@ -53,18 +53,25 @@ export async function POST(req: NextRequest) {
   const memberId = await generateMemberId();
   const hashedPassword = await bcrypt.hash(password, 12);
 
-  const member = await prisma.member.create({
-    data: {
-      ...rest,
-      memberId,
-      email: email || null,
-      classId: classId || null,
-      portalApproved: false,
-      portalPassword: hashedPassword,
-      createdBy: "self-registered",
-      updatedBy: "self-registered",
-    },
-  });
+  const createData = {
+    ...rest,
+    email: email || null,
+    classId: classId || null,
+    portalApproved: false,
+    portalPassword: hashedPassword,
+    createdBy: "self-registered",
+    updatedBy: "self-registered",
+  };
 
-  return NextResponse.json({ memberId: member.memberId }, { status: 201 });
+  try {
+    const member = await prisma.member.create({ data: { ...createData, memberId } });
+    return NextResponse.json({ memberId: member.memberId }, { status: 201 });
+  } catch (err: unknown) {
+    if ((err as { code?: string }).code === "P2002") {
+      const fallbackId = `MEM-${new Date().getFullYear()}-${Date.now().toString(36).toUpperCase().slice(-5)}`;
+      const member = await prisma.member.create({ data: { ...createData, memberId: fallbackId } });
+      return NextResponse.json({ memberId: member.memberId }, { status: 201 });
+    }
+    throw err;
+  }
 }

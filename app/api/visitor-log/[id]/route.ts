@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { requireAdminApi } from "@/lib/portalAuth";
 import { logActivity } from "@/lib/activityLog";
 
 const bookInclude = {
@@ -11,8 +11,9 @@ const bookInclude = {
 };
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminAuth = await requireAdminApi();
+  if (adminAuth.response) return adminAuth.response;
+  const { session } = adminAuth;
 
   const { id } = await params;
   const body = await req.json();

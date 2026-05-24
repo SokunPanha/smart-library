@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
 import { z } from "zod";
 import { logActivity } from "@/lib/activityLog";
+import { requireAdminApi } from "@/lib/portalAuth";
 
 const memberSchema = z.object({
   nameKh: z.string().min(1),
@@ -15,6 +15,26 @@ const memberSchema = z.object({
   classId: z.string().optional().nullable(),
 });
 
+const MEMBER_SELECT = {
+  id: true,
+  memberId: true,
+  nameKh: true,
+  nameEn: true,
+  email: true,
+  phone: true,
+  photo: true,
+  type: true,
+  expiresAt: true,
+  createdAt: true,
+  updatedAt: true,
+  createdBy: true,
+  updatedBy: true,
+  portalApproved: true,
+  classId: true,
+  _count: { select: { loans: true } },
+  class: { select: { id: true, name: true } },
+} as const;
+
 async function generateMemberId(): Promise<string> {
   const year = new Date().getFullYear();
   const count = await prisma.member.count();
@@ -25,8 +45,8 @@ async function generateMemberId(): Promise<string> {
 }
 
 export async function GET(req: NextRequest) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminAuth = await requireAdminApi();
+  if (adminAuth.response) return adminAuth.response;
 
   const { searchParams } = new URL(req.url);
   const search = searchParams.get("search") ?? "";
@@ -53,17 +73,24 @@ export async function GET(req: NextRequest) {
       skip: (page - 1) * limit,
       take: limit,
       orderBy: { createdAt: "desc" },
-      include: { _count: { select: { loans: true } }, class: { select: { id: true, name: true } } },
+      select: MEMBER_SELECT,
     }),
     prisma.member.count({ where }),
   ]);
 
-  return NextResponse.json({ members, total, page, limit });
+  // Augment with hasPassword without exposing the hash
+  const membersWithFlag = members.map((m) => ({
+    ...m,
+    hasPassword: !!(m as unknown as { portalPassword?: string | null }).portalPassword,
+  }));
+
+  return NextResponse.json({ members: membersWithFlag, total, page, limit });
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminAuth = await requireAdminApi();
+  if (adminAuth.response) return adminAuth.response;
+  const { session } = adminAuth;
 
   const body = await req.json();
   const parsed = memberSchema.safeParse(body);
@@ -74,19 +101,44 @@ export async function POST(req: NextRequest) {
   const actor = (session.user as { name?: string; email?: string }).name ?? session.user?.email ?? "unknown";
   const { expiresAt, email, classId, photo, ...rest } = parsed.data;
   const memberId = await generateMemberId();
-  const member = await prisma.member.create({
-    data: {
-      ...rest,
-      memberId,
-      email: email || null,
-      photo: photo || null,
-      expiresAt: expiresAt ? new Date(expiresAt) : null,
-      classId: classId || null,
-      createdBy: actor,
-      updatedBy: actor,
-    },
-  });
 
-  await logActivity(session, "MEMBER_CREATED", `Added member: ${member.nameKh ?? member.nameEn ?? memberId} (${memberId})`, member.id);
-  return NextResponse.json(member, { status: 201 });
+  try {
+    const member = await prisma.member.create({
+      data: {
+        ...rest,
+        memberId,
+        email: email || null,
+        photo: photo || null,
+        expiresAt: expiresAt ? new Date(expiresAt) : null,
+        classId: classId || null,
+        createdBy: actor,
+        updatedBy: actor,
+      },
+      select: MEMBER_SELECT,
+    });
+
+    await logActivity(session, "MEMBER_CREATED", `Added member: ${member.nameKh ?? member.nameEn ?? memberId} (${memberId})`, member.id);
+    return NextResponse.json(member, { status: 201 });
+  } catch (err: unknown) {
+    // P2002 = unique constraint violation (race on memberId)
+    if ((err as { code?: string }).code === "P2002") {
+      const fallbackId = `MEM-${new Date().getFullYear()}-${Date.now().toString(36).toUpperCase().slice(-5)}`;
+      const member = await prisma.member.create({
+        data: {
+          ...rest,
+          memberId: fallbackId,
+          email: email || null,
+          photo: photo || null,
+          expiresAt: expiresAt ? new Date(expiresAt) : null,
+          classId: classId || null,
+          createdBy: actor,
+          updatedBy: actor,
+        },
+        select: MEMBER_SELECT,
+      });
+      await logActivity(session, "MEMBER_CREATED", `Added member: ${member.nameKh ?? member.nameEn ?? fallbackId} (${fallbackId})`, member.id);
+      return NextResponse.json(member, { status: 201 });
+    }
+    throw err;
+  }
 }

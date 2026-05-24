@@ -4,6 +4,9 @@ import { auth } from "@/auth";
 import { logActivity } from "@/lib/activityLog";
 
 export async function GET() {
+  const session = await auth();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 

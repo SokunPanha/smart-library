@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { requireAdminApi } from "@/lib/portalAuth";
 import cloudinary from "@/lib/cloudinary";
 import { logActivity } from "@/lib/activityLog";
 
@@ -7,8 +7,9 @@ const ALLOWED_FOLDERS = ["library/books", "library/members"] as const;
 type UploadFolder = (typeof ALLOWED_FOLDERS)[number];
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminAuth = await requireAdminApi();
+  if (adminAuth.response) return adminAuth.response;
+  const { session } = adminAuth;
 
   const { searchParams } = new URL(req.url);
   const rawFolder = searchParams.get("folder") ?? "library/books";
@@ -50,8 +51,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminAuth = await requireAdminApi();
+  if (adminAuth.response) return adminAuth.response;
+  const { session } = adminAuth;
 
   const { searchParams } = new URL(req.url);
   const publicId = searchParams.get("publicId");

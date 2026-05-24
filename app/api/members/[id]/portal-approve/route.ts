@@ -19,6 +19,7 @@ export async function PATCH(
   const member = await prisma.member.update({
     where: { id },
     data: { portalApproved: approved },
+    select: { id: true, memberId: true, nameKh: true, nameEn: true, portalApproved: true },
   });
 
   const action = approved ? "PORTAL_APPROVED" : "PORTAL_REJECTED";

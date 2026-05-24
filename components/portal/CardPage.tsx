@@ -108,7 +108,7 @@ export default function PortalCardPage() {
             )}
             <div className="flex flex-wrap items-center gap-1.5 mt-2">
               <Badge color={TYPE_COLOR[member.type] ?? "default"}>
-                {tm(member.type as "STUDENT")}
+                {tm((["STUDENT","TEACHER","PUBLIC","RESEARCHER"].includes(member.type) ? member.type : "PUBLIC") as "STUDENT")}
               </Badge>
               {member.class && (
                 <Badge color="purple">{member.class.name}</Badge>

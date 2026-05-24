@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { requireAdminApi } from "@/lib/portalAuth";
 import { z } from "zod";
 import { logActivity } from "@/lib/activityLog";
 
@@ -15,8 +15,9 @@ const shelfSchema = z.object({
 });
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminAuth = await requireAdminApi();
+  if (adminAuth.response) return adminAuth.response;
+  const { session } = adminAuth;
   const { id } = await params;
   const body = await req.json();
   const parsed = shelfSchema.partial().safeParse(body);
@@ -27,8 +28,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminAuth = await requireAdminApi();
+  if (adminAuth.response) return adminAuth.response;
+  const { session } = adminAuth;
   const { id } = await params;
   const existing = await prisma.shelf.findUnique({ where: { id }, select: { code: true } });
   const { count } = await prisma.book.updateMany({ where: { shelfId: id }, data: { shelfId: null } });

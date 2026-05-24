@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { requireAdminApi } from "@/lib/portalAuth";
 import { z } from "zod";
 import { logActivity } from "@/lib/activityLog";
 
@@ -33,8 +33,9 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminAuth = await requireAdminApi();
+  if (adminAuth.response) return adminAuth.response;
+  const { session } = adminAuth;
 
   const { id } = await params;
   const loan = await prisma.loan.findUnique({
@@ -53,8 +54,9 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminAuth = await requireAdminApi();
+  if (adminAuth.response) return adminAuth.response;
+  const { session } = adminAuth;
 
   const { id } = await params;
   const body = await req.json();
@@ -183,21 +185,28 @@ export async function PATCH(
     }
 
     const now = new Date();
-    const updatedLoan = await prisma.loan.update({
-      where: { id },
-      data: {
-        status: "LOST",
-        returnedAt: now,
-        fineAmount: parsed.data.fineAmount,
-        fineNote: parsed.data.fineNote ?? null,
-        finePaid: false,
-        closedBy: actor,
-      },
-      include: {
-        book: { select: { titleEn: true, titleKh: true } },
-        member: { select: { nameEn: true, nameKh: true, memberId: true } },
-      },
-    });
+    const [updatedLoan] = await prisma.$transaction([
+      prisma.loan.update({
+        where: { id },
+        data: {
+          status: "LOST",
+          returnedAt: now,
+          fineAmount: parsed.data.fineAmount,
+          fineNote: parsed.data.fineNote ?? null,
+          finePaid: false,
+          closedBy: actor,
+        },
+        include: {
+          book: { select: { titleEn: true, titleKh: true } },
+          member: { select: { nameEn: true, nameKh: true, memberId: true } },
+        },
+      }),
+      // Book is permanently gone — decrement totalCopies so availability ratio stays correct
+      prisma.book.update({
+        where: { id: loan.bookId },
+        data: { totalCopies: { decrement: 1 } },
+      }),
+    ]);
 
     const bookTitle = updatedLoan.book.titleKh ?? updatedLoan.book.titleEn;
     const memberName = updatedLoan.member.nameKh ?? updatedLoan.member.nameEn ?? updatedLoan.member.memberId;

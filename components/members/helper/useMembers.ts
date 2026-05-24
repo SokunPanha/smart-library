@@ -25,25 +25,33 @@ export function useMembers() {
   const tc = useTranslations("common");
 
   const createMember = async (values: MemberPayload) => {
-    await apiFetch("/api/members", {
-      method: "POST",
-      body: JSON.stringify(filterRequestParam(values)),
-    });
-    message.success(t("memberAdded"));
-    ctx.createForm.close();
-    ctx.table.reload();
+    try {
+      await apiFetch("/api/members", {
+        method: "POST",
+        body: JSON.stringify(filterRequestParam(values)),
+      });
+      message.success(t("memberAdded"));
+      ctx.createForm.close();
+      ctx.table.reload();
+    } catch (err) {
+      message.error(err instanceof Error ? err.message : "Request failed");
+    }
   };
 
   const updateMember = async (values: MemberPayload) => {
     const member = ctx.editForm.getData() as Member | undefined;
     if (!member) return;
-    await apiFetch(`/api/members/${member.id}`, {
-      method: "PUT",
-      body: JSON.stringify(filterRequestParam(values)),
-    });
-    message.success(t("memberUpdated"));
-    ctx.editForm.close();
-    ctx.table.reload();
+    try {
+      await apiFetch(`/api/members/${member.id}`, {
+        method: "PUT",
+        body: JSON.stringify(filterRequestParam(values)),
+      });
+      message.success(t("memberUpdated"));
+      ctx.editForm.close();
+      ctx.table.reload();
+    } catch (err) {
+      message.error(err instanceof Error ? err.message : "Request failed");
+    }
   };
 
   const deleteMember = (member: Member) => {

@@ -23,64 +23,50 @@ export async function GET(req: NextRequest) {
   const monthStart = new Date(year, month, 1);
   const monthEnd = new Date(year, month + 1, 1);
 
-  // Fetch all logs for the month — need arrivedAt + leftAt to compute duration
-  const logs = await prisma.visitorLog.findMany({
+  // Count visits per member using DB groupBy — no full table scan
+  const visitGroups = await prisma.visitorLog.groupBy({
+    by: ["memberId"],
     where: { arrivedAt: { gte: monthStart, lt: monthEnd } },
-    select: { memberId: true, arrivedAt: true, leftAt: true },
+    _count: { memberId: true },
+    orderBy: { _count: { memberId: "desc" } },
   });
 
-  if (logs.length === 0) {
+  if (visitGroups.length === 0) {
     return NextResponse.json({
       month: `${year}-${String(month + 1).padStart(2, "0")}`,
       myRank: null,
       myVisits: 0,
-      myMinutes: 0,
-      myDuration: "0m",
       totalParticipants: 0,
       top: [],
     });
   }
 
-  // Aggregate per member: visit count + total minutes spent
-  const statsMap = new Map<string, { visits: number; minutes: number }>();
-  for (const log of logs) {
-    const left = log.leftAt ?? now; // treat still-inside as leaving now
-    const minutes = Math.max(0, (left.getTime() - log.arrivedAt.getTime()) / 60_000);
-    const prev = statsMap.get(log.memberId) ?? { visits: 0, minutes: 0 };
-    statsMap.set(log.memberId, {
-      visits: prev.visits + 1,
-      minutes: prev.minutes + minutes,
-    });
-  }
+  // Sort by visit count (groupBy already ordered, but be explicit)
+  const sorted = visitGroups.map((g) => ({ memberId: g.memberId, visits: g._count.memberId }));
 
-  // Sort: primary = total minutes, secondary = visit count
-  const sorted = [...statsMap.entries()].sort(
-    ([, a], [, b]) => b.minutes - a.minutes || b.visits - a.visits
-  );
+  // Caller's position
+  const myIndex = sorted.findIndex((g) => g.memberId === user.id);
+  const myVisits = myIndex >= 0 ? sorted[myIndex].visits : 0;
+  const myRank = myIndex >= 0 ? myIndex + 1 : null;
 
   // Fetch member details for top 10
-  const topEntries = sorted.slice(0, 10);
-  const topIds = topEntries.map(([id]) => id);
+  const top10 = sorted.slice(0, 10);
+  const topIds = top10.map((g) => g.memberId);
   const members = await prisma.member.findMany({
     where: { id: { in: topIds } },
     select: { id: true, nameKh: true, nameEn: true, photo: true },
   });
   const memberMap = new Map(members.map((m) => [m.id, m]));
 
-  // Caller's position
-  const myIndex = sorted.findIndex(([id]) => id === user.id);
-  const myStats = myIndex >= 0 ? sorted[myIndex][1] : { visits: 0, minutes: 0 };
-  const myRank = myIndex >= 0 ? myIndex + 1 : null;
-
-  const top = topEntries.map(([memberId, stats], i) => {
-    const m = memberMap.get(memberId);
+  const top = top10.map((g, i) => {
+    const m = memberMap.get(g.memberId);
     return {
       rank: i + 1,
-      memberId,
+      memberId: g.memberId,
       name: m?.nameKh ?? m?.nameEn ?? "—",
       photo: m?.photo ?? null,
-      visits: stats.visits,
-      isMe: memberId === user.id,
+      visits: g.visits,
+      isMe: g.memberId === user.id,
     };
   });
 
@@ -92,10 +78,10 @@ export async function GET(req: NextRequest) {
     });
     top.push({
       rank: myRank,
-      memberId: user.id!,
+      memberId: user.id,
       name: myMember?.nameKh ?? myMember?.nameEn ?? "—",
       photo: myMember?.photo ?? null,
-      visits: myStats.visits,
+      visits: myVisits,
       isMe: true,
     });
   }
@@ -103,7 +89,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     month: `${year}-${String(month + 1).padStart(2, "0")}`,
     myRank,
-    myVisits: myStats.visits,
+    myVisits,
     totalParticipants: sorted.length,
     top,
   });

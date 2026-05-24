@@ -65,7 +65,10 @@ export function PortalApprovalsTab() {
         limit: String(pageSize),
       });
       if (search) params.set("search", search);
-      return fetch(`/api/members?${params}`).then((r) => r.json());
+      return fetch(`/api/members?${params}`).then((r) => {
+        if (!r.ok) throw new Error("Request failed");
+        return r.json();
+      });
     },
   });
 

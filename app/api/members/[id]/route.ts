@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
 import { z } from "zod";
 import { logActivity } from "@/lib/activityLog";
+import { requireAdminApi } from "@/lib/portalAuth";
 
 const memberSchema = z.object({
   nameKh: z.string().min(1),
@@ -19,25 +19,37 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminAuth = await requireAdminApi();
+  if (adminAuth.response) return adminAuth.response;
 
   const { id } = await params;
   const member = await prisma.member.findUnique({
     where: { id },
-    include: {
+    select: {
+      id: true, memberId: true, nameKh: true, nameEn: true, email: true,
+      phone: true, photo: true, type: true, expiresAt: true,
+      createdAt: true, updatedAt: true, createdBy: true, updatedBy: true,
+      portalApproved: true, classId: true,
       class: { select: { name: true } },
       loans: {
-        include: { book: { select: { id: true, titleKh: true, titleEn: true, author: true } } },
+        select: {
+          id: true, status: true, borrowedAt: true, dueAt: true, returnedAt: true,
+          fineAmount: true, finePaid: true, renewalCount: true,
+          book: { select: { id: true, titleKh: true, titleEn: true, author: true } },
+        },
         orderBy: { borrowedAt: "desc" },
         take: 100,
       },
       reservations: {
-        include: { book: { select: { id: true, titleKh: true, titleEn: true } } },
+        select: {
+          id: true, status: true, reservedAt: true, fulfilledAt: true,
+          book: { select: { id: true, titleKh: true, titleEn: true } },
+        },
         orderBy: { reservedAt: "desc" },
       },
       visitorLogs: {
-        include: {
+        select: {
+          id: true, purpose: true, arrivedAt: true, leftAt: true, note: true,
           books: { include: { book: { select: { id: true, titleKh: true, titleEn: true } } } },
         },
         orderBy: { arrivedAt: "desc" },
@@ -54,8 +66,9 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminAuth = await requireAdminApi();
+  if (adminAuth.response) return adminAuth.response;
+  const { session } = adminAuth;
 
   const { id } = await params;
   const body = await req.json();
@@ -86,8 +99,9 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminAuth = await requireAdminApi();
+  if (adminAuth.response) return adminAuth.response;
+  const { session } = adminAuth;
 
   const { id } = await params;
   const activeLoans = await prisma.loan.count({

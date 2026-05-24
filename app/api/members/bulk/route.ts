@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { requireAdminApi } from "@/lib/portalAuth";
 import { z } from "zod";
 import { logActivity } from "@/lib/activityLog";
 
@@ -19,22 +19,21 @@ const bulkSchema = z.object({
   members: z.array(rowSchema).min(1).max(1000),
 });
 
-async function generateMemberId(existing: Set<string>): Promise<string> {
-  const year = new Date().getFullYear();
-  const count = await prisma.member.count();
-  let n = count + 1;
-  let candidate = `MEM-${year}-${String(n).padStart(4, "0")}`;
-  while (existing.has(candidate) || await prisma.member.findUnique({ where: { memberId: candidate } })) {
-    n++;
-    candidate = `MEM-${year}-${String(n).padStart(4, "0")}`;
+function generateMemberId(existing: Set<string>, counter: { n: number }, year: number): string {
+  let candidate = `MEM-${year}-${String(counter.n).padStart(4, "0")}`;
+  while (existing.has(candidate)) {
+    counter.n++;
+    candidate = `MEM-${year}-${String(counter.n).padStart(4, "0")}`;
   }
   existing.add(candidate);
+  counter.n++;
   return candidate;
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminAuth = await requireAdminApi();
+  if (adminAuth.response) return adminAuth.response;
+  const { session } = adminAuth;
 
   const body = await req.json();
   const parsed = bulkSchema.safeParse(body);
@@ -58,8 +57,17 @@ export async function POST(req: NextRequest) {
     for (const c of classes) classMap.set(c.name, c.id);
   }
 
-  // Track generated IDs within this batch to avoid collisions
-  const generatedIds = new Set<string>();
+  // Pre-fetch count once so generateMemberId doesn't hit DB per row
+  const year = new Date().getFullYear();
+  const dbCount = await prisma.member.count();
+  const idCounter = { n: dbCount + 1 };
+  const generatedIds = new Set<string>(
+    // Seed with all existing IDs that match this year's pattern to avoid collisions
+    (await prisma.member.findMany({
+      where: { memberId: { startsWith: `MEM-${year}-` } },
+      select: { memberId: true },
+    })).map((m) => m.memberId)
+  );
   let created = 0;
   let skipped = 0;
   const errors: string[] = [];
@@ -80,7 +88,7 @@ export async function POST(req: NextRequest) {
     try {
       const memberId = row.memberId && !existingIds.has(row.memberId)
         ? row.memberId
-        : await generateMemberId(generatedIds);
+        : generateMemberId(generatedIds, idCounter, year);
 
       if (row.memberId) existingIds.add(row.memberId);
 

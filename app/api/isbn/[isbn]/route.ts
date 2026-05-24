@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { requireAdminApi } from "@/lib/portalAuth";
 
 interface OpenLibraryBook {
   title?: string;
@@ -13,8 +13,9 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ isbn: string }> }
 ) {
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminAuth = await requireAdminApi();
+  if (adminAuth.response) return adminAuth.response;
+  const { session } = adminAuth;
 
   const { isbn } = await params;
   const clean = isbn.replace(/[^0-9X]/gi, "");
