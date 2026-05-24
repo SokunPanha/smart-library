@@ -1,10 +1,5 @@
-import { redirect } from "next/navigation";
+import LandingPage from "@/components/portal/LandingPage";
 
-export default async function LocaleRootPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
-  redirect(`/${locale}/login`);
+export default function LocaleRootPage() {
+  return <LandingPage />;
 }

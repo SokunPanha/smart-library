@@ -62,11 +62,9 @@ export default function PortalCardPage() {
         {/* Header band */}
         <div className="bg-gradient-to-r from-blue-700 to-blue-500 px-5 pt-6 pb-10 relative">
           <div className="flex items-center gap-2">
-            <img
-              src="/LibraCore.png"
-              alt="LibraCore"
-              className="w-6 h-6 object-contain brightness-0 invert opacity-90"
-            />
+            <div className="w-7 h-7 rounded-md bg-white flex items-center justify-center flex-shrink-0">
+              <img src="/LibraCore.png" alt="LibraCore" className="w-5 h-5 object-contain" />
+            </div>
             <span className="text-white font-semibold text-sm tracking-wide">LibraCore</span>
           </div>
           <p className="text-blue-200 text-xs mt-0.5">Library Member Card</p>

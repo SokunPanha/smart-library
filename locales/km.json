@@ -965,6 +965,25 @@
       "colPhone": "ទូរស័ព្ទ",
       "colType": "ប្រភេទ",
       "colDate": "ថ្ងៃចុះឈ្មោះ"
+    },
+    "landing": {
+      "subtitle": "ប្រព័ន្ធព័ត៌មានសមាជិក",
+      "feature1": "រក្សាទំព័រសៀវភៅ",
+      "feature1Icon": "📚",
+      "feature2": "តាមដានការខ្ចី និងប្រាក់ពិន័យ",
+      "feature2Icon": "📋",
+      "feature3": "មើលកាតសមាជិកឌីជីថល",
+      "feature3Icon": "🪪",
+      "feature4": "ពិនិត្យប្រវត្តិចូលបណ្ណាល័យ",
+      "feature4Icon": "🏛️",
+      "installBtn": "ទាញយកកម្មវិធី",
+      "installedMsg": "កម្មវិធីបានដំឡើងរួច! បើកវាពី Home Screen។",
+      "iosTitle": "របៀបដំឡើងនៅ iPhone / iPad:",
+      "iosStep1": "ចុចប៊ូតុង Share ខាងក្រោម",
+      "iosStep2": "រំកិលចុះក្រោម ហើយចុច \"Add to Home Screen\"",
+      "iosStep3": "ចុច \"Add\" ដើម្បីបញ្ជាក់",
+      "desktopHint": "សូមបើកទំព័រនេះនៅលើទូរស័ព្ទ ដើម្បីដំឡើងកម្មវិធី។",
+      "continueWeb": "បន្តនៅក្នុង Browser"
     }
   }
 }

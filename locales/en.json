@@ -965,6 +965,25 @@
       "colPhone": "Phone",
       "colType": "Type",
       "colDate": "Registered"
+    },
+    "landing": {
+      "subtitle": "Member Portal",
+      "feature1": "Browse the book catalog",
+      "feature1Icon": "📚",
+      "feature2": "Track your loans & fines",
+      "feature2Icon": "📋",
+      "feature3": "View your digital member card",
+      "feature3Icon": "🪪",
+      "feature4": "Check your library visits",
+      "feature4Icon": "🏛️",
+      "installBtn": "Install App",
+      "installedMsg": "App installed! Open it from your home screen.",
+      "iosTitle": "How to install on iPhone / iPad:",
+      "iosStep1": "Tap the Share button at the bottom",
+      "iosStep2": "Scroll down and tap \"Add to Home Screen\"",
+      "iosStep3": "Tap \"Add\" to confirm",
+      "desktopHint": "Open this page on your mobile device to install the app.",
+      "continueWeb": "Continue in browser"
     }
   }
 }
